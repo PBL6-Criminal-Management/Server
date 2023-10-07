@@ -64,7 +64,7 @@ namespace Infrastructure
                     UserName = "superadmin",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
-                    CreatedOn = DateTime.Now,
+                    CreatedAt = DateTime.Now,
                     IsActive = true
                 };
                 var superUserInDb = await _userManager.FindByNameAsync(superUser.UserName);

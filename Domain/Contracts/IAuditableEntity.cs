@@ -8,11 +8,11 @@
     {
         string? CreatedBy { get; set; }
 
-        DateTime CreatedOn { get; set; }
+        DateTime CreatedAt { get; set; }
 
-        string? LastModifiedBy { get; set; }
+        string? UpdateBy { get; set; }
 
-        DateTime? LastModifiedOn { get; set; }
+        DateTime? UpdateAt { get; set; }
 
         bool IsDeleted { get; set; }
     }
