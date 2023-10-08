@@ -10,9 +10,9 @@
 
         DateTime CreatedAt { get; set; }
 
-        string? UpdateBy { get; set; }
+        string? UpdatedBy { get; set; }
 
-        DateTime? UpdateAt { get; set; }
+        DateTime? UpdatedAt { get; set; }
 
         bool IsDeleted { get; set; }
     }

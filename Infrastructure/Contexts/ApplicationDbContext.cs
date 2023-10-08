@@ -56,8 +56,8 @@ namespace Infrastructure.Contexts
                         break;
 
                     case EntityState.Modified:
-                        entry.Entity.UpdateAt = _dateTimeService.NowUtc;
-                        entry.Entity.UpdateBy = entry.Entity.CreatedBy = string.IsNullOrEmpty(_currentUserService.UserName) ? "System" : _currentUserService.UserName;
+                        entry.Entity.UpdatedAt = _dateTimeService.NowUtc;
+                        entry.Entity.UpdatedBy = entry.Entity.CreatedBy = string.IsNullOrEmpty(_currentUserService.UserName) ? "System" : _currentUserService.UserName;
                         break;
                 }
             }
@@ -115,6 +115,39 @@ namespace Infrastructure.Contexts
             {
                 entity.ToTable("UserTokens", "Identity");
             });
+
+            builder.Entity<WantedCriminal>()
+                .HasOne(wt => wt.Criminal)
+                .WithMany(cr => cr.WantedCriminals)
+                .HasForeignKey(wt => wt.CriminalId);
+            builder.Entity<CriminalImage>()
+                .HasOne(cri => cri.Criminal)
+                .WithMany(cr => cr.CriminalImages)
+                .HasForeignKey(cri => cri.CriminalId);
+            builder.Entity<CaseImage>()
+                .HasOne(ci => ci.Case)
+                .WithMany(c => c.CaseImages)
+                .HasForeignKey(ci => ci.CaseId);
+            builder.Entity<CaseCriminal>()
+                .HasOne(ccr => ccr.Case)
+                .WithMany(c => c.CaseCriminals)
+                .HasForeignKey(ccr => ccr.CaseId);
+            builder.Entity<CaseCriminal>()
+                .HasOne(ccr => ccr.Criminal)
+                .WithMany(cr => cr.CaseCriminals)
+                .HasForeignKey(ccr => ccr.CriminalId);
+            builder.Entity<Evidence>()
+                .HasOne(e => e.Case)
+                .WithMany(c => c.Evidences)
+                .HasForeignKey(e => e.CaseId);
+            builder.Entity<ReportingImage>()
+                .HasOne(ri => ri.CrimeReporting)
+                .WithMany(cr => cr.ReportingImages)
+                .HasForeignKey(ri => ri.ReportingId);
+            builder.Entity<Witness>()
+                .HasOne(w => w.Case)
+                .WithMany(c => c.Witnesses)
+                .HasForeignKey(w => w.CaseId);
         }
     }
 }

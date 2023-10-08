@@ -7,8 +7,12 @@ namespace Domain.Entities.CaseCriminal
     public class CaseCriminal : AuditableBaseEntity<long>
     {
         [Column("criminal_id", TypeName = "bigint")]
-        public long? CriminalId { get; set; }
+        public long CriminalId { get; set; }
         [Column("case_id", TypeName = "bigint")]
-        public long? CaseId { get; set; }
+        public long CaseId { get; set; }
+
+        //Relationship
+        public virtual Domain.Entities.Case.Case Case { get; set; }
+        public virtual Domain.Entities.Criminal.Criminal Criminal { get; set; }
     }
 }
