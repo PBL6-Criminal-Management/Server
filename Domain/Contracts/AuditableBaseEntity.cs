@@ -5,11 +5,11 @@ namespace Domain.Contracts
     public class AuditableBaseEntity<TId> : IAuditableEntity<TId>
     {
         public TId Id { get; set; } = default!;
-        [Column("created_by", TypeName = "nvarchar")]
+        [Column("created_by", TypeName = "nvarchar(max)")]
         public string? CreatedBy { get; set; }
         [Column("created_at", TypeName = "datetime")]
         public DateTime CreatedAt { get; set; }
-        [Column("updated_by", TypeName = "nvarchar")]
+        [Column("updated_by", TypeName = "nvarchar(max)")]
         public string? UpdatedBy { get; set; }
         [Column("updated_at", TypeName = "datetime")]
         public DateTime? UpdatedAt { get; set; }
