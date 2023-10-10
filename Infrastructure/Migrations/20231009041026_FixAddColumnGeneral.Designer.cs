@@ -4,6 +4,7 @@ using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231009041026_FixAddColumnGeneral")]
+    partial class FixAddColumnGeneral
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,20 +35,16 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("created_by");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_deleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -56,12 +55,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -88,36 +85,29 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("created_by");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Group")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("group");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_deleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -136,20 +126,17 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("AvatarUrl")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("avatar_url");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("created_by");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -159,16 +146,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("full_name");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_active");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_deleted");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -194,12 +178,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("RefreshToken")
-                        .HasColumnType("varchar(max)")
-                        .HasColumnName("refresh_token");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("datetime")
-                        .HasColumnName("refresh_token_expiry_time");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -208,12 +190,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -250,7 +230,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("EndDate")
@@ -286,7 +266,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -311,7 +291,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<long>("CriminalId")
@@ -327,7 +307,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -356,7 +336,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<string>("FileName")
@@ -378,7 +358,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -406,7 +386,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<bool>("IsDeleted")
@@ -445,7 +425,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -494,7 +474,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<string>("CurrentAccommodation")
@@ -622,7 +602,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Vehicles")
@@ -651,7 +631,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<long>("CriminalId")
@@ -677,7 +657,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -704,7 +684,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
@@ -725,7 +705,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -748,7 +728,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<string>("FileName")
@@ -774,7 +754,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -811,7 +791,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Email")
@@ -846,7 +826,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.Property<bool?>("gender")
@@ -871,7 +851,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<long>("CriminalId")
@@ -896,7 +876,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.Property<DateTime>("WantedDecisionDay")
@@ -946,7 +926,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("Date")
@@ -977,7 +957,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
