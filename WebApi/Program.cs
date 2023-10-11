@@ -57,6 +57,8 @@ try
 
     app.UseErrorHandlingMiddleware();
 
+    app.UseHttpsRedirection();
+
     app.UseAuthentication();
 
     app.UseAuthorization();
