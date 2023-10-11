@@ -2,7 +2,8 @@
 {
     public class RoleConstants
     {
-        public const string AdministratorRole = "Superadmin";
-        public const string EmployeeRole = "Employee";
+        public const string AdministratorRole = "Admin";
+        public const string OfficerRole = "Officer";
+        public const string InvestigatorRole = "Investigator";
     }
 }

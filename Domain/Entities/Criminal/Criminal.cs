@@ -1,5 +1,4 @@
 ﻿using Domain.Contracts;
-using Domain.Entities.WantedCriminal;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Criminal
@@ -8,47 +7,47 @@ namespace Domain.Entities.Criminal
     public class Criminal : AuditableBaseEntity<long>
     {
         [Column("name", TypeName = "nvarchar(100)")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         [Column("another_name", TypeName = "nvarchar(100)")]
-        public string AnotherName { get; set; }
-        [Column("CCCD/CMND", TypeName = "varchar(12)")]
-        public string CCCD_CMND { get; set; }
+        public string AnotherName { get; set; } = null!;
+        [Column("CMND/CCCD", TypeName = "varchar(12)")]
+        public string CMND_CCCD { get; set; } = null!;
         [Column("gender", TypeName = "bit")]
         public bool? Gender { get; set; }
-        [Column("birthday", TypeName = "datetime")]
-        public DateTime Birthday { get; set; }
+        [Column("birthday", TypeName = "date")]
+        public DateOnly Birthday { get; set; }
         [Column("phone_number", TypeName = "varchar(15)")]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = null!;
         [Column("phone_model", TypeName = "nvarchar(100)")]
-        public string PhoneModel { get; set; }
+        public string PhoneModel { get; set; } = null!;
         [Column("career_and_workplace", TypeName = "nvarchar(300)")]
-        public string CareerAndWorkplace { get; set; }
+        public string CareerAndWorkplace { get; set; } = null!;
         [Column("characteristics", TypeName = "nvarchar(500)")]
-        public string Characteristics { get; set; }
+        public string Characteristics { get; set; } = null!;
         [Column("home_town", TypeName = "nvarchar(200)")]
-        public string HomeTown { get; set; }
+        public string HomeTown { get; set; } = null!;
         [Column("ethnicity", TypeName = "nvarchar(50)")]
-        public string Ethnicity { get; set; }
+        public string Ethnicity { get; set; } = null!;
         [Column("religion", TypeName = "nvarchar(50)")]
         public string? Religion { get; set; }
         [Column("nationality", TypeName = "nvarchar(50)")]
-        public string Nationality { get; set; }
+        public string Nationality { get; set; } = null!;
         [Column("father_name", TypeName = "nvarchar(100)")]
-        public string FatherName { get; set; }
-        [Column("father_CCCD/CMND", TypeName = "varchar(12)")]
-        public string Father_CCCD_CMND { get; set; }
-        [Column("father_birthday", TypeName = "datetime")]
-        public DateTime FatherBirthday { get; set; }
+        public string FatherName { get; set; } = null!;
+        [Column("father_CMND/CCCD", TypeName = "varchar(12)")]
+        public string Father_CMND_CCCD { get; set; } = null!;
+        [Column("father_birthday", TypeName = "date")]
+        public DateOnly FatherBirthday { get; set; }
         [Column("mother_name", TypeName = "nvarchar(100)")]
-        public string MotherName { get; set; }
-        [Column("mother_CCCD/CMND", TypeName = "varchar(12)")]
-        public string Mother_CCCD_CMND { get; set; }
-        [Column("mother_birthday", TypeName = "datetime")]
-        public DateTime MotherBirthday { get; set; }
+        public string MotherName { get; set; } = null!;
+        [Column("mother_CMND/CCCD", TypeName = "varchar(12)")]
+        public string Mother_CMND_CCCD { get; set; } = null!;
+        [Column("mother_birthday", TypeName = "date")]
+        public DateOnly MotherBirthday { get; set; }
         [Column("permanent_residence", TypeName = "nvarchar(200)")]
-        public string PermanentResidence { get; set; }
+        public string PermanentResidence { get; set; } = null!;
         [Column("current_accommodation", TypeName = "nvarchar(200)")]
-        public string CurrentAccommodation { get; set; }
+        public string CurrentAccommodation { get; set; } = null!;
         [Column("entry_and_exit_information", TypeName = "nvarchar(500)")]
         public string? EntryAndExitInformation { get; set; }
         [Column("facebook", TypeName = "nvarchar(100)")]
@@ -67,18 +66,18 @@ namespace Domain.Entities.Criminal
         public string? DangerousLevel { get; set; }
         [Column("approach_arrange", TypeName = "text")]
         public string? ApproachArrange { get; set; }
-        [Column("date_of_most_recent_crime", TypeName = "datetime")]
-        public DateTime DateOfMostRecentCrime { get; set; }
-        [Column("release_date", TypeName = "datetime")]
-        public DateTime? ReleaseDate { get; set; }
+        [Column("date_of_most_recent_crime", TypeName = "date")]
+        public DateOnly DateOfMostRecentCrime { get; set; }
+        [Column("release_date", TypeName = "date")]
+        public DateOnly? ReleaseDate { get; set; }
         [Column("status", TypeName = "smallint")]
-        public int Status { get; set; }
+        public short Status { get; set; }
         [Column("other_information", TypeName = "nvarchar(500)")]
         public string? OtherInformation { get; set; }
 
         // Relationship
-        public virtual ICollection<Domain.Entities.WantedCriminal.WantedCriminal> WantedCriminals { get; set; }
-        public virtual ICollection<Domain.Entities.CriminalImage.CriminalImage> CriminalImages { get; set;}
-        public virtual ICollection<Domain.Entities.CaseCriminal.CaseCriminal> CaseCriminals { get; set; }
+        public virtual ICollection<Domain.Entities.WantedCriminal.WantedCriminal>? WantedCriminals { get; set; }
+        public virtual ICollection<Domain.Entities.CriminalImage.CriminalImage>? CriminalImages { get; set;}
+        public virtual ICollection<Domain.Entities.CaseCriminal.CaseCriminal> CaseCriminals { get; set; } = null!;
     }
 }

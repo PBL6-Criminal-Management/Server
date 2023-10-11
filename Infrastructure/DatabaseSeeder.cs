@@ -44,24 +44,36 @@ namespace Infrastructure
                     _logger.LogInformation("Seeded Administrator Role.");
                 }
 
-                var employeeRole = new AppRole()
+                var officerRole = new AppRole()
                 {
-                    Name = RoleConstants.EmployeeRole,
-                    Description = "Employee role with custom permission"
+                    Name = RoleConstants.OfficerRole,
+                    Description = "Officer role with custom permission"
                 };
-                var employeeRoleInDb = await _roleManager.FindByNameAsync(RoleConstants.EmployeeRole);
-                if (employeeRoleInDb == null)
+                var officerRoleInDb = await _roleManager.FindByNameAsync(RoleConstants.OfficerRole);
+                if (officerRoleInDb == null)
                 {
-                    await _roleManager.CreateAsync(employeeRole);
-                    _logger.LogInformation("Seeded Employee Role.");
+                    await _roleManager.CreateAsync(officerRole);
+                    _logger.LogInformation("Seeded Officer Role.");
+                }
+
+                var investigatorRole = new AppRole()
+                {
+                    Name = RoleConstants.InvestigatorRole,
+                    Description = "Investigator role with custom permission"
+                };
+                var investigatorRoleInDb = await _roleManager.FindByNameAsync(RoleConstants.InvestigatorRole);
+                if (investigatorRoleInDb == null)
+                {
+                    await _roleManager.CreateAsync(investigatorRole);
+                    _logger.LogInformation("Seeded Investigator Role.");
                 }
 
                 //Check if User Exists
                 var superUser = new AppUser()
                 {
-                    FullName = "Admin",
+                    FullName = "Superadmin",
                     Email = "noreply.criminalmanagement@gmail.com",
-                    UserName = "superadmin",
+                    UserName = UserConstants.DefaultUsername,
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedAt = DateTime.Now,

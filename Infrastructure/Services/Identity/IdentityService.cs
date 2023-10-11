@@ -52,7 +52,7 @@ namespace Infrastructure.Services.Identity
                 RefreshToken = user.RefreshToken,
                 AvatarUrl = user.AvatarUrl!,
                 Email = user.Email,
-                EmployeeNo = user.UserName,
+                UserName = user.UserName,
                 Role = roles.First(),
                 RefreshTokenExpiryTime = user.RefreshTokenExpiryTime
             };
@@ -84,7 +84,7 @@ namespace Infrastructure.Services.Identity
                 RefreshToken = user.RefreshToken,
                 AvatarUrl = user.AvatarUrl!,
                 Email = user.Email,
-                EmployeeNo = user.UserName,
+                UserName = user.UserName,
                 Role = roles.First(),
                 RefreshTokenExpiryTime = user.RefreshTokenExpiryTime
             };

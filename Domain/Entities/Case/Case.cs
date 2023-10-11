@@ -15,16 +15,16 @@ namespace Domain.Entities.Case
         [Column("end_date",TypeName = "datetime")]
         public DateTime? EndDate { get; set; }
         [Column("type_of_violation", TypeName = "smallint")]
-        public int TypeOfViolation { get; set; }
+        public short TypeOfViolation { get; set; }
         [Column("status", TypeName = "smallint")]
-        public int Status { get; set; }
+        public short Status { get; set; }
         [Column("charge", TypeName = "nvarchar(100)")]
-        public string Charge { get; set; }
+        public string Charge { get; set; } = null!;
 
         //Relationship
-        public virtual ICollection<Domain.Entities.CaseImage.CaseImage> CaseImages { get; set; }
-        public virtual ICollection<Domain.Entities.CaseCriminal.CaseCriminal> CaseCriminals { get; set; }
-        public virtual ICollection<Domain.Entities.Evidence.Evidence> Evidences { get; set; }
-        public virtual ICollection<Domain.Entities.Witness.Witness> Witnesses { get; set; }
+        public virtual ICollection<Domain.Entities.CaseImage.CaseImage>? CaseImages { get; set; }
+        public virtual ICollection<Domain.Entities.CaseCriminal.CaseCriminal>? CaseCriminals { get; set; }
+        public virtual ICollection<Domain.Entities.Evidence.Evidence>? Evidences { get; set; }
+        public virtual ICollection<Domain.Entities.Witness.Witness>? Witnesses { get; set; }
     }
 }

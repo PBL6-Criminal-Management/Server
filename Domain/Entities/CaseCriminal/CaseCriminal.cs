@@ -12,7 +12,7 @@ namespace Domain.Entities.CaseCriminal
         public long CaseId { get; set; }
 
         //Relationship
-        public virtual Domain.Entities.Case.Case Case { get; set; }
-        public virtual Domain.Entities.Criminal.Criminal Criminal { get; set; }
+        public virtual Domain.Entities.Case.Case Case { get; set; } = null!;
+        public virtual Domain.Entities.Criminal.Criminal Criminal { get; set; } = null!;
     }
 }
