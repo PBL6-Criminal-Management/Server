@@ -1,6 +1,5 @@
 ﻿using Application.Dtos.Requests.Account;
 using Application.Interfaces.Services.Account;
-using Domain.Constants;
 using Domain.Entities;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Identity;
@@ -16,9 +15,9 @@ namespace Infrastructure.Services.Identity
             _userManager = userManager;
         }
 
-        public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest model, string employeeNo)
+        public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest model, string userName)
         {
-            var user = await this._userManager.FindByNameAsync(employeeNo);
+            var user = await this._userManager.FindByNameAsync(userName);
             if (user == null)
             {
                 return await Result.FailAsync("Không tìm thấy người dùng");
@@ -39,10 +38,10 @@ namespace Infrastructure.Services.Identity
             var user = await _userManager.FindByNameAsync(userName);
             return user != null;
         }
-        public async Task<bool> AddAcount(AppUser user, string password)
+        public async Task<bool> AddAcount(AppUser user, string password, string role)
         {
             await _userManager.CreateAsync(user, password);
-            var result = await _userManager.AddToRoleAsync(user, RoleConstants.EmployeeRole);
+            var result = await _userManager.AddToRoleAsync(user, role);
             return result.Succeeded;
         }
     }

@@ -7,21 +7,21 @@ namespace Domain.Entities.Witness
     public class Witness : AuditableBaseEntity<long>
     {
         [Column("name", TypeName = "nvarchar(100)")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         [Column("CMND/CCCD", TypeName = "varchar(12)")]
-        public string CMND_CCCD { get; set; }
+        public string CMND_CCCD { get; set; } = null!;
         [Column("phone_number", TypeName = "varchar(15)")]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = null!;
         [Column("address", TypeName = "nvarchar(200)")]
-        public string Address { get; set; }
+        public string Address { get; set; } = null!;
         [Column("testimony", TypeName = "text")]
-        public string Testimony { get; set; }
+        public string Testimony { get; set; } = null!;
         [Column("date", TypeName = "datetime")]
         public DateTime Date { get; set; }
         [Column("case_id", TypeName = "bigint")]
         public long CaseId { get; set; }
 
         //Relationship
-        public virtual Domain.Entities.Case.Case Case { get; set; }
+        public virtual Domain.Entities.Case.Case Case { get; set; } = null!;
     }
 }

@@ -18,7 +18,7 @@ namespace Infrastructure.Services
         public async Task<Result<UploadResponse>> UploadAsync(UploadRequest request)
         {
             var fileName = $"{DateTime.Now:yyyyMMddHHmmsss}_{request.File.FileName}";
-            var folderName = Path.Combine("Files", request.SaveFolderName);
+            var folderName = (request.SaveFolderName != null)? Path.Combine("Files", request.SaveFolderName) : "Files";
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
             var isImage = CheckFilesIsImage(request);
             var isVideo = CheckFilesIsVideo(request);

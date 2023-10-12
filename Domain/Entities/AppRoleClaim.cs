@@ -7,15 +7,15 @@ namespace Domain.Entities
     [Table("app_role_claim")]
     public class AppRoleClaim : IdentityRoleClaim<string>, IAuditableEntity<int>
     {
-        [Column("description", TypeName = "nvarchar(max)")]
+        [Column("description", TypeName = "nvarchar(2000)")]
         public string? Description { get; set; }
-        [Column("group", TypeName = "nvarchar(max)")]
+        [Column("group", TypeName = "nvarchar(300)")]
         public string? Group { get; set; }
-        [Column("created_by", TypeName = "nvarchar(max)")]
+        [Column("created_by", TypeName = "nvarchar(100)")]
         public string? CreatedBy { get; set; }
         [Column("created_at", TypeName = "datetime")]
         public DateTime CreatedAt { get; set; }
-        [Column("updated_by", TypeName = "nvarchar(max)")]
+        [Column("updated_by", TypeName = "nvarchar(100)")]
         public string? UpdatedBy { get; set; }
         [Column("updated_at", TypeName = "datetime")]
         public DateTime? UpdatedAt { get; set; }
