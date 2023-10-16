@@ -1,7 +1,6 @@
 ﻿using Application.Interfaces.Services;
 using Hangfire;
 using Microsoft.Extensions.FileProviders;
-using Swashbuckle.AspNetCore.SwaggerUI;
 using WebApi.Filters;
 using WebApi.Middlewares;
 
@@ -15,11 +14,6 @@ namespace WebApi.Extensions
             app.UseSwaggerUI(x =>
             {
                 x.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanArchitecture.Source.WebApi");
-
-                // Set the SwaggerUI to open automatically
-                x.RoutePrefix = "swagger" ;
-                x.DefaultModelsExpandDepth(-1);
-                x.DocExpansion(DocExpansion.List);
             });
         }
 

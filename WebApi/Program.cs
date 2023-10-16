@@ -2,7 +2,7 @@ using Application.Extensions;
 using Infrastructure.Extensions;
 using Serilog;
 using Shared.Extensions;
-using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using WebApi.Extensions;
 
@@ -12,22 +12,30 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 Log.Information($"Start {builder.Environment.ApplicationName} up");
 
-IPHostEntry host;
-string localIP = "?";
-host = Dns.GetHostEntry(Dns.GetHostName());
+string wifiAddress = "localhost";
 
-foreach (IPAddress ip in host.AddressList)
+if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
 {
-    if (ip.AddressFamily == AddressFamily.InterNetwork)
+    // Get all available network interfaces
+    NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+    foreach (NetworkInterface networkInterface in interfaces)
     {
-        localIP = ip.ToString();
-        if (localIP == "127.0.0.1" || localIP == "::1")
+        if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && networkInterface.OperationalStatus == OperationalStatus.Up)
         {
-            builder.WebHost.UseUrls($"https://{localIP}:1234", $"http://{localIP}:5678");
+            IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+            foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
+            {
+                if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    wifiAddress = ip.Address.ToString();
+                }
+            }
         }
-        break;
     }
 }
+
+builder.WebHost.UseUrls($"https://{wifiAddress}:1234", $"http://{wifiAddress}:5678"); //set server listen on wifi address
 
 // Add services to the container.
 try
