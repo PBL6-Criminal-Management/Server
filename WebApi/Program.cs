@@ -2,6 +2,8 @@ using Application.Extensions;
 using Infrastructure.Extensions;
 using Serilog;
 using Shared.Extensions;
+using System.Net;
+using System.Net.Sockets;
 using WebApi.Extensions;
 
 Log.Logger = new LoggerConfiguration()
@@ -9,6 +11,24 @@ Log.Logger = new LoggerConfiguration()
                  .CreateBootstrapLogger();
 var builder = WebApplication.CreateBuilder(args);
 Log.Information($"Start {builder.Environment.ApplicationName} up");
+
+IPHostEntry host;
+string localIP = "?";
+host = Dns.GetHostEntry(Dns.GetHostName());
+
+foreach (IPAddress ip in host.AddressList)
+{
+    if (ip.AddressFamily == AddressFamily.InterNetwork)
+    {
+        localIP = ip.ToString();
+        if (localIP == "127.0.0.1" || localIP == "::1")
+        {
+            builder.WebHost.UseUrls($"https://{localIP}:1234", $"http://{localIP}:5678");
+        }
+        break;
+    }
+}
+
 // Add services to the container.
 try
 {
@@ -56,6 +76,8 @@ try
     //app.UseHangfireExtension();
 
     app.UseErrorHandlingMiddleware();
+
+    //app.UseHttpsRedirection();
 
     app.UseAuthentication();
 
