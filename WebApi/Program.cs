@@ -12,10 +12,10 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 Log.Information($"Start {builder.Environment.ApplicationName} up");
 
-string wifiAddress = "localhost";
-
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
 {
+    string wifiAddress = "localhost";
+
     // Get all available network interfaces
     NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 
@@ -33,9 +33,9 @@ if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development
             }
         }
     }
+    builder.WebHost.UseUrls($"https://{wifiAddress}:1234", $"http://{wifiAddress}:5678"); //set server listen on wifi address
+    Console.WriteLine("SWAGGER PATH: " + $"https://{wifiAddress}:1234/swagger/index.html" + " OR " + $"http://{wifiAddress}:5678/swagger/index.html");
 }
-
-builder.WebHost.UseUrls($"https://{wifiAddress}:1234", $"http://{wifiAddress}:5678"); //set server listen on wifi address
 
 // Add services to the container.
 try
@@ -55,6 +55,8 @@ try
     builder.Services.AddApiversioningExtension();
 
     builder.Services.AddCorsExtensions();
+
+    builder.Services.AddRepositories();
 
     builder.Services.AddIdentityServices();
 

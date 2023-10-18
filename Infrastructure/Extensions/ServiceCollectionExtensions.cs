@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using Microsoft.Extensions.Logging;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace Infrastructure.Extensions
@@ -41,7 +40,7 @@ namespace Infrastructure.Extensions
                                 mySqlOptions.SchemaBehavior(MySqlSchemaBehavior.Ignore)
                     .EnableRetryOnFailure())
                     //.LogTo(Console.WriteLine, LogLevel.Information)
-                    //.EnableSensitiveDataLogging()
+                    .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
             );
 
@@ -59,5 +58,11 @@ namespace Infrastructure.Extensions
             services.AddScoped<IUploadService, UploadService>();
 
         }
+
+        public static void AddRepositories(this IServiceCollection services)
+        {
+            services.AddAccountRepository();
+        }
+
     }
 }

@@ -7,13 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Features\**" />
 	  <Compile Remove="Interfaces\Employee\**" />
 	  <Compile Remove="Mappings\**" />
-	  <EmbeddedResource Remove="Features\**" />
 	  <EmbeddedResource Remove="Interfaces\Employee\**" />
 	  <EmbeddedResource Remove="Mappings\**" />
-	  <None Remove="Features\**" />
 	  <None Remove="Interfaces\Employee\**" />
 	  <None Remove="Mappings\**" />
 	</ItemGroup>

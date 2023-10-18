@@ -7,6 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Repositories\Employee\**" />
+	  <EmbeddedResource Remove="Repositories\Employee\**" />
+	  <None Remove="Repositories\Employee\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="EPPlus" Version="6.1.2" />
@@ -31,7 +37,6 @@
 
 	<ItemGroup>
 		<Folder Include="Migrations\" />
-		<Folder Include="Repositories\Employee\" />
 	</ItemGroup>
 
 </Project>

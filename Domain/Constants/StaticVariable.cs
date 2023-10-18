@@ -10,5 +10,8 @@
         public const string ADD = "Add";
         public const string EDIT = "Edit";
         public const string DELETE = "Delete";
+
+        //Messages
+        public const string NOT_FOUND_MSG = "Not found match data!";
     }
 }
