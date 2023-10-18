@@ -73,16 +73,17 @@ namespace Infrastructure
                 {
                     FullName = "Superadmin",
                     Email = "noreply.criminalmanagement@gmail.com",
-                    UserName = UserConstants.DefaultUsername,
+                    UserName = UserConstants.AdminUsername,
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedAt = DateTime.Now,
-                    IsActive = true
+                    IsActive = true,
+                    UserId = 0
                 };
                 var superUserInDb = await _userManager.FindByNameAsync(superUser.UserName);
                 if (superUserInDb == null)
                 {
-                    await _userManager.CreateAsync(superUser, UserConstants.DefaultPassword);
+                    await _userManager.CreateAsync(superUser, UserConstants.AdminPassword);
                     var result = await _userManager.AddToRoleAsync(superUser, RoleConstants.AdministratorRole);
                     if (result.Succeeded)
                     {
@@ -92,7 +93,65 @@ namespace Infrastructure
                     {
                         foreach (var error in result.Errors)
                         {
-                            _logger.LogError(error.Description);
+                            _logger.LogError(error.Description + "\n\n\n");
+                        }
+                    }
+                }
+
+                var investigatorUser = new AppUser()
+                {
+                    FullName = "Nguyen Van A",
+                    Email = "vana@gmail.com",
+                    UserName = UserConstants.InvestigatorUsername,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true,
+                    UserId = 0
+                };
+                var investigatorUserInDb = await _userManager.FindByNameAsync(investigatorUser.UserName);
+                if (investigatorUserInDb == null)
+                {
+                    await _userManager.CreateAsync(investigatorUser, UserConstants.InvestigatorPassword);
+                    var result = await _userManager.AddToRoleAsync(investigatorUser, RoleConstants.InvestigatorRole);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Seeded Default Investigator User.");
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            _logger.LogError(error.Description + "\n\n\n");
+                        }
+                    }
+                }
+
+                var officierUser = new AppUser()
+                {
+                    FullName = "Tran Thi B",
+                    Email = "thib@gmail.com",
+                    UserName = UserConstants.OfficierUsername,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true,
+                    UserId = 0
+                };
+                var officierUserInDb = await _userManager.FindByNameAsync(officierUser.UserName);
+                if (officierUserInDb == null)
+                {
+                    await _userManager.CreateAsync(officierUser, UserConstants.OfficierPassword);
+                    var result = await _userManager.AddToRoleAsync(officierUser, RoleConstants.OfficerRole);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Seeded Default Officier User.");
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            _logger.LogError(error.Description + "\n\n\n");
                         }
                     }
                 }

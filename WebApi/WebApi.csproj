@@ -7,6 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Controllers\V1\Employee\**" />
+	  <Content Remove="Controllers\V1\Employee\**" />
+	  <EmbeddedResource Remove="Controllers\V1\Employee\**" />
+	  <None Remove="Controllers\V1\Employee\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Hangfire.Core" Version="1.8.5" />
 	</ItemGroup>
 	<ItemGroup>
@@ -38,9 +45,6 @@
 		<ProjectReference Include="..\Application\Application.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 		<ProjectReference Include="..\Shared\Shared.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Controllers\V1\Employee\" />
 	</ItemGroup>
 
 </Project>

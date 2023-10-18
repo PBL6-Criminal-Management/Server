@@ -11,6 +11,8 @@ namespace Domain.Entities
         public string? FullName { get; set; }
         [Column("avatar_url", TypeName = "nvarchar(500)")]
         public string? AvatarUrl { get; set; }
+        [Column("user_id", TypeName = "bigint")]
+        public long UserId { get; set; }
         [Column("is_active", TypeName = "bit")]
         public bool IsActive { get; set; }
         [Column("refresh_token", TypeName = "varchar(2000)")]
@@ -27,5 +29,10 @@ namespace Domain.Entities
         public DateTime? UpdatedAt { get; set; }
         [Column("is_deleted", TypeName = "bit")]
         public bool IsDeleted { get; set; }
+
+        public static implicit operator global::System.String(AppUser v)
+        {
+            throw new global::System.NotImplementedException();
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace Domain.Entities.User
         [Column("CMND/CCCD", TypeName = "varchar(12)")]
         public string CMND_CCCD { get; set; } = null!;
         [Column("gender", TypeName = "bit")]
-        public bool? gender { get; set; }
+        public bool? Gender { get; set; }
         [Column("birthday", TypeName = "date")]
         public DateOnly? Birthday { get; set; }
         [Column("phone_number", TypeName = "varchar(15)")]
@@ -22,7 +22,5 @@ namespace Domain.Entities.User
         public string Email { get; set; } = null!;
         [Column("image", TypeName = "varchar(500)")]
         public string? Image { get; set; }
-        [Column("is_active", TypeName = "bit")]
-        public bool IsActive { get; set; }
     }
 }
