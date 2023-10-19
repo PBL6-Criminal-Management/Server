@@ -9,10 +9,12 @@ namespace Infrastructure.Services.Identity
     public class AccountService : IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<AppRole> _roleManager;
 
-        public AccountService(UserManager<AppUser> userManager)
+        public AccountService(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest model, string userName)
@@ -43,6 +45,25 @@ namespace Infrastructure.Services.Identity
             await _userManager.CreateAsync(user, password);
             var result = await _userManager.AddToRoleAsync(user, role);
             return result.Succeeded;
+        }
+        public async Task<string> GetRoleAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if(roles != null && roles.Count > 0)
+                    return roles.First();
+            }
+            return null;
+        }
+        public async Task<int> GetRoleIdAsync(string role)
+        {
+            if (string.IsNullOrEmpty(role)) return -1;
+            var roleId = (await _roleManager.FindByNameAsync(role))?.Id;
+            if (string.IsNullOrEmpty(roleId)) return -1;
+            return int.Parse(roleId);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Features.Account.Queries.GetById;
+﻿using Application.Features.Account.Queries.GetAll;
+using Application.Features.Account.Queries.GetById;
 using Domain.Constants;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,27 @@ namespace WebApi.Controllers.V1.Account
             return Ok(await Mediator.Send(new GetAccountByIdQuery()
             {
                 Id = id
+            }));
+        }
+        /// <summary>
+        /// Get All Account 
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        //[Authorize(Roles = RoleConstants.AdministratorRole)]
+        [HttpGet]
+        public async Task<ActionResult<Result<GetAccountByIdResponse>>> GetAllAccount([FromQuery]GetAllUserParameter parameter)
+        {
+            return Ok(await Mediator.Send(new GetAllUserQuery()
+            {
+                RoleId = parameter.RoleId,
+                Area = parameter.Area,
+                YearOfBirth = parameter.YearOfBirth,
+                IsExport = parameter.IsExport,
+                OrderBy = parameter.OrderBy,
+                Keyword = parameter.Keyword,
+                PageNumber = parameter.PageNumber,
+                PageSize = parameter.PageSize,
             }));
         }
     }
