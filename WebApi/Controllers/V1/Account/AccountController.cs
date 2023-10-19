@@ -1,4 +1,5 @@
-﻿using Application.Features.Account.Queries.GetAll;
+﻿using Application.Features.Account.Command.Delete;
+using Application.Features.Account.Queries.GetAll;
 using Application.Features.Account.Queries.GetById;
 using Domain.Constants;
 using Domain.Wrappers;
@@ -32,7 +33,7 @@ namespace WebApi.Controllers.V1.Account
         /// <returns></returns>
         //[Authorize(Roles = RoleConstants.AdministratorRole)]
         [HttpGet]
-        public async Task<ActionResult<Result<GetAccountByIdResponse>>> GetAllAccount([FromQuery]GetAllUserParameter parameter)
+        public async Task<ActionResult<PaginatedResult<GetAccountByIdResponse>>> GetAllAccount([FromQuery]GetAllUserParameter parameter)
         {
             return Ok(await Mediator.Send(new GetAllUserQuery()
             {
@@ -44,6 +45,20 @@ namespace WebApi.Controllers.V1.Account
                 Keyword = parameter.Keyword,
                 PageNumber = parameter.PageNumber,
                 PageSize = parameter.PageSize,
+            }));
+        }
+        /// <summary>
+        /// Delete user by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAccount(long id)
+        {
+            return Ok(await Mediator.Send(new DeleteAccountCommand()
+            {
+                Id = id
             }));
         }
     }

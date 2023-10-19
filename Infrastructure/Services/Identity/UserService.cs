@@ -81,5 +81,24 @@ namespace Infrastructure.Services.Identity
             }
             return await Result.FailAsync("Lỗi hệ thống");
         }
+        public async Task<IResult> DeleteUser(DeleteUserRequest request)
+        {
+            var user = _userManager.Users.Where(user => user.UserId == request.Id).FirstOrDefault();
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return await Result.FailAsync("Lỗi hệ thống");
+            }
+
+            user.IsActive = false;
+            user.IsDeleted = true;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return await Result.SuccessAsync();
+            }
+            return await Result.FailAsync("Lỗi hệ thống");
+        }
     }
 }
