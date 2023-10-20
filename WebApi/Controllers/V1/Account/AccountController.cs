@@ -17,7 +17,7 @@ namespace WebApi.Controllers.V1.Account
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<GetAccountByIdResponse>>> GetAccountById(long id)
         {
@@ -31,7 +31,7 @@ namespace WebApi.Controllers.V1.Account
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        //[Authorize(Roles = RoleConstants.AdministratorRole)]
+        [Authorize(Roles = RoleConstants.AdministratorRole)]
         [HttpGet]
         public async Task<ActionResult<PaginatedResult<GetAllUserResponse>>> GetAllAccount([FromQuery]GetAllUserQuery parameter)
         {
