@@ -33,7 +33,7 @@ namespace WebApi.Controllers.V1.Account
         /// <returns></returns>
         //[Authorize(Roles = RoleConstants.AdministratorRole)]
         [HttpGet]
-        public async Task<ActionResult<PaginatedResult<GetAccountByIdResponse>>> GetAllAccount([FromQuery]GetAllUserParameter parameter)
+        public async Task<ActionResult<PaginatedResult<GetAllUserResponse>>> GetAllAccount([FromQuery]GetAllUserParameter parameter)
         {
             return Ok(await Mediator.Send(new GetAllUserQuery()
             {

@@ -36,7 +36,7 @@ namespace Application.Features.Account.Command.Delete
                 });
                 await _accountRepository.DeleteAsync(account);
                 await _unitOfWork.Commit(cancellationToken);
-                return await Result<long>.SuccessAsync(request.Id, $"Xóa tài khoản có id {request.Id} thành công");
+                return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_USER);
             }catch (System.Exception ex)
             {
                 return await Result<long>.FailAsync(ex.Message);
