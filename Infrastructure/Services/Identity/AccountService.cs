@@ -1,6 +1,8 @@
 ﻿using Application.Dtos.Requests.Account;
 using Application.Interfaces.Services.Account;
+using Domain.Constants.Enum;
 using Domain.Entities;
+using Domain.Entities.User;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,12 +11,10 @@ namespace Infrastructure.Services.Identity
     public class AccountService : IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly RoleManager<AppRole> _roleManager;
 
-        public AccountService(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
+        public AccountService(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
         }
 
         public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest model, string userName)
@@ -46,24 +46,17 @@ namespace Infrastructure.Services.Identity
             var result = await _userManager.AddToRoleAsync(user, role);
             return result.Succeeded;
         }
-        public async Task<string> GetRoleAsync(string userId)
+        public async Task<Role> GetRoleIdAsync(long userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = _userManager.Users.Where(user => user.UserId == userId).FirstOrDefault();
 
             if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if(roles != null && roles.Count > 0)
-                    return roles.First();
+                if (roles != null && roles.Count > 0)
+                    return (Role)Enum.Parse(typeof(Role),roles.First());
             }
-            return null;
-        }
-        public async Task<int> GetRoleIdAsync(string role)
-        {
-            if (string.IsNullOrEmpty(role)) return -1;
-            var roleId = (await _roleManager.FindByNameAsync(role))?.Id;
-            if (string.IsNullOrEmpty(roleId)) return -1;
-            return int.Parse(roleId);
+            return Role.None;
         }
     }
 }

@@ -3,6 +3,7 @@ using Application.Dtos.Requests.SendEmail;
 using Application.Exceptions;
 using Application.Interfaces.Services;
 using Application.Interfaces.Services.Identity;
+using Domain.Constants;
 using Domain.Entities;
 using Domain.Wrappers;
 using Hangfire;
@@ -37,7 +38,7 @@ namespace Infrastructure.Services.Identity
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
             {
                 // Don't reveal that the user does not exist or is not confirmed
-                throw new ApiException("SYS002", "Email Not Found.");
+                throw new ApiException("SYS002", StaticVariable.NOT_FOUND_EMAIL);
             }
             // For more information on how to enable account confirmation and password reset please
             // visit https://go.microsoft.com/fwlink/?LinkID=532713
@@ -70,7 +71,7 @@ namespace Infrastructure.Services.Identity
             if (user == null)
             {
                 // Don't reveal that the user does not exist
-                return await Result.FailAsync("Lỗi hệ thống");
+                return await Result.FailAsync(StaticVariable.SYS_ERROR);
             }
 
             var token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
@@ -79,7 +80,26 @@ namespace Infrastructure.Services.Identity
             {
                 return await Result.SuccessAsync();
             }
-            return await Result.FailAsync("Lỗi hệ thống");
+            return await Result.FailAsync(StaticVariable.SYS_ERROR);
+        }
+        public async Task<IResult> DeleteUser(DeleteUserRequest request)
+        {
+            var user = _userManager.Users.Where(user => user.UserId == request.Id).FirstOrDefault();
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return await Result.FailAsync(StaticVariable.SYS_ERROR);
+            }
+
+            user.IsActive = false;
+            user.IsDeleted = true;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return await Result.SuccessAsync();
+            }
+            return await Result.FailAsync(StaticVariable.SYS_ERROR);
         }
     }
 }
