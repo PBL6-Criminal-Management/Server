@@ -15,8 +15,7 @@ namespace Application.Features.Account.Queries.GetById
         public string Email { get; set; } = null!;
         public bool IsActive { get; set; }
         public string AccountName { get; set; } = null!;
-        //public Role Role { get; set; }
-        public string Role { get; set; } = null!;
+        public Role Role { get; set; }
         public string? Image { get; set; }
         public string? ImageLink { get; set; }
     }

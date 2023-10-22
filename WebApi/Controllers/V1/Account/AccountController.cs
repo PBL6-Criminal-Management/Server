@@ -1,4 +1,5 @@
 ﻿using Application.Features.Account.Command.Delete;
+﻿using Application.Features.Account.Command.Add;
 using Application.Features.Account.Queries.GetAll;
 using Application.Features.Account.Queries.GetById;
 using Domain.Constants;
@@ -26,6 +27,7 @@ namespace WebApi.Controllers.V1.Account
                 Id = id
             }));
         }
+
         /// <summary>
         /// Get All Account 
         /// </summary>
@@ -60,6 +62,19 @@ namespace WebApi.Controllers.V1.Account
             {
                 Id = id
             }));
+        }
+
+        /// <summary>
+        /// Add Account
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [HttpPost]
+        public async Task<IActionResult> AddAccount(AddAccountCommand command)
+        {
+            var result = await Mediator.Send(command);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
     }
 }
