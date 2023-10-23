@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Requests.Account;
+using Application.Exceptions;
 using Application.Interfaces.Services.Account;
 using Domain.Constants.Enum;
 using Domain.Entities;
@@ -57,6 +58,32 @@ namespace Infrastructure.Services.Identity
                     return (Role)Enum.Parse(typeof(Role),roles.First());
             }
             return Role.None;
+        }
+        public async Task<bool> ChangeRole(long userId, Role role)
+        {
+            var user = _userManager.Users.Where(user =>user.UserId == userId).FirstOrDefault();
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles != null && roles.Count > 0)
+                {
+                    if ((Role)Enum.Parse(typeof(Role), roles.First()) == role) {
+                        return true;
+                    }
+                    var result = await _userManager.RemoveFromRoleAsync(user, roles.First());
+                    if(result.Succeeded)
+                    {
+                        var check = await _userManager.AddToRoleAsync(user, role.ToDescriptionString());
+                        return check.Succeeded;
+                    }
+                }
+                else
+                {
+                    var check = await _userManager.AddToRoleAsync(user, role.ToDescriptionString());
+                    return check.Succeeded;
+                }
+            }
+            return false;
         }
     }
 }
