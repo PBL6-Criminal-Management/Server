@@ -6,6 +6,7 @@ using Domain.Constants;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Application.Features.Account.Command.Edit;
 
 namespace WebApi.Controllers.V1.Account
 {
@@ -35,7 +36,7 @@ namespace WebApi.Controllers.V1.Account
         /// <returns></returns>
         [Authorize(Roles = RoleConstants.AdministratorRole)]
         [HttpGet]
-        public async Task<ActionResult<PaginatedResult<GetAllUserResponse>>> GetAllAccount([FromQuery]GetAllUserQuery parameter)
+        public async Task<ActionResult<PaginatedResult<GetAllUserResponse>>> GetAllAccount([FromQuery] GetAllUserQuery parameter)
         {
             return Ok(await Mediator.Send(new GetAllUserQuery()
             {
@@ -72,6 +73,18 @@ namespace WebApi.Controllers.V1.Account
         [Authorize(Roles = RoleConstants.AdministratorRole)]
         [HttpPost]
         public async Task<IActionResult> AddAccount(AddAccountCommand command)
+        {
+            var result = await Mediator.Send(command);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
+        }
+        /// <summary>
+        /// Add Account
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditAcount(EditAccountCommand command)
         {
             var result = await Mediator.Send(command);
             return (result.Succeeded) ? Ok(result) : BadRequest(result);

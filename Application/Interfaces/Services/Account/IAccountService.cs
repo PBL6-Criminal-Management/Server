@@ -11,5 +11,6 @@ namespace Application.Interfaces.Services.Account
         Task<bool> IsExistUsername(string username);
         Task<bool> AddAcount(AppUser employee, string password, string role);
         Task<Role> GetRoleIdAsync(long userId);
+        Task<bool> ChangeRole(long userId, Role role);
     }
 }
