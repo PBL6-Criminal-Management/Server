@@ -1,4 +1,5 @@
-﻿using Domain.Contracts;
+﻿using Domain.Constants.Enum;
+using Domain.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Case
@@ -15,7 +16,7 @@ namespace Domain.Entities.Case
         [Column("end_date",TypeName = "datetime")]
         public DateTime? EndDate { get; set; }
         [Column("type_of_violation", TypeName = "smallint")]
-        public short TypeOfViolation { get; set; }
+        public TypeOfViolation TypeOfViolation { get; set; }
         [Column("status", TypeName = "smallint")]
         public short Status { get; set; }
         [Column("charge", TypeName = "nvarchar(100)")]
