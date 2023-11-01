@@ -14,7 +14,7 @@ namespace WebApi.Controllers.V1.Criminal
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpPost]
         public async Task<IActionResult> AddAccount(AddCriminalCommand command)
         {

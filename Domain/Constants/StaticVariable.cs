@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
+﻿
 namespace Domain.Constants
 {
     public class StaticVariable
