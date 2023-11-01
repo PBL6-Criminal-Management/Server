@@ -1,4 +1,6 @@
-﻿namespace Domain.Constants
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace Domain.Constants
 {
     public class StaticVariable
     {
@@ -41,5 +43,27 @@
         public const string LIMIT_IMAGE = "Đường dẫn ảnh không được vượt quá 500 ký tự!";
         public const string LIMIT_DESCRIPTION = "Mô tả không được vượt quá 500 ký tự!";
         public const string LIMIT_NOTE = "Nội dung không được vượt quá 500 ký tự!";
+        public const string LIMIT_ANOTHER_NAME = "Tên khác không được vượt quá 100 ký tự!";
+        public const string LIMIT_PHONE_MODEL = "Model điện thoại không được vượt quá 100 ký tự!";
+        public const string LIMIT_CAREER_AND_WORKPLACE = "Nghề nghiệp và nơi làm việc không được vượt quá 300 ký tự!";
+        public const string LIMIT_CHRACTERISTICS = "Tính cách không được vượt quá 500 ký tự!";
+        public const string LIMIT_HOME_TOWN = "Quê quán không được vượt quá 200 ký tự!";
+        public const string LIMIT_ETHNICITY = "Dân tộc không được vượt quá 50 ký tự!";
+        public const string LIMIT_RELIGION = "Tôn giáo không được vượt quá 50 ký tự!";
+        public const string LIMIT_NATIONALITY = "Quốc tịch không được vượt quá 50 ký tự!";
+        public const string LIMIT_FATHER_NAME = "Tên bố của tội phạm không được vượt quá 100 ký tự!";
+        public const string LIMIT_FATHER_CMND_CCCD = "Chứng minh nhân dân của bố tội phạm không được vượt quá 12 ký tự!";
+        public const string LIMIT_MOTHER_NAME = "Tên mẹ của tội phạm không được vượt quá 100 ký tự!";
+        public const string LIMIT_MOTHER_CMND_CCCD = "Chứng minh nhân dân của mẹ tội phạm không được vượt quá 12 ký tự!";
+        public const string LIMIT_PERMANENT_RESIDENCE = "Địa chỉ thường trú không được vượt quá 200 ký tự!";
+        public const string LIMIT_CURRENT_ACCOMMODATION = "Địa chỉ hiện tại không được vượt quá 200 ký tự";
+        public const string LIMIT_ENTRY_AND_EXITINFORMATION = "Thông tin xuất nhập cảnh không được vượt quá 500 ký tự!";
+        public const string LIMIT_FACEBOOK = "Facebook không được vượt quá 100 ký tự!";
+        public const string LIMIT_ZALO = "Zalo không được vượt quá 100 ký tự!";
+        public const string LIMIT_OTHER_SOCIAL_NETWORKS = "Mạng xã hội khác không được vượt quá 300 ký tự!";
+        public const string LIMIT_GAME_ACCOUNT = "Tài khoản game không được vượt quá 100 ký tự!";
+        public const string LIMIT_VEHICLES = "Phương tiện không được vượt quá 100 ký tự!";
+        public const string LIMIT_DANGEROUS_LEVEL = "Mức độ nguy hiểm không được vượt quá 200 ký tự!";
+        public const string LIMIT_OTHER_INFORMATION = "Thông tin khác không được vượt quá 500 ký tự!";
     }
 }
