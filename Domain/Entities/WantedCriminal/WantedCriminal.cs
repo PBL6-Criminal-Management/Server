@@ -1,4 +1,4 @@
-﻿
+﻿using Domain.Constants.Enum;
 using Domain.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,7 +10,7 @@ namespace Domain.Entities.WantedCriminal
         [Column("criminal_id", TypeName = "bigint")]
         public long CriminalId { get; set; }
         [Column("wanted_type", TypeName = "smallint")]
-        public short WantedType { get; set; }
+        public WantedType WantedType { get; set; }
         [Column("current_activity", TypeName = "nvarchar(200)")]
         public string? CurrentActivity { get; set; }
         [Column("wanted_decision_no", TypeName = "nvarchar(50)")]

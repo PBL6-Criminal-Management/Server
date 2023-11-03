@@ -3,13 +3,14 @@ using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
-using Application.Interfaces.Criminal;
 using Infrastructure.Repositories.Account;
 using Infrastructure.Repositories.Criminal;
 using Infrastructure.Repositories.CriminalImage;
 using Infrastructure.Repositories.Case;
 using Infrastructure.Repositories.CaseCriminal;
 using Microsoft.Extensions.DependencyInjection;
+using Application.Interfaces.WantedCriminal;
+using Infrastructure.Repositories.WantedCriminal;
 
 namespace Infrastructure.Extensions
 {
@@ -34,6 +35,10 @@ namespace Infrastructure.Extensions
         public static void AddCaseCriminalRepository(this IServiceCollection services)
         {
             services.AddScoped<ICaseCriminalRepository, CaseCriminalRepository>();
+        }
+        public static void AddWantedCriminalRepository(this IServiceCollection services)
+        {
+            services.AddScoped<IWantedCriminalRepository, WantedCriminalRepository>();
         }
     }
 }

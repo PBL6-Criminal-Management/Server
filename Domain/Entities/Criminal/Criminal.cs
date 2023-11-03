@@ -59,6 +59,8 @@ namespace Domain.Entities.Criminal
         public string? OtherSocialNetworks { get; set; }
         [Column("game_account", TypeName = "nvarchar(100)")]
         public string? GameAccount { get; set; }
+        [Column("bank_account", TypeName = "varchar(30)")]
+        public string? BankAccount { get; set; }
         [Column("research", TypeName = "text")]
         public string? Research { get; set; }
         [Column("vehicles", TypeName = "nvarchar(200)")]
