@@ -47,16 +47,16 @@ namespace Application.Features.Criminal.Queries.GetAll
                             caseOfCriminal => caseOfCriminal.CriminalId,
                             (criminal, caseOfCriminals) => new { criminal, caseOfCriminals })
                             .Where(o => !o.criminal.IsDeleted
-                                    && (request.Keyword == null || StringHelper.Contains(o.criminal.Name, request.Keyword)
+                                    && (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(o.criminal.Name, request.Keyword)
                                                                 || StringHelper.Contains(o.criminal.AnotherName, request.Keyword)
                                                                 || StringHelper.Contains(o.criminal.HomeTown, request.Keyword))
-                                    && (request.Status == null || o.criminal.Status == request.Status)
-                                    && (request.YearOfBirth == null || o.criminal.Birthday.Year == request.YearOfBirth)
-                                    && (request.Gender == null || o.criminal.Gender == request.Gender)
-                                    && (request.Characteristics == null || StringHelper.Contains(o.criminal.Characteristics, request.Characteristics))
-                                    && (request.TypeOfViolation == null || o.caseOfCriminals.TypeOfViolation == request.TypeOfViolation)
-                            && (request.Area == null || StringHelper.Contains(o.criminal.HomeTown, request.Area))
-                            && (request.Charge == null || StringHelper.Contains(o.caseOfCriminals.Charge, request.Charge))
+                                    && (request.Status.HasValue || o.criminal.Status == request.Status)
+                                    && (request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)
+                                    && (request.Gender.HasValue || o.criminal.Gender == request.Gender)
+                                    && (string.IsNullOrEmpty(request.Characteristics) || StringHelper.Contains(o.criminal.Characteristics, request.Characteristics))
+                                    && (request.TypeOfViolation.HasValue || o.caseOfCriminals.TypeOfViolation == request.TypeOfViolation)
+                            && (string.IsNullOrEmpty(request.Area) || StringHelper.Contains(o.criminal.HomeTown, request.Area))
+                            && (string.IsNullOrEmpty(request.Charge) || StringHelper.Contains(o.caseOfCriminals.Charge, request.Charge))
                             )
                             .Select(o => new GetAllCriminalResponse
                             {
