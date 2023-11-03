@@ -1,4 +1,5 @@
-﻿using Domain.Contracts;
+﻿using Domain.Constants.Enum;
+using Domain.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Criminal
@@ -71,7 +72,7 @@ namespace Domain.Entities.Criminal
         [Column("release_date", TypeName = "date")]
         public DateOnly? ReleaseDate { get; set; }
         [Column("status", TypeName = "smallint")]
-        public short Status { get; set; }
+        public CriminalStatus Status { get; set; }
         [Column("other_information", TypeName = "nvarchar(500)")]
         public string? OtherInformation { get; set; }
 
