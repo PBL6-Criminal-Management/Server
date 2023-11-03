@@ -4,6 +4,8 @@ using Application.Features.Criminal.Queries.GetAll;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Application.Features.Account.Queries.GetById;
+using Application.Features.Criminal.Queries.GetById;
 
 namespace WebApi.Controllers.V1.Criminal
 {
@@ -48,6 +50,21 @@ namespace WebApi.Controllers.V1.Criminal
                 Keyword = parameter.Keyword,
                 PageNumber = parameter.PageNumber,
                 PageSize = parameter.PageSize,
+            }));
+        }
+
+        /// <summary>
+        /// Get Criminal detail by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Result<GetCriminalByIdResponse>>> GetCriminalById(long id)
+        {
+            return Ok(await Mediator.Send(new GetCriminalByIdQuery()
+            {
+                Id = id
             }));
         }
     }
