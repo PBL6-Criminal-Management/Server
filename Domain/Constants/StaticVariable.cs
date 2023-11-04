@@ -61,6 +61,7 @@ namespace Domain.Constants
         public const string LIMIT_ZALO = "Zalo không được vượt quá 100 ký tự!";
         public const string LIMIT_OTHER_SOCIAL_NETWORKS = "Mạng xã hội khác không được vượt quá 300 ký tự!";
         public const string LIMIT_GAME_ACCOUNT = "Tài khoản game không được vượt quá 100 ký tự!";
+        public const string LIMIT_BANK_ACCOUNT = "Tài khoản ngân hàng không được vượt quá 30 ký tự!";
         public const string LIMIT_VEHICLES = "Phương tiện không được vượt quá 100 ký tự!";
         public const string LIMIT_DANGEROUS_LEVEL = "Mức độ nguy hiểm không được vượt quá 200 ký tự!";
         public const string LIMIT_OTHER_INFORMATION = "Thông tin khác không được vượt quá 500 ký tự!";
