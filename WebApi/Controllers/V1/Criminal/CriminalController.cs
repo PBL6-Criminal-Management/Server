@@ -4,8 +4,8 @@ using Application.Features.Criminal.Queries.GetAll;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Application.Features.Account.Queries.GetById;
 using Application.Features.Criminal.Queries.GetById;
+using Application.Features.Criminal.Command.Edit;
 
 namespace WebApi.Controllers.V1.Criminal
 {
@@ -20,7 +20,7 @@ namespace WebApi.Controllers.V1.Criminal
         /// <returns></returns>
         [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpPost]
-        public async Task<IActionResult> AddAccount(AddCriminalCommand command)
+        public async Task<IActionResult> AddCriminal(AddCriminalCommand command)
         {
             var result = await Mediator.Send(command);
             return (result.Succeeded) ? Ok(result) : BadRequest(result);
@@ -66,6 +66,18 @@ namespace WebApi.Controllers.V1.Criminal
             {
                 Id = id
             }));
+        }
+        /// <summary>
+        /// Add Account
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [HttpPut]
+        public async Task<IActionResult> EditCriminal(EditCriminalCommand command)
+        {
+            var result = await Mediator.Send(command);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
     }
 }

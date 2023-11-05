@@ -32,5 +32,6 @@ namespace Application.Interfaces.Repositories
         Task DeleteRange(List<T> entity);
 
         Task<bool> IsUnique(Expression<Func<T, bool>> includeProperties);
+        Task RemoveRangeAsync(List<T> entity);
     }
 }

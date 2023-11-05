@@ -1,24 +1,24 @@
 ﻿using Application.Dtos.Requests.Image;
-using Application.Interfaces;
+using Domain.Constants;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+using System.Text.Json.Serialization;
+using MediatR;
+using Domain.Wrappers;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
-using Application.Interfaces.Repositories;
 using AutoMapper;
-using Domain.Constants;
 using Domain.Constants.Enum;
+using Microsoft.EntityFrameworkCore;
+using Application.Interfaces;
 using Domain.Entities.CriminalImage;
-using Domain.Wrappers;
-using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-namespace Application.Features.Criminal.Command.Add
+namespace Application.Features.Criminal.Command.Edit
 {
-    public class AddCriminalCommand : IRequest<Result<AddCriminalCommand>>
+    public class EditCriminalCommand : IRequest<Result<EditCriminalCommand>>
     {
+        public long Id { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_ANOTHER_NAME)]
@@ -32,7 +32,7 @@ namespace Application.Features.Criminal.Command.Add
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_PHONENUMBER)]
         [DefaultValue("string")]
         public string PhoneNumber { get; set; } = null!;
-        [MaxLength(100,ErrorMessage = StaticVariable.LIMIT_PHONE_MODEL)]
+        [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_PHONE_MODEL)]
         public string PhoneModel { get; set; } = null!;
         [MaxLength(300, ErrorMessage = StaticVariable.LIMIT_CAREER_AND_WORKPLACE)]
         public string CareerAndWorkplace { get; set; } = null!;
@@ -86,41 +86,57 @@ namespace Application.Features.Criminal.Command.Add
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]
         public string? OtherInformation { get; set; }
         public List<ImageRequest>? CriminalImages { get; set; }
-
     }
-    internal class AddCriminalCommandHandler : IRequestHandler<AddCriminalCommand, Result<AddCriminalCommand>>
+    internal class EditCriminalCommandHandler : IRequestHandler<EditCriminalCommand, Result<EditCriminalCommand>>
     {
-        private readonly ICriminalRepository _criminalRepository; 
         private readonly IUnitOfWork<long> _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly ICriminalRepository _criminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
-
-        public AddCriminalCommandHandler(ICriminalRepository criminalRepository, IUnitOfWork<long> unitOfWork,
-            IMapper mapper, ICriminalImageRepository criminalImageRepository)
-        {
-            _criminalRepository = criminalRepository;
+        private readonly IMapper _mapper;
+        private readonly IUploadService _uploadService;
+        public EditCriminalCommandHandler(IUnitOfWork<long> unitOfWork, ICriminalRepository criminalRepository,
+            ICriminalImageRepository criminalImageRepository, IMapper mapper, IUploadService uploadService) {
+            _criminalImageRepository = criminalImageRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _criminalImageRepository = criminalImageRepository;
+            _criminalRepository = criminalRepository;
+            _uploadService = uploadService;
         }
 
-        public async Task<Result<AddCriminalCommand>> Handle(AddCriminalCommand request, CancellationToken cancellationToken)
+        public async Task<Result<EditCriminalCommand>> Handle(EditCriminalCommand request, CancellationToken cancellationToken)
         {
-            var isCMNDExists = await _criminalRepository.FindAsync(_ => _.CMND_CCCD.Equals(request.CMND_CCCD));
-            if (isCMNDExists != null)
+            if(request.Id == 0)
             {
-                return await Result<AddCriminalCommand>.FailAsync(StaticVariable.CMND_CCCD_EXISTS_MSG);
+                return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
-            var addCriminal = _mapper.Map<Domain.Entities.Criminal.Criminal>(request);
-            await _criminalRepository.AddAsync(addCriminal);
-            await _unitOfWork.Commit(cancellationToken);
-            if (request.CriminalImages != null)
+            var editCriminal = await _criminalRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            if (editCriminal == null) return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
+
+            _mapper.Map(request, editCriminal);
+            await _criminalRepository.UpdateAsync(editCriminal);
+            if(request.CriminalImages != null)
             {
-                var addImage = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
-                addImage.ForEach(x => x.CriminalId = addCriminal.Id);
-                await _criminalImageRepository.AddRangeAsync(addImage);
+                List<string?> listNewFile = request.CriminalImages.Select(_ => _.FilePath).ToList();
+                var requestImages = await _criminalImageRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
+                if (requestImages.Any())
+                {
+                    foreach(var image in requestImages)
+                    {
+                        if(!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);
+                    }
+                    await _criminalImageRepository.RemoveRangeAsync(requestImages);
+                    await _unitOfWork.Commit(cancellationToken);
+                }
+                var images = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
+                var requestImage = images.Select(x =>
+                {
+                    x.Id = 0;
+                    x.CriminalId = editCriminal.Id;
+                    return x;
+                }).ToList();
+                await _criminalImageRepository.AddRangeAsync(requestImage);
             }
-            return await Result<AddCriminalCommand>.SuccessAsync(request);
+            return await Result<EditCriminalCommand>.SuccessAsync(request);
         }
     }
 }
