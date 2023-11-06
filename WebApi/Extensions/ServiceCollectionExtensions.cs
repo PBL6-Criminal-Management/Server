@@ -59,6 +59,9 @@ namespace WebApi.Extensions
                         }, new List<string>()
                     },
                 });
+                
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "WebApi.xml");
+                c.IncludeXmlComments(filePath);
             });
         }
 
