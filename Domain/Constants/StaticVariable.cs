@@ -15,6 +15,7 @@ namespace Domain.Constants
         //Messages
         public const string NOT_FOUND_MSG = "Không thể tìm thấy dữ liệu phù hợp!";
         public const string DELETE_USER = "Xóa người dùng thành công!";
+        public const string DELETE_SUCCESS = "Xóa thành công!";
         public const string SYS_ERROR = "Lỗi hệ thống!";
         public const string NOT_FOUND_EMAIL = "Không tìm thấy email!";
         public const string NOT_FOUND_ROLE = "Không tìm thấy vai trò phù hợp!";
