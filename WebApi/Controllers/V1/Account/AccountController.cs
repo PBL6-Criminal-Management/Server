@@ -32,7 +32,7 @@ namespace WebApi.Controllers.V1.Account
         /// <summary>
         /// Get All Account 
         /// </summary>
-        /// <param name=""></param>
+        /// <param name="parameter"></param>
         /// <returns></returns>
         [Authorize(Roles = RoleConstants.AdministratorRole)]
         [HttpGet]
@@ -51,7 +51,7 @@ namespace WebApi.Controllers.V1.Account
             }));
         }
         /// <summary>
-        /// Delete user by id
+        /// Delete Account
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -78,7 +78,7 @@ namespace WebApi.Controllers.V1.Account
             return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
         /// <summary>
-        /// Add Account
+        /// Edit Account
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>

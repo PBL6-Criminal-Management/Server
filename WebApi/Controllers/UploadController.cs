@@ -16,7 +16,7 @@ namespace WebApi.Controllers
         }
 
         /// <summary>
-        /// Upload function common
+        /// Upload Image
         /// </summary>
         /// <param name="uploadRequest"></param>
         /// <returns></returns>

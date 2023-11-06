@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Features.Criminal.Queries.GetById;
 using Application.Features.Criminal.Command.Edit;
+using Application.Features.Criminal.Command.Delete;
 
 namespace WebApi.Controllers.V1.Criminal
 {
@@ -14,7 +15,7 @@ namespace WebApi.Controllers.V1.Criminal
     public class CriminalController : BaseApiController<CriminalController>
     {
         /// <summary>
-        /// Add Account
+        /// Add Criminal
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -26,11 +27,11 @@ namespace WebApi.Controllers.V1.Criminal
             return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
 
-        
+
         /// <summary>
         /// Get All Criminal 
         /// </summary>
-        /// <param name=""></param>
+        /// <param name="parameter"></param>
         /// <returns></returns>
         [Authorize]
         [HttpGet]
@@ -68,7 +69,7 @@ namespace WebApi.Controllers.V1.Criminal
             }));
         }
         /// <summary>
-        /// Add Account
+        /// Edit Criminal
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -78,6 +79,21 @@ namespace WebApi.Controllers.V1.Criminal
         {
             var result = await Mediator.Send(command);
             return (result.Succeeded) ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Delete Criminal
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteCriminal(long id)
+        {
+            return Ok(await Mediator.Send(new DeleteCriminalCommand()
+            {
+                Id = id
+            }));
         }
     }
 }
