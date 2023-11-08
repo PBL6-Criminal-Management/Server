@@ -26,20 +26,14 @@ namespace WebApi.Controllers
         [Authorize]
         [RequestSizeLimit(30 * 1024 * 1024)] //50MB Max upload request
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadFile([FromForm] string filePath)
+        public async Task<IActionResult> UploadFile([FromForm] UploadRequest request)
         {
-            if (Request.Form.Files.Count != 0)
+            if (request.Files.Count != 0)
             {
-                List<IFormFile> files = new List<IFormFile>();
-                foreach (var file in Request.Form.Files)
-                {
-                    files.Add(file);
-                }
-                
                 var result = await _uploadService.UploadAsync(new UploadRequest
                 {
-                    FilePath = filePath,
-                    Files = files
+                    FilePath = request.FilePath,
+                    Files = request.Files
                 });
                 return result.Succeeded ? Ok(result) : BadRequest(result);
             }
