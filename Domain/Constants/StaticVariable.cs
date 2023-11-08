@@ -16,6 +16,7 @@ namespace Domain.Constants
         public const string NOT_FOUND_MSG = "Không thể tìm thấy dữ liệu phù hợp!";
         public const string DELETE_USER = "Xóa người dùng thành công!";
         public const string DELETE_SUCCESS = "Xóa thành công!";
+        public const string DELETE_CASE = "Xóa vụ án thành công";
         public const string SYS_ERROR = "Lỗi hệ thống!";
         public const string NOT_FOUND_EMAIL = "Không tìm thấy email!";
         public const string NOT_FOUND_ROLE = "Không tìm thấy vai trò phù hợp!";
@@ -70,5 +71,8 @@ namespace Domain.Constants
         public const string LIMIT_REASON = "Lí do không được vượt quá 600 ký tự";
         public const string LIMIT_MURDER_WEAPON = "Hung khí không được vượt quá 100 ký tự";
         public const string LIMIT_CHARGE = "Tội danh không được vượt quá 100 ký tự";
+
+        //Error message
+        public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";
     }
 }

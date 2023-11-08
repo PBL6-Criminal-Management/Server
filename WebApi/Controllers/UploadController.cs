@@ -20,7 +20,7 @@ namespace WebApi.Controllers
         /// <summary>
         /// Upload Image
         /// </summary>
-        /// <param name="uploadRequest"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [Authorize]
