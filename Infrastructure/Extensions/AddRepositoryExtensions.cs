@@ -11,6 +11,12 @@ using Infrastructure.Repositories.CaseCriminal;
 using Microsoft.Extensions.DependencyInjection;
 using Application.Interfaces.WantedCriminal;
 using Infrastructure.Repositories.WantedCriminal;
+using Application.Interfaces.Witness;
+using Infrastructure.Repositories.Witness;
+using Application.Interfaces.Evidence;
+using Infrastructure.Repositories.Evidence;
+using Application.Interfaces.CaseImage;
+using Infrastructure.Repositories.CaseImage;
 
 namespace Infrastructure.Extensions
 {
@@ -39,6 +45,18 @@ namespace Infrastructure.Extensions
         public static void AddWantedCriminalRepository(this IServiceCollection services)
         {
             services.AddScoped<IWantedCriminalRepository, WantedCriminalRepository>();
+        }
+        public static void AddWitnessRepository(this IServiceCollection services)
+        {
+            services.AddScoped<IWitnessRepository, WitnessRepository>();
+        }
+        public static void AddEvidenceRepository(this IServiceCollection services)
+        {
+            services.AddScoped<IEvidenceRepository, EvidenceRepository>();
+        }
+        public static void AddCaseImageRepository(this IServiceCollection services)
+        {
+            services.AddScoped<ICaseImageRepository, CaseImageRepository>();
         }
     }
 }

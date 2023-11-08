@@ -1,5 +1,7 @@
 ﻿using Application.Dtos.Requests;
+using Application.Exceptions;
 using Application.Interfaces;
+using Application.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,10 +26,19 @@ namespace WebApi.Controllers
         [Authorize]
         [RequestSizeLimit(30 * 1024 * 1024)] //50MB Max upload request
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadFile([FromForm] UploadRequest uploadRequest)
+        public async Task<IActionResult> UploadFile([FromForm] UploadRequest request)
         {
-            var result = await _uploadService.UploadAsync(uploadRequest);
-            return result.Succeeded ? Ok(result) : BadRequest(result);
+            if (request.Files.Count != 0)
+            {
+                var result = await _uploadService.UploadAsync(new UploadRequest
+                {
+                    FilePath = request.FilePath,
+                    Files = request.Files
+                });
+                return result.Succeeded ? Ok(result) : BadRequest(result);
+            }
+
+            throw new ApiException(ApplicationConstants.ErrorMessage.InvalidFile);
         }
 
         /// <summary>

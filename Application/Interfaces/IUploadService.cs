@@ -6,7 +6,7 @@ namespace Application.Interfaces
 {
     public interface IUploadService
     {
-        Task<Result<UploadResponse>> UploadAsync(UploadRequest request);
+        Task<Result<List<UploadResponse>>> UploadAsync(UploadRequest request);
         string GetFullUrl(string? filePath);
         Task<Result<bool>> DeleteAsync(string filePath);
     }
