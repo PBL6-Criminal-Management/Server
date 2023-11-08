@@ -31,6 +31,7 @@ namespace Domain.Constants
         public const string USERNAME_EXISTS_MSG = "Tên người dùng đã tồn tại trong cơ sở dữ liệu!";
         public const string CMND_CCCD_EXISTS_MSG = "CMND hoặc CCCD đã tồn tại trong cơ sở dữ liệu!";
         public const string CHANGE_ROLE_FAIL = "Thay đổi role không thành công";
+        public const string NOT_FOUND_CRIMINAL = "Không tìm thấy tội phạm phù hợp!";
 
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";
@@ -66,5 +67,8 @@ namespace Domain.Constants
         public const string LIMIT_VEHICLES = "Phương tiện không được vượt quá 100 ký tự!";
         public const string LIMIT_DANGEROUS_LEVEL = "Mức độ nguy hiểm không được vượt quá 200 ký tự!";
         public const string LIMIT_OTHER_INFORMATION = "Thông tin khác không được vượt quá 500 ký tự!";
+        public const string LIMIT_REASON = "Lí do không được vượt quá 600 ký tự";
+        public const string LIMIT_MURDER_WEAPON = "Hung khí không được vượt quá 100 ký tự";
+        public const string LIMIT_CHARGE = "Tội danh không được vượt quá 100 ký tự";
     }
 }

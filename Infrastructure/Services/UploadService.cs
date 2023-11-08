@@ -15,47 +15,51 @@ namespace Infrastructure.Services
             _currentUserService = currentUserService;
         }
 
-        public async Task<Result<UploadResponse>> UploadAsync(UploadRequest request)
+        public async Task<Result<List<UploadResponse>>> UploadAsync(UploadRequest request)
         {
-            var fileName = $"{DateTime.Now:yyyyMMddHHmmsss}_{request.File.FileName}";
-            var folderName = (request.SaveFolderName != null)? Path.Combine("Files", request.SaveFolderName) : "Files";
-            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-            var isImage = CheckFilesIsImage(request);
-            var isVideo = CheckFilesIsVideo(request);
-            var isMaxSizeImage = CheckImageSize(request);
-            var isMaxSizeVideo = CheckVideoSize(request);
-            if (!isImage && !isVideo)
-            {
-                return await Result<UploadResponse>.FailAsync($"{request.File.FileName} is not an valid image or video");
-            }
-            if (!isMaxSizeImage && isImage)
-            {
-                return await Result<UploadResponse>.FailAsync($"{request.File.FileName} is over allowed image size(5MB) ");
-            }
-            if (!isMaxSizeVideo && isVideo)
-            {
-                return await Result<UploadResponse>.FailAsync($"{request.File.FileName} is over allowed video size(30MB)");
-            }
+           List<UploadResponse> responses = new List<UploadResponse>();
+           foreach(var file in request.Files)
+           {
+                var fileName = $"{DateTime.Now:yyyyMMddHHmmsss}_{file.FileName}";
+                var folderName = (request.FilePath != null) ? Path.Combine("Files", request.FilePath) : "Files";
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                var isImage = CheckFilesIsImage(request);
+                var isVideo = CheckFilesIsVideo(request);
+                var isMaxSizeImage = CheckImageSize(request);
+                var isMaxSizeVideo = CheckVideoSize(request);
+                if (!isImage && !isVideo)
+                {
+                    return await Result<List<UploadResponse>>.FailAsync($"{file.FileName} is not an valid image or video");
+                }
+                if (!isMaxSizeImage && isImage)
+                {
+                    return await Result<List<UploadResponse>>.FailAsync($"{file.FileName} is over allowed image size(5MB) ");
+                }
+                if (!isMaxSizeVideo && isVideo)
+                {
+                    return await Result<List<UploadResponse>>.FailAsync($"{file.FileName} is over allowed video size(30MB)");
+                }
 
-            if (!Directory.Exists(pathToSave))
-            {
-                Directory.CreateDirectory(pathToSave);
-            }
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
 
-            var dbPath = Path.Combine(folderName, fileName);
+                var dbPath = Path.Combine(folderName, fileName);
 
-            using (var stream = new FileStream(dbPath, FileMode.Create))
-            {
-                await request.File.CopyToAsync(stream);
-            }
+                using (var stream = new FileStream(dbPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
 
-            var result = new UploadResponse()
-            {
-                FilePath = dbPath,
-                FileUrl = Path.Combine(_currentUserService.HostServerName, dbPath).Replace("\\", "/")
-            };
+                responses.Add( new UploadResponse()
+                {
+                    FilePath = dbPath,
+                    FileUrl = Path.Combine(_currentUserService.HostServerName, dbPath).Replace("\\", "/")
+                });
+           }
 
-            return await Result<UploadResponse>.SuccessAsync(result);
+            return await Result<List<UploadResponse>>.SuccessAsync(responses);
         }
 
         public string GetFullUrl(string? filePath)
@@ -83,19 +87,22 @@ namespace Infrastructure.Services
 
         public static bool CheckFilesIsImage(UploadRequest request)
         {
-            if (request.File != null)
+            if (request.Files != null)
             {
-                string extension = Path.GetExtension(request.File.FileName).ToLower();
-                string[] allowedExtensions = { ".jpg", ".png", ".gif", ".jpeg" };
-                if (!allowedExtensions.Contains(extension))
+                foreach(var file in request.Files)
                 {
-                    return false;
-                }
+                    string extension = Path.GetExtension(file.FileName).ToLower();
+                    string[] allowedExtensions = { ".jpg", ".png", ".gif", ".jpeg" };
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        return false;
+                    }
 
-                string[] allowedMimeTypes = { "image/jpeg", "image/png", "image/gif" };
-                if (!allowedMimeTypes.Contains(request.File.ContentType.ToLower()))
-                {
-                    return false;
+                    string[] allowedMimeTypes = { "image/jpeg", "image/png", "image/gif" };
+                    if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -103,19 +110,22 @@ namespace Infrastructure.Services
 
         public static bool CheckFilesIsVideo(UploadRequest request)
         {
-            if (request.File != null)
+            if (request.Files != null)
             {
-                string extension = Path.GetExtension(request.File.FileName).ToLower();
-                string[] allowedImagesExtensions = { ".mp3", ".mp4", ".mpeg" };
-                if (!allowedImagesExtensions.Contains(extension))
+                foreach( var file in request.Files)
                 {
-                    return false;
-                }
+                    string extension = Path.GetExtension(file.FileName).ToLower();
+                    string[] allowedImagesExtensions = { ".mp3", ".mp4", ".mpeg" };
+                    if (!allowedImagesExtensions.Contains(extension))
+                    {
+                        return false;
+                    }
 
-                string[] allowedMimeTypes = { "video/mp3", "video/mp4", "video/mpeg" };
-                if (!allowedMimeTypes.Contains(request.File.ContentType.ToLower()))
-                {
-                    return false;
+                    string[] allowedMimeTypes = { "video/mp3", "video/mp4", "video/mpeg" };
+                    if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -123,11 +133,14 @@ namespace Infrastructure.Services
 
         public static bool CheckImageSize(UploadRequest request)
         {
-            long fileSize = request.File.Length;
-            long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //5MB  
-            if (fileSize >= maxSizeImage)
+            foreach(var file in request.Files)
             {
-                return false;
+                long fileSize = file.Length;
+                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //5MB  
+                if (fileSize >= maxSizeImage)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -135,14 +148,16 @@ namespace Infrastructure.Services
 
         public static bool CheckVideoSize(UploadRequest request)
         {
-            long fileSize = request.File.Length;
-            long maxSizeVideo = ICheckSizeFile.VIDEO_MAX_SIZE; //30MB
-
-            if (fileSize >= maxSizeVideo)
+            foreach (var file in request.Files)
             {
-                return false;
-            }
+                long fileSize = file.Length;
+                long maxSizeVideo = ICheckSizeFile.VIDEO_MAX_SIZE; //30MB
 
+                if (fileSize >= maxSizeVideo)
+                {
+                    return false;
+                }
+            }
             return true;
         }
     }

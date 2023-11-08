@@ -67,6 +67,9 @@ namespace Infrastructure.Extensions
             services.AddCaseRepository();
             services.AddCaseCriminalRepository();
             services.AddWantedCriminalRepository();
+            services.AddWitnessRepository();
+            services.AddEvidenceRepository();
+            services.AddCaseImageRepository();
         }
 
     }
