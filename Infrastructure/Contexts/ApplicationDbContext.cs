@@ -4,6 +4,9 @@ using Domain.Entities;
 using Domain.Entities.Case;
 using Domain.Entities.CaseCriminal;
 using Domain.Entities.CaseImage;
+using Domain.Entities.CaseInvestigator;
+using Domain.Entities.CaseVictim;
+using Domain.Entities.CaseWitness;
 using Domain.Entities.CrimeReporting;
 using Domain.Entities.Criminal;
 using Domain.Entities.CriminalImage;
@@ -32,7 +35,7 @@ namespace Infrastructure.Contexts
         private DbSet<AppRole> AppRoles { get; set; } = default!;
         private DbSet<AppRoleClaim> AppRoleClaims { get; set; } = default!;
         public virtual DbSet<Case> Cases { get; set; }
-        public virtual DbSet<CaseCriminal> CaseCriminals { get; set;}
+        public virtual DbSet<CaseCriminal> CaseCriminals { get; set; }
         public virtual DbSet<CaseImage> CaseImages { get; set; }
         public virtual DbSet<CrimeReporting> CrimeReportings { get; set; }
         public virtual DbSet<Criminal> Criminals { get; set; }
@@ -144,10 +147,30 @@ namespace Infrastructure.Contexts
                 .HasOne(ri => ri.CrimeReporting)
                 .WithMany(cr => cr.ReportingImages)
                 .HasForeignKey(ri => ri.ReportingId);
-            builder.Entity<Witness>()
-                .HasOne(w => w.Case)
-                .WithMany(c => c.Witnesses)
-                .HasForeignKey(w => w.CaseId);
+            builder.Entity<CaseWitness>()
+                .HasOne(cw => cw.Case)
+                .WithMany(c => c.CaseWitnesses)
+                .HasForeignKey(cw => cw.CaseId);
+            builder.Entity<CaseWitness>()
+                .HasOne(cw => cw.Witness)
+                .WithMany(w => w.CaseWitnesses)
+                .HasForeignKey(cw => cw.WitnessId);
+            builder.Entity<CaseInvestigator>()
+                .HasOne(c => c.Case)
+                .WithMany(ci => ci.CaseInvestigators)
+                .HasForeignKey(c => c.CaseId);
+            builder.Entity<CaseInvestigator>()
+                .HasOne(ci => ci.Investigator)
+                .WithMany(i => i.CaseInvestigators)
+                .HasForeignKey(ci => ci.InvestigatorId);
+            builder.Entity<CaseVictim>()
+                .HasOne(cv => cv.Case)
+                .WithMany(c => c.CaseVictims)
+                .HasForeignKey(cv => cv.CaseId);
+            builder.Entity<CaseVictim>()
+                .HasOne(cv => cv.Victim)
+                .WithMany(v => v.CaseVictims)
+                .HasForeignKey(cv => cv.VictimId);
         }
     }
 }

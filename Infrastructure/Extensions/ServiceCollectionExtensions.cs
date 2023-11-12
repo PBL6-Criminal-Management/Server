@@ -70,7 +70,10 @@ namespace Infrastructure.Extensions
             services.AddWitnessRepository();
             services.AddEvidenceRepository();
             services.AddCaseImageRepository();
+            services.AddCaseInvestigatorRepository();
+            services.AddCaseWitnessRepository();
+            services.AddVictimRepository();
+            services.AddCaseVictimRepository();
         }
-
     }
 }

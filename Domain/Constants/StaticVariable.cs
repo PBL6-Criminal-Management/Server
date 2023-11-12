@@ -20,6 +20,7 @@ namespace Domain.Constants
         public const string SYS_ERROR = "Lỗi hệ thống!";
         public const string NOT_FOUND_EMAIL = "Không tìm thấy email!";
         public const string NOT_FOUND_ROLE = "Không tìm thấy vai trò phù hợp!";
+        public const string NOT_FOUND_INVESTIGATOR = "Không tìm thấy dữ liệu điều tra viên phù hợp!";
         public const string UNKNOWN_ERROR = "Không thể thêm dữ liệu vào cơ sở dữ liệu vì lỗi không xác định!";
 
         public const string INVALID_PHONE_NUMBER = "Số điện thoại không hợp lệ!";
