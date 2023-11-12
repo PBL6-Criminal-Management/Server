@@ -22,5 +22,8 @@ namespace Domain.Entities.User
         public string Email { get; set; } = null!;
         [Column("image", TypeName = "varchar(500)")]
         public string? Image { get; set; }
+
+        //Relationship
+        public virtual ICollection<Domain.Entities.CaseInvestigator.CaseInvestigator> CaseInvestigators { get; set; } = null!;
     }
 }

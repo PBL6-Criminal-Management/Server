@@ -1,25 +1,27 @@
-﻿using Domain.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
+using Domain.Contracts;
 
-namespace Domain.Entities.Witness
+namespace Domain.Entities.Victim
 {
-    [Table("witness")]
-    public class Witness : AuditableBaseEntity<long>
+    [Table("victim")]
+    public class Victim : AuditableBaseEntity<long>
     {
+
         [Column("name", TypeName = "nvarchar(100)")]
         public string Name { get; set; } = null!;
         [Column("CMND/CCCD", TypeName = "varchar(12)")]
         public string CMND_CCCD { get; set; } = null!;
+        [Column("gender", TypeName = "bit")]
+        public bool? Gender { get; set; }
+        [Column("birthday", TypeName = "date")]
+        public DateOnly? Birthday { get; set; }
         [Column("phone_number", TypeName = "varchar(15)")]
         public string PhoneNumber { get; set; } = null!;
         [Column("address", TypeName = "nvarchar(200)")]
         public string Address { get; set; } = null!;
-        [Column("testimony", TypeName = "text")]
-        public string Testimony { get; set; } = null!;
-        [Column("date", TypeName = "datetime")]
-        public DateTime Date { get; set; }
 
         //Relationship
-        public virtual ICollection<Domain.Entities.CaseWitness.CaseWitness> CaseWitnesses { get; set; } = null!;
+        public virtual ICollection<Domain.Entities.CaseVictim.CaseVictim>? CaseVictims { get; set; }
+
     }
 }

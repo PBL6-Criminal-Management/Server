@@ -2,10 +2,11 @@ using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.CaseImage;
-using Application.Interfaces.Criminal;
+using Application.Interfaces.CaseInvestigator;
+using Application.Interfaces.CaseVictim;
+using Application.Interfaces.CaseWitness;
 using Application.Interfaces.Evidence;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.Witness;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
@@ -24,19 +25,24 @@ namespace Application.Features.Case.Command.Delete
         private readonly ICaseImageRepository _caseImageRepository;
         private readonly ICaseCriminalRepository _caseCriminalRepository;
         private readonly IEvidenceRepository _evidenceRepository;
-        private readonly IWitnessRepository _witnessRepository;
+        private readonly ICaseWitnessRepository _caseWitnessRepository;
+        private readonly ICaseInvestigatorRepository _caseInvestigatorRepository;
+        private readonly ICaseVictimRepository _caseVictimRepository;
         private readonly IUploadService _uploadService;
         public DeleteCaseCommandHandler(IUnitOfWork<long> unitOfWork, ICaseRepository caseRepository,
             ICaseImageRepository caseImageRepository, ICaseCriminalRepository caseCriminalRepository,
-            IEvidenceRepository evidenceRepository, IWitnessRepository witnessRepository,
-            IUploadService uploadService)
+            IEvidenceRepository evidenceRepository, ICaseWitnessRepository caseWitnessRepository,
+            IUploadService uploadService, ICaseInvestigatorRepository caseInvestigatorRepository,
+            ICaseVictimRepository caseVictimRepository)
         {
             _unitOfWork = unitOfWork;
             _caseRepository = caseRepository;
             _caseImageRepository = caseImageRepository;
             _caseCriminalRepository = caseCriminalRepository;
             _evidenceRepository = evidenceRepository;
-            _witnessRepository = witnessRepository;
+            _caseWitnessRepository = caseWitnessRepository;
+            _caseInvestigatorRepository = caseInvestigatorRepository;
+            _caseVictimRepository = caseVictimRepository;
             _uploadService = uploadService;
         }
         public async Task<Result<long>> Handle(DeleteCaseCommand request, CancellationToken cancellationToken)
@@ -60,8 +66,12 @@ namespace Application.Features.Case.Command.Delete
                 }
                 var evidence = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                 await _evidenceRepository.DeleteRange(evidence);
-                var witness = await _witnessRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _witnessRepository.DeleteRange(witness);
+                var caseWitness = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                await _caseWitnessRepository.DeleteRange(caseWitness);
+                var caseInvestigator = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                await _caseInvestigatorRepository.DeleteRange(caseInvestigator);
+                var caseVictim = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                await _caseVictimRepository.DeleteRange(caseVictim);
                 await _unitOfWork.Commit(cancellationToken);
                 return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_CASE);
             }

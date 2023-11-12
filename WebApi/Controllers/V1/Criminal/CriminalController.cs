@@ -1,12 +1,12 @@
 using Application.Features.Criminal.Command.Add;
 using Domain.Constants;
-using Application.Features.Criminal.Queries.GetAll;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Application.Features.Criminal.Queries.GetById;
 using Application.Features.Criminal.Command.Edit;
 using Application.Features.Criminal.Command.Delete;
+using Application.Features.Criminal.Queries.GetAll;
+using Application.Features.Criminal.Queries.GetById;
 
 namespace WebApi.Controllers.V1.Criminal
 {

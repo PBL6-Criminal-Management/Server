@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231110124638_DeleteColumnCaseIdTableWitness")]
+    partial class DeleteColumnCaseIdTableWitness
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -419,49 +422,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("InvestigatorId");
 
                     b.ToTable("case_investigator");
-                });
-
-            modelBuilder.Entity("Domain.Entities.CaseVictim.CaseVictim", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CaseId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("case_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<ulong>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<long>("VictimId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("victim_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CaseId");
-
-                    b.HasIndex("VictimId");
-
-                    b.ToTable("case_victim");
                 });
 
             modelBuilder.Entity("Domain.Entities.CaseWitness.CaseWitness", b =>
@@ -963,65 +923,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("user");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Victim.Victim", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("address");
-
-                    b.Property<DateOnly?>("Birthday")
-                        .HasColumnType("date")
-                        .HasColumnName("birthday");
-
-                    b.Property<string>("CMND_CCCD")
-                        .IsRequired()
-                        .HasColumnType("varchar(12)")
-                        .HasColumnName("CMND/CCCD");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<ulong?>("Gender")
-                        .HasColumnType("bit")
-                        .HasColumnName("gender");
-
-                    b.Property<ulong>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("varchar(15)")
-                        .HasColumnName("phone_number");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("victim");
-                });
-
             modelBuilder.Entity("Domain.Entities.WantedCriminal.WantedCriminal", b =>
                 {
                     b.Property<long>("Id")
@@ -1316,25 +1217,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Investigator");
                 });
 
-            modelBuilder.Entity("Domain.Entities.CaseVictim.CaseVictim", b =>
-                {
-                    b.HasOne("Domain.Entities.Case.Case", "Case")
-                        .WithMany("CaseVictims")
-                        .HasForeignKey("CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Victim.Victim", "Victim")
-                        .WithMany("CaseVictims")
-                        .HasForeignKey("VictimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Case");
-
-                    b.Navigation("Victim");
-                });
-
             modelBuilder.Entity("Domain.Entities.CaseWitness.CaseWitness", b =>
                 {
                     b.HasOne("Domain.Entities.Case.Case", "Case")
@@ -1453,8 +1335,6 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("CaseInvestigators");
 
-                    b.Navigation("CaseVictims");
-
                     b.Navigation("CaseWitnesses");
 
                     b.Navigation("Evidences");
@@ -1477,11 +1357,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.User.User", b =>
                 {
                     b.Navigation("CaseInvestigators");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Victim.Victim", b =>
-                {
-                    b.Navigation("CaseVictims");
                 });
 
             modelBuilder.Entity("Domain.Entities.Witness.Witness", b =>

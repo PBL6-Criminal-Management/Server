@@ -17,6 +17,14 @@ using Application.Interfaces.Evidence;
 using Infrastructure.Repositories.Evidence;
 using Application.Interfaces.CaseImage;
 using Infrastructure.Repositories.CaseImage;
+using Application.Interfaces.CaseInvestigator;
+using Infrastructure.Repositories.CaseInvestigator;
+using Application.Interfaces.CaseWitness;
+using Infrastructure.Repositories.CaseWitness;
+using Application.Interfaces.Victim;
+using Infrastructure.Repositories.Victim;
+using Application.Interfaces.CaseVictim;
+using Infrastructure.Repositories.CaseVictim;
 
 namespace Infrastructure.Extensions
 {
@@ -57,6 +65,22 @@ namespace Infrastructure.Extensions
         public static void AddCaseImageRepository(this IServiceCollection services)
         {
             services.AddScoped<ICaseImageRepository, CaseImageRepository>();
+        }
+        public static void AddCaseInvestigatorRepository(this IServiceCollection services)
+        {
+            services.AddScoped<ICaseInvestigatorRepository, CaseInvestigatorRepository>();
+        }
+        public static void AddCaseWitnessRepository(this IServiceCollection services)
+        {
+            services.AddScoped<ICaseWitnessRepository, CaseWitnessRepository>();
+        }
+        public static void AddVictimRepository(this IServiceCollection services)
+        {
+            services.AddScoped<IVictimRepository, VictimRepository>();
+        }
+        public static void AddCaseVictimRepository(this IServiceCollection services)
+        {
+            services.AddScoped<ICaseVictimRepository, CaseVictimRepository>();
         }
     }
 }

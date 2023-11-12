@@ -9,11 +9,11 @@ namespace Domain.Entities.Case
     {
         [Column("reason", TypeName = "nvarchar(500)")]
         public string? Reason { get; set; }
-        [Column("murder_weapon",TypeName = "nvarchar(100)")]
+        [Column("murder_weapon", TypeName = "nvarchar(100)")]
         public string? MurderWeapon { get; set; }
         [Column("start_date", TypeName = "datetime")]
         public DateTime StartDate { get; set; }
-        [Column("end_date",TypeName = "datetime")]
+        [Column("end_date", TypeName = "datetime")]
         public DateTime? EndDate { get; set; }
         [Column("type_of_violation", TypeName = "smallint")]
         public TypeOfViolation TypeOfViolation { get; set; }
@@ -26,6 +26,8 @@ namespace Domain.Entities.Case
         public virtual ICollection<Domain.Entities.CaseImage.CaseImage>? CaseImages { get; set; }
         public virtual ICollection<Domain.Entities.CaseCriminal.CaseCriminal>? CaseCriminals { get; set; }
         public virtual ICollection<Domain.Entities.Evidence.Evidence>? Evidences { get; set; }
-        public virtual ICollection<Domain.Entities.Witness.Witness>? Witnesses { get; set; }
+        public virtual ICollection<Domain.Entities.CaseInvestigator.CaseInvestigator>? CaseInvestigators { get; set; }
+        public virtual ICollection<Domain.Entities.CaseWitness.CaseWitness>? CaseWitnesses { get; set; }
+        public virtual ICollection<Domain.Entities.CaseVictim.CaseVictim>? CaseVictims { get; set; }
     }
 }
