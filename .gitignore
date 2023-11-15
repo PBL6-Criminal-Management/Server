@@ -387,6 +387,7 @@ FodyWeavers.xsd
 *.sln.iml
 *.xml
 *.bak
+!Infrastructure/Services/FaceDetect/haarcascade_frontalface_default.xml
 
 #Files save
 WebApi/Files

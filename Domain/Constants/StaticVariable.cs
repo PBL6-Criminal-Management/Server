@@ -35,6 +35,12 @@ namespace Domain.Constants
         public const string CHANGE_ROLE_FAIL = "Thay đổi role không thành công";
         public const string NOT_FOUND_CRIMINAL = "Không tìm thấy tội phạm phù hợp!";
 
+        //AI Model
+        public const string UNKNOWN = "Không nhận diện ra";
+        public const string AI_MODEL_HAS_NOT_TRAINED_YET = "Mô hình AI chưa được huấn luyện!";
+        public const string NOT_FOUND_IMAGE_TO_TRAIN = "Không tìm thấy ảnh nào để huấn luyện!";
+        public const string AI_MODEL_HAS_TRAINED_SUCCESSFULLY = "Mô hình AI được huấn luyện thành công!";
+
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";
         public const string LIMIT_CMND_CCCD = "CMND_CCCD không được vượt quá 15 ký tự!";
@@ -75,5 +81,6 @@ namespace Domain.Constants
 
         //Error message
         public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";
+        public const string INTERNAL_SERVER_ERROR = "Lỗi server";
     }
 }
