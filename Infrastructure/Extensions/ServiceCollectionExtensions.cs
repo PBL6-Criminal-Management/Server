@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Infrastructure.Services.FaceDetect;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Infrastructure.Extensions
 {
@@ -55,8 +57,10 @@ namespace Infrastructure.Extensions
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<IExcelService, ExcelService>();
+            services.AddScoped<ICheckFileType, CheckFileType>();
+            services.AddScoped<ICheckSizeFile, CheckFileSize>();
             services.AddScoped<IUploadService, UploadService>();
-
+            services.AddSingleton<IFaceDetectService, FaceDetectService>();
         }
 
         public static void AddRepositories(this IServiceCollection services)

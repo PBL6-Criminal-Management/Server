@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.Requests.Image;
-using Application.Interfaces;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Repositories;
@@ -9,10 +8,8 @@ using Domain.Constants.Enum;
 using Domain.Entities.CriminalImage;
 using Domain.Wrappers;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Application.Features.Criminal.Command.Add
