@@ -9,9 +9,9 @@ namespace Application.Dtos.Requests.Witness
     {
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
-        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CMND_CCCD)]
-        [JsonPropertyName("cmnd_cccd")]
-        public string CMND_CCCD { get; set; } = null!;
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [JsonPropertyName("citizen_id")]
+        public string CitizenID { get; set; } = null!;
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_PHONENUMBER)]
         [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
         [DefaultValue("stringst")]
@@ -19,6 +19,7 @@ namespace Application.Dtos.Requests.Witness
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
         public string Address { get; set; } = null!;
         public string Testimony { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime Date { get; set; }
     }
 }

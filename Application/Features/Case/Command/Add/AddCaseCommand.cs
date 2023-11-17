@@ -18,7 +18,6 @@ using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Wrappers;
 using MediatR;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -30,7 +29,9 @@ namespace Application.Features.Case.Command.Add
         public string? Reason { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_MURDER_WEAPON)]
         public string? MurderWeapon { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime? EndDate { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
         public short Status { get; set; }
@@ -128,7 +129,7 @@ namespace Application.Features.Case.Command.Add
                 List<long> witnessIds = new List<long>();
                 foreach (var witness in request.Witnesses)
                 {
-                    var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CMND_CCCD.Equals(witness.CMND_CCCD));
+                    var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenID.Equals(witness.CitizenID));
                     if (checkWitnessExist == null)
                     {
                         var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
@@ -165,7 +166,7 @@ namespace Application.Features.Case.Command.Add
                 List<long> victimIds = new List<long>();
                 foreach (var victim in request.Victims)
                 {
-                    var checkVictimExist = await _victimRepository.FindAsync(_ => _.CMND_CCCD.Equals(victim.CMND_CCCD) && !_.IsDeleted);
+                    var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenID.Equals(victim.CitizenID) && !_.IsDeleted);
                     if (checkVictimExist == null)
                     {
                         var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);

@@ -5,6 +5,7 @@ using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Services;
 using Application.Interfaces.WantedCriminal;
+using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -72,7 +73,18 @@ namespace Application.Features.FaceDetect.Queries.Detect
             var detectResult = _faceDetectService.FaceDetect(request.CriminalImage, false);
 
             if (detectResult.Message != null)
-                return await Result<DetectResponse>.FailAsync(detectResult.Message);
+            {
+                if(detectResult.Message.Equals(StaticVariable.UNKNOWN))
+                    return await Result<DetectResponse>.SuccessAsync(new DetectResponse
+                    {
+                        CanPredict = false,
+                        ResultFile = detectResult.DetectResultFile,
+                        DetectConfidence = null,
+                        FoundCriminal = null
+                    });
+                else
+                    return await Result<DetectResponse>.FailAsync(detectResult.Message);
+            }
 
             var criminalId = detectResult.CriminalId;
 
@@ -85,15 +97,6 @@ namespace Application.Features.FaceDetect.Queries.Detect
                                       g.OrderByDescending(c => c.StartDate).FirstOrDefault()!.Charge,
                                       RelatedCases = string.Join(", ", g.Select(_case => _case.Id))
                                   }).FirstOrDefault();
-
-            if (caseOfCriminal == null)
-                return await Result<DetectResponse>.SuccessAsync(new DetectResponse
-                {
-                    CanPredict = true,
-                    ResultFile = detectResult.DetectResultFile,
-                    DetectConfidence = detectResult.DetectConfidence,
-                    FoundCriminal = null
-                });
 
             var imageOfCriminal = (from criminalImage in _criminalImageRepository.Entities
                                    where criminalImage.CriminalId == criminalId
@@ -119,21 +122,21 @@ namespace Application.Features.FaceDetect.Queries.Detect
                                        Nationality = criminal.Nationality,
                                        Ethnicity = criminal.Ethnicity,
                                        Religion = criminal.Religion,
-                                       CMND_CCCD = criminal.CMND_CCCD,
+                                       CitizenID = criminal.CitizenID,
                                        CareerAndWorkplace = criminal.CareerAndWorkplace,
                                        PermanentResidence = criminal.PermanentResidence,
                                        CurrentAccommodation = criminal.CurrentAccommodation,
                                        FatherName = criminal.FatherName,
                                        FatherBirthday = criminal.FatherBirthday,
-                                       Father_CMND_CCCD = criminal.Father_CMND_CCCD,
+                                       FatherCitizenID = criminal.FatherCitizenID,
                                        MotherName = criminal.MotherName,
                                        MotherBirthday = criminal.MotherBirthday,
-                                       Mother_CMND_CCCD = criminal.Mother_CMND_CCCD,
+                                       MotherCitizenID = criminal.MotherCitizenID,
                                        Characteristics = criminal.Characteristics,
                                        Status = criminal.Status,
-                                       RelatedCases = caseOfCriminal.RelatedCases,
+                                       RelatedCases = caseOfCriminal != null? caseOfCriminal.RelatedCases : null,
                                        DangerousLevel = criminal.DangerousLevel,
-                                       Charge = caseOfCriminal.Charge,
+                                       Charge = caseOfCriminal != null ? caseOfCriminal.Charge : null,
                                        DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
                                        ReleaseDate = criminal.ReleaseDate,
                                        EntryAndExitInformation = criminal.EntryAndExitInformation,

@@ -6,9 +6,10 @@ namespace Application.Features.Account.Queries.GetById
     public class GetAccountByIdResponse
     {
         public string Name { get; set; } = null!;
-        [JsonPropertyName("cmnd_cccd")]
-        public string CMND_CCCD { get; set; } = null!;
+        [JsonPropertyName("citizen_id")]
+        public string CitizenID { get; set; } = null!;
         public bool? Gender { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;

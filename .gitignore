@@ -389,6 +389,10 @@ FodyWeavers.xsd
 *.bak
 !Infrastructure/Services/FaceDetect/haarcascade_frontalface_default.xml
 
+Infrastructure/Services/FaceDetect/DetectResult
+Infrastructure/Services/FaceDetect/InputImage
+Infrastructure/Services/FaceDetect/TrainGrayImage
+Infrastructure/Services/FaceDetect/ImageToTrain
 #Files save
 WebApi/Files
 

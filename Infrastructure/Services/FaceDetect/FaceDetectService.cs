@@ -16,11 +16,12 @@ namespace Infrastructure.Services.FaceDetect
         readonly string solutionPath;
         readonly string detectBasePath;
         readonly string modelPath;
+        readonly string unknownImagePath;
 
         EigenFaceRecognizer recognizer;
         readonly CascadeClassifier faceCasacdeClassifier;
 
-        const int ThresholdForDetectedFacesImage = 10700;
+        const int ThresholdForDetectedFacesImage = 10330;
         const int ThresholdForNonDetectedFacesImage = 2000;
         readonly Size allowedFaceMinimizeSize = new Size(70, 70);
 
@@ -35,6 +36,7 @@ namespace Infrastructure.Services.FaceDetect
             solutionPath = $"{webHostEnvironment.ContentRootPath.Split("\\WebApi")[0]}";
             detectBasePath = $"{webHostEnvironment.ContentRootPath.Split("\\WebApi")[0]}/Infrastructure/Services/FaceDetect";
             modelPath = $"{detectBasePath}/Model/model.xml";
+            unknownImagePath = $"{detectBasePath}/unknown.png";
             faceCasacdeClassifier = new CascadeClassifier($"{detectBasePath}/haarcascade_frontalface_default.xml");
 
             if (!Directory.Exists(detectBasePath))
@@ -120,6 +122,8 @@ namespace Infrastructure.Services.FaceDetect
                                 else
                                 {
                                     dr.Message = StaticVariable.UNKNOWN;
+                                    if (File.Exists(unknownImagePath))
+                                        dr.DetectResultFile = File.ReadAllBytes(unknownImagePath);
                                     CvInvoke.PutText(imageFrame, StaticVariable.UNKNOWN, new Point(face.X - 2, face.Y - 2),
                                         FontFace.HersheyComplex, 1.0, new Bgr(Color.Orange).MCvScalar);
                                     CvInvoke.Rectangle(imageFrame, face, new Bgr(Color.Red).MCvScalar, 2);
@@ -146,7 +150,7 @@ namespace Infrastructure.Services.FaceDetect
 
                             if (result.Label != -1 && result.Distance < ThresholdForNonDetectedFacesImage)
                             {
-                                CvInvoke.PutText(imageFrame, $"Id: {result.Label}", new Point(30, 30),
+                                CvInvoke.PutText(imageFrame, $"Id: {result.Label}", new Point(80, 80),
                                     FontFace.HersheyComplex, 1.0, new Bgr(Color.Orange).MCvScalar);
 
                                 dr.CriminalId = result.Label;
@@ -156,13 +160,15 @@ namespace Infrastructure.Services.FaceDetect
                             else
                             {
                                 dr.Message = StaticVariable.UNKNOWN;
+                                if(File.Exists(unknownImagePath))
+                                    dr.DetectResultFile = File.ReadAllBytes(unknownImagePath);
                                 CvInvoke.PutText(imageFrame, StaticVariable.UNKNOWN, new Point(30, 30),
                                     FontFace.HersheyComplex, 1.0, new Bgr(Color.Orange).MCvScalar);
                             }
                         }
 
                         //export to png
-                        //SaveImage(imageFrame, "/DetectResult", "Result");
+                        SaveImage(imageFrame, "/DetectResult", "Result");
                     }
 
                 }

@@ -77,7 +77,7 @@ namespace Application.Features.Case.Queries.GetById
                 (cw, c) => new Dtos.Responses.Witness.WitnessResponse
                 {
                     Name = c.Name,
-                    CMND_CCCD = c.CMND_CCCD,
+                    CitizenID = c.CitizenID,
                     PhoneNumber = c.PhoneNumber,
                     Address = c.Address,
                     Testimony = c.Testimony,

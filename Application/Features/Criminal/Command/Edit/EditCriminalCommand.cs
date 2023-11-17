@@ -23,10 +23,11 @@ namespace Application.Features.Criminal.Command.Edit
         public string Name { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_ANOTHER_NAME)]
         public string AnotherName { get; set; } = null!;
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CMND_CCCD)]
-        [JsonPropertyName("cmnd_cccd")]
-        public string CMND_CCCD { get; set; } = null!;
+        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [JsonPropertyName("citizen_id")]
+        public string CitizenID { get; set; } = null!;
         public bool? Gender { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly Birthday { get; set; }
         [RegularExpression(@"(\+84|84|0)+(3|5|7|8|9|1[2|6|8|9])+([0-9]{8,10})\b", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_PHONENUMBER)]
@@ -48,15 +49,17 @@ namespace Application.Features.Criminal.Command.Edit
         public string Nationality { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_FATHER_NAME)]
         public string FatherName { get; set; } = null!;
-        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_FATHER_CMND_CCCD)]
-        [JsonPropertyName("father_cmnd_cccd")]
-        public string Father_CMND_CCCD { get; set; } = null!;
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_FATHER_CITIZEN_ID)]
+        [JsonPropertyName("father_citizen_id")]
+        public string FatherCitizenID { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly FatherBirthday { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_MOTHER_NAME)]
         public string MotherName { get; set; } = null!;
-        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_MOTHER_CMND_CCCD)]
-        [JsonPropertyName("mother_cmnd_cccd")]
-        public string Mother_CMND_CCCD { get; set; } = null!;
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_MOTHER_CITIZEN_ID)]
+        [JsonPropertyName("mother_citizen_id")]
+        public string MotherCitizenID { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly MotherBirthday { get; set; }
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_PERMANENT_RESIDENCE)]
         public string PermanentResidence { get; set; } = null!;
@@ -80,7 +83,9 @@ namespace Application.Features.Criminal.Command.Edit
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_DANGEROUS_LEVEL)]
         public string? DangerousLevel { get; set; }
         public string? ApproachArrange { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly DateOfMostRecentCrime { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? ReleaseDate { get; set; }
         public CriminalStatus Status { get; set; }
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]

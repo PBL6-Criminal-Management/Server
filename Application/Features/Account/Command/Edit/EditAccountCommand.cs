@@ -1,10 +1,8 @@
 ﻿
-using Application.Features.Account.Command.Add;
 using Application.Interfaces;
 using Application.Interfaces.Account;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services.Account;
-using Application.Interfaces.Services.Identity;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
@@ -13,7 +11,6 @@ using MediatR;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Application.Features.Account.Command.Edit
 {
@@ -22,9 +19,10 @@ namespace Application.Features.Account.Command.Edit
         public long Id { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CMND_CCCD)]
-        [JsonPropertyName("cmnd_cccd")]
-        public string CMND_CCCD { get; set; } = null!;
+        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [JsonPropertyName("citizen_id")]
+        public string CitizenID { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
         public string Address { get; set; } = null!;
@@ -71,10 +69,10 @@ namespace Application.Features.Account.Command.Edit
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
-            var isCMND_CCCDExists = _accountRepository.Entities.FirstOrDefault(x => x.CMND_CCCD == request.CMND_CCCD && !x.IsDeleted && x.Id != request.Id);
-            if (isCMND_CCCDExists != null)
+            var isCitizenIDExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenID == request.CitizenID && !x.IsDeleted && x.Id != request.Id);
+            if (isCitizenIDExists != null)
             {
-                return await Result<EditAccountCommand>.FailAsync(StaticVariable.CMND_CCCD_EXISTS_MSG);
+                return await Result<EditAccountCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }
 
             var isEmailExists = _accountRepository.Entities.FirstOrDefault(x => x.Email == request.Email && !x.IsDeleted && x.Id != request.Id);
