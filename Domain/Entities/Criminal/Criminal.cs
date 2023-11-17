@@ -11,8 +11,8 @@ namespace Domain.Entities.Criminal
         public string Name { get; set; } = null!;
         [Column("another_name", TypeName = "nvarchar(100)")]
         public string AnotherName { get; set; } = null!;
-        [Column("CMND/CCCD", TypeName = "varchar(12)")]
-        public string CMND_CCCD { get; set; } = null!;
+        [Column("citizen_id", TypeName = "varchar(12)")]
+        public string CitizenID { get; set; } = null!;
         [Column("gender", TypeName = "bit")]
         public bool? Gender { get; set; }
         [Column("birthday", TypeName = "date")]
@@ -35,14 +35,14 @@ namespace Domain.Entities.Criminal
         public string Nationality { get; set; } = null!;
         [Column("father_name", TypeName = "nvarchar(100)")]
         public string FatherName { get; set; } = null!;
-        [Column("father_CMND/CCCD", TypeName = "varchar(12)")]
-        public string Father_CMND_CCCD { get; set; } = null!;
+        [Column("father_citizen_id", TypeName = "varchar(12)")]
+        public string FatherCitizenID { get; set; } = null!;
         [Column("father_birthday", TypeName = "date")]
         public DateOnly FatherBirthday { get; set; }
         [Column("mother_name", TypeName = "nvarchar(100)")]
         public string MotherName { get; set; } = null!;
-        [Column("mother_CMND/CCCD", TypeName = "varchar(12)")]
-        public string Mother_CMND_CCCD { get; set; } = null!;
+        [Column("mother_citizen_id", TypeName = "varchar(12)")]
+        public string MotherCitizenID { get; set; } = null!;
         [Column("mother_birthday", TypeName = "date")]
         public DateOnly MotherBirthday { get; set; }
         [Column("permanent_residence", TypeName = "nvarchar(200)")]

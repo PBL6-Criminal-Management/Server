@@ -12,7 +12,7 @@ namespace Infrastructure.Services
             foreach (IFormFile file in request.Files)
             {
                 long fileSize = file.Length;
-                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //5MB  
+                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //10MB  
                 if (fileSize >= maxSizeImage)
                 {
                     result = $"Do not upload image over max size {maxSizeImage / (1024 * 1024)} MB";

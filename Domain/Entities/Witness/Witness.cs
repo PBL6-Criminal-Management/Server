@@ -8,8 +8,8 @@ namespace Domain.Entities.Witness
     {
         [Column("name", TypeName = "nvarchar(100)")]
         public string Name { get; set; } = null!;
-        [Column("CMND/CCCD", TypeName = "varchar(12)")]
-        public string CMND_CCCD { get; set; } = null!;
+        [Column("citizen_id", TypeName = "varchar(12)")]
+        public string CitizenID { get; set; } = null!;
         [Column("phone_number", TypeName = "varchar(15)")]
         public string PhoneNumber { get; set; } = null!;
         [Column("address", TypeName = "nvarchar(200)")]

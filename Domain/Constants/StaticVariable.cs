@@ -31,7 +31,7 @@ namespace Domain.Constants
         public const string PHONE_NUMBER_EXISTS_MSG = "Số điện thoại đã tồn tại trong cơ sở dữ liệu!";
         public const string EMAIL_EXISTS_MSG = "Email đã tồn tại trong cơ sở dữ liệu!";
         public const string USERNAME_EXISTS_MSG = "Tên người dùng đã tồn tại trong cơ sở dữ liệu!";
-        public const string CMND_CCCD_EXISTS_MSG = "CMND hoặc CCCD đã tồn tại trong cơ sở dữ liệu!";
+        public const string CITIZEN_ID_EXISTS_MSG = "CMND hoặc CCCD đã tồn tại trong cơ sở dữ liệu!";
         public const string CHANGE_ROLE_FAIL = "Thay đổi role không thành công";
         public const string NOT_FOUND_CRIMINAL = "Không tìm thấy tội phạm phù hợp!";
 
@@ -43,7 +43,7 @@ namespace Domain.Constants
 
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";
-        public const string LIMIT_CMND_CCCD = "CMND_CCCD không được vượt quá 15 ký tự!";
+        public const string LIMIT_CITIZEN_ID = "CitizenID không được vượt quá 15 ký tự!";
         public const string LIMIT_ADDRESS = "Địa chỉ không được vượt quá 200 ký tự!";
         public const string LIMIT_PHONENUMBER = "Số điện thoại không được vượt quá 15 ký tự!";
         public const string LIMIT_EMAIL = "Email không được vượt quá 100 ký tự!";
@@ -61,9 +61,9 @@ namespace Domain.Constants
         public const string LIMIT_RELIGION = "Tôn giáo không được vượt quá 50 ký tự!";
         public const string LIMIT_NATIONALITY = "Quốc tịch không được vượt quá 50 ký tự!";
         public const string LIMIT_FATHER_NAME = "Tên bố của tội phạm không được vượt quá 100 ký tự!";
-        public const string LIMIT_FATHER_CMND_CCCD = "Chứng minh nhân dân của bố tội phạm không được vượt quá 12 ký tự!";
+        public const string LIMIT_FATHER_CITIZEN_ID = "Chứng minh nhân dân của bố tội phạm không được vượt quá 12 ký tự!";
         public const string LIMIT_MOTHER_NAME = "Tên mẹ của tội phạm không được vượt quá 100 ký tự!";
-        public const string LIMIT_MOTHER_CMND_CCCD = "Chứng minh nhân dân của mẹ tội phạm không được vượt quá 12 ký tự!";
+        public const string LIMIT_MOTHER_CITIZEN_ID = "Chứng minh nhân dân của mẹ tội phạm không được vượt quá 12 ký tự!";
         public const string LIMIT_PERMANENT_RESIDENCE = "Địa chỉ thường trú không được vượt quá 200 ký tự!";
         public const string LIMIT_CURRENT_ACCOMMODATION = "Địa chỉ hiện tại không được vượt quá 200 ký tự";
         public const string LIMIT_ENTRY_AND_EXITINFORMATION = "Thông tin xuất nhập cảnh không được vượt quá 500 ký tự!";

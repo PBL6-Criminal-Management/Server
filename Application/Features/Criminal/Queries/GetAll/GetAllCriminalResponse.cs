@@ -1,4 +1,5 @@
 ﻿using Domain.Constants.Enum;
+using System.Text.Json.Serialization;
 
 namespace Application.Features.Criminal.Queries.GetAll
 {
@@ -10,7 +11,9 @@ namespace Application.Features.Criminal.Queries.GetAll
         public string PermanentResidence { get; set; } = null!;
         public CriminalStatus Status { get; set; }
         public string Charge { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly DateOfMostRecentCrime { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime CreatedAt { get; set; }
     }
 }

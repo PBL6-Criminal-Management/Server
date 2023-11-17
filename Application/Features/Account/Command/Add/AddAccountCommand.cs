@@ -8,10 +8,8 @@ using Domain.Constants.Enum;
 using Domain.Entities;
 using Domain.Wrappers;
 using MediatR;
-using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 using System.Text.Json.Serialization;
 
 namespace Application.Features.Account.Command.Add
@@ -23,10 +21,11 @@ namespace Application.Features.Account.Command.Add
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
 
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CMND_CCCD)]
-        [JsonPropertyName("cmnd_cccd")]
-        public string CMND_CCCD { get; set; } = null!;
+        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [JsonPropertyName("citizen_id")]
+        public string CitizenID { get; set; } = null!;
 
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
 
         [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = StaticVariable.INVALID_USER_NAME)]
@@ -86,10 +85,10 @@ namespace Application.Features.Account.Command.Add
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.USERNAME_EXISTS_MSG);
             }
 
-            var isCMND_CCCDExists = _accountRepository.Entities.FirstOrDefault(x => x.CMND_CCCD == request.CMND_CCCD && !x.IsDeleted);
-            if (isCMND_CCCDExists != null)
+            var isCitizenIDExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenID == request.CitizenID && !x.IsDeleted);
+            if (isCitizenIDExists != null)
             {
-                return await Result<AddAccountCommand>.FailAsync(StaticVariable.CMND_CCCD_EXISTS_MSG);
+                return await Result<AddAccountCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }
 
             var isEmailExists = _accountRepository.Entities.FirstOrDefault(x => x.Email == request.Email && !x.IsDeleted);

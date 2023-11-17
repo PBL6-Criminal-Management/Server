@@ -68,6 +68,12 @@ try
     {
         options.Filters.Add<CustomValidationFilter>(int.MinValue);
     });
+    //Apply converter for all datetime/dateonly fields
+    //.AddJsonOptions(options =>
+    //{
+    //    options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+    //    options.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
+    //});
 
     builder.Services.AddEndpointsApiExplorer();
 

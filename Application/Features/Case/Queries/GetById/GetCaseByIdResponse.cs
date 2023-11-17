@@ -4,6 +4,7 @@ using Application.Dtos.Responses.User;
 using Application.Dtos.Responses.Victim;
 using Application.Dtos.Responses.Witness;
 using Domain.Constants.Enum;
+using System.Text.Json.Serialization;
 
 namespace Application.Features.Case.Queries.GetById
 {
@@ -12,7 +13,9 @@ namespace Application.Features.Case.Queries.GetById
         public long Id { get; set; }
         public string? Reason { get; set; }
         public string? MurderWeapon { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime? EndDate { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
         public short Status { get; set; }
