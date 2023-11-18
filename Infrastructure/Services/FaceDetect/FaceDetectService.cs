@@ -124,7 +124,7 @@ namespace Infrastructure.Services.FaceDetect
                                     dr.Message = StaticVariable.UNKNOWN;
                                     if (File.Exists(unknownImagePath))
                                         dr.DetectResultFile = File.ReadAllBytes(unknownImagePath);
-                                    CvInvoke.PutText(imageFrame, StaticVariable.UNKNOWN, new Point(face.X - 2, face.Y - 2),
+                                    CvInvoke.PutText(imageFrame, "Khong biet", new Point(face.X - 2, face.Y - 2),
                                         FontFace.HersheyComplex, 1.0, new Bgr(Color.Orange).MCvScalar);
                                     CvInvoke.Rectangle(imageFrame, face, new Bgr(Color.Red).MCvScalar, 2);
                                 }
@@ -162,13 +162,13 @@ namespace Infrastructure.Services.FaceDetect
                                 dr.Message = StaticVariable.UNKNOWN;
                                 if(File.Exists(unknownImagePath))
                                     dr.DetectResultFile = File.ReadAllBytes(unknownImagePath);
-                                CvInvoke.PutText(imageFrame, StaticVariable.UNKNOWN, new Point(30, 30),
+                                CvInvoke.PutText(imageFrame, "Khong biet", new Point(30, 30),
                                     FontFace.HersheyComplex, 1.0, new Bgr(Color.Orange).MCvScalar);
                             }
                         }
 
                         //export to png
-                        SaveImage(imageFrame, "/DetectResult", "Result");
+                        //SaveImage(imageFrame, "/DetectResult", "Result");
                     }
 
                 }
@@ -203,7 +203,12 @@ namespace Infrastructure.Services.FaceDetect
                     string[] images = Directory.GetFiles(folder);
                     foreach (string image in images)
                     {
-                        Image<Bgr, byte> resultImage = new Image<Bgr, byte>(image);
+                        byte[] fileBytes = File.ReadAllBytes(image);
+                        Mat imageMat = new Mat();
+                        CvInvoke.Imdecode(fileBytes, ImreadModes.Color, imageMat);
+
+                        // Convert Mat to Image<Bgr, Byte>
+                        Image<Bgr, byte> resultImage = imageMat.ToImage<Bgr, byte>();
 
                         Mat grayImage = new Mat();
                         CvInvoke.CvtColor(resultImage, grayImage, ColorConversion.Bgr2Gray);
