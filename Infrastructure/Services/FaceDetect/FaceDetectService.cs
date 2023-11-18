@@ -5,7 +5,6 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Face;
 using Emgu.CV.Structure;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Drawing;
 
@@ -19,7 +18,7 @@ namespace Infrastructure.Services.FaceDetect
         readonly string unknownImagePath;
 
         EigenFaceRecognizer recognizer;
-        readonly CascadeClassifier faceCasacdeClassifier;
+        CascadeClassifier faceCasacdeClassifier;
 
         const int ThresholdForDetectedFacesImage = 10330;
         const int ThresholdForNonDetectedFacesImage = 2000;
@@ -30,29 +29,38 @@ namespace Infrastructure.Services.FaceDetect
 
         bool isTrained = false;
 
-        public FaceDetectService(IWebHostEnvironment webHostEnvironment)
+        public FaceDetectService()
         {
-            recognizer = new EigenFaceRecognizer();
-            solutionPath = $"{webHostEnvironment.ContentRootPath.Split("\\WebApi")[0]}";
-            detectBasePath = $"{webHostEnvironment.ContentRootPath.Split("\\WebApi")[0]}/Infrastructure/Services/FaceDetect";
+            solutionPath = $"{Directory.GetCurrentDirectory().Split("\\WebApi")[0]}";
+            detectBasePath = $"{solutionPath}/Infrastructure/Services/FaceDetect";
             modelPath = $"{detectBasePath}/Model/model.xml";
             unknownImagePath = $"{detectBasePath}/unknown.png";
-            faceCasacdeClassifier = new CascadeClassifier($"{detectBasePath}/haarcascade_frontalface_default.xml");
 
             if (!Directory.Exists(detectBasePath))
             {
                 Directory.CreateDirectory(detectBasePath);
             }
-            if (File.Exists(modelPath))
+        }
+
+        public void InitRecogizer()
+        {
+            if (recognizer == null)
             {
-                //Load model from file
-                recognizer.Read(modelPath);
-                isTrained = true;
+                faceCasacdeClassifier = new CascadeClassifier($"{detectBasePath}/haarcascade_frontalface_default.xml");
+                recognizer = new EigenFaceRecognizer();
+                if (File.Exists(modelPath))
+                {
+                    //Load model from file
+                    recognizer.Read(modelPath);
+                    isTrained = true;
+                }
             }
+                
         }
 
         public DetectResult FaceDetect(IFormFile file, bool enableSaveImage)
         {
+            InitRecogizer();
             DetectResult dr = new DetectResult();
             if (isTrained)
             {
