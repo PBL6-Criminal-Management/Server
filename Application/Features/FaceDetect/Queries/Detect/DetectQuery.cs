@@ -108,8 +108,6 @@ namespace Application.Features.FaceDetect.Queries.Detect
                                select new DetectResponse()
                                {
                                    CanPredict = true,
-                                   ResultFile = detectResult.DetectResultFile,
-                                   DetectConfidence = detectResult.DetectConfidence,
                                    FoundCriminal = new FoundCriminal
                                    {
                                        Id = criminal.Id,
@@ -134,7 +132,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
                                        MotherCitizenID = criminal.MotherCitizenID,
                                        Characteristics = criminal.Characteristics,
                                        Status = criminal.Status,
-                                       RelatedCases = caseOfCriminal != null? caseOfCriminal.RelatedCases : null,
+                                       RelatedCases = caseOfCriminal != null ? caseOfCriminal.RelatedCases : null,
                                        DangerousLevel = criminal.DangerousLevel,
                                        Charge = caseOfCriminal != null ? caseOfCriminal.Charge : null,
                                        DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
@@ -168,6 +166,9 @@ namespace Application.Features.FaceDetect.Queries.Detect
                     DetectConfidence = detectResult.DetectConfidence,
                     FoundCriminal = null
                 });
+
+            query.ResultFile = detectResult.DetectResultFile;
+            query.DetectConfidence = detectResult.DetectConfidence;
 
             return await Result<DetectResponse>.SuccessAsync(query);
         }

@@ -20,7 +20,7 @@ namespace Infrastructure.Services
            List<UploadResponse> responses = new List<UploadResponse>();
            foreach(var file in request.Files)
            {
-                var fileName = $"{DateTime.Now:yyyyMMddHHmmsss}_{file.FileName}";
+                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
                 var folderName = (request.FilePath != null) ? Path.Combine("Files", request.FilePath) : "Files";
                 var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
                 var isImage = CheckFilesIsImage(request);
