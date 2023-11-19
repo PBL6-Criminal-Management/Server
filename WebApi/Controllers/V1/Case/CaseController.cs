@@ -1,5 +1,6 @@
 ﻿using Application.Features.Case.Command.Add;
 using Application.Features.Case.Command.Delete;
+using Application.Features.Case.Command.Edit;
 using Application.Features.Case.Queries.GetById;
 using Domain.Constants;
 using Domain.Wrappers;
@@ -29,7 +30,7 @@ namespace WebApi.Controllers.V1.Case
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteCase(long id)
         {
@@ -43,7 +44,7 @@ namespace WebApi.Controllers.V1.Case
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<GetCaseByIdResponse>>> GetCaseById(long id)
         {
@@ -51,6 +52,18 @@ namespace WebApi.Controllers.V1.Case
             {
                 Id = id
             }));
+        }
+        /// <summary>
+        /// Edit Case
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditCase(EditCaseCommand command)
+        {
+            var result = await Mediator.Send(command);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
     }
 }
