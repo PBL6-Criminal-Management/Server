@@ -76,6 +76,7 @@ namespace Application.Features.Case.Queries.GetById
                 w => w.Id,
                 (cw, c) => new Dtos.Responses.Witness.WitnessResponse
                 {
+                    Id = c.Id,
                     Name = c.Name,
                     CitizenID = c.CitizenID,
                     PhoneNumber = c.PhoneNumber,
@@ -84,12 +85,13 @@ namespace Application.Features.Case.Queries.GetById
                     Date = c.Date
                 }).ToListAsync();
             if (witnessOfCase.Any()) response.Witnesses?.AddRange(witnessOfCase);
-            var investigatorOFCase = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id)
+            var investigatorOFCase = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
             .Join(_accountRepository.Entities,
                 cI => cI.InvestigatorId,
                 i => i.Id,
                 (ci, i) => new Dtos.Responses.User.UserResponse
                 {
+                    Id = i.Id,
                     Name = i.Name,
                     Birthday = i.Birthday,
                     Gender = i.Gender,
@@ -97,25 +99,28 @@ namespace Application.Features.Case.Queries.GetById
                     Address = i.Address
                 }).ToListAsync();
             if (investigatorOFCase.Any()) response.Investigators?.AddRange(investigatorOFCase);
-            var victimOfCase = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id)
+            var victimOfCase = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
             .Join(_victimRepository.Entities,
                cV => cV.VictimId,
                v => v.Id,
                (cV, v) => new Dtos.Responses.Victim.VictimResponse
                {
+                   Id = v.Id,
                    Name = v.Name,
                    Birthday = v.Birthday,
                    Gender = v.Gender,
                    PhoneNumber = v.PhoneNumber,
+                   CitizenID = v.CitizenID,
                    Address = v.Address
                }).ToListAsync();
             if (victimOfCase.Any()) response.Victims?.AddRange(victimOfCase);
-            var criminalOfCase = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id)
+            var criminalOfCase = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
             .Join(_criminalRepository.Entities,
                cCr => cCr.CriminalId,
                c => c.Id,
                (cCr, c) => new Dtos.Responses.Criminal.CriminalResponse
                {
+                   Id = c.Id,
                    Name = c.Name,
                    Birthday = c.Birthday,
                    Gender = c.Gender,

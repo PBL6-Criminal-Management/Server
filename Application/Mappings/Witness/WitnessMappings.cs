@@ -1,5 +1,4 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 
 namespace Application.Mappings.Witness
 {
@@ -8,7 +7,8 @@ namespace Application.Mappings.Witness
         public WitnessMappings()
         {
             CreateMap<Domain.Entities.Witness.Witness, Application.Dtos.Requests.Witness.WitnessRequest>()
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, otp => otp.Ignore());
         }
     }
 }

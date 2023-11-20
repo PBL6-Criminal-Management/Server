@@ -7,6 +7,7 @@ namespace Application.Dtos.Requests.Witness
 {
     public class WitnessRequest
     {
+        public long Id { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
         [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]

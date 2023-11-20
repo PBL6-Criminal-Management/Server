@@ -4,6 +4,7 @@ namespace Application.Dtos.Responses.Witness
 {
     public class WitnessResponse
     {
+        public long Id { get; set; }
         public string Name { get; set; } = null!;
         [JsonPropertyName("citizen_id")]
         public string CitizenID { get; set; } = null!;

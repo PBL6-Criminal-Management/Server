@@ -7,7 +7,8 @@ namespace Application.Mappings.Victim
         public VictimMappings()
         {
             CreateMap<Domain.Entities.Victim.Victim, Application.Dtos.Requests.Victim.VictimRequest>()
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, otp => otp.Ignore());
         }
     }
 }
