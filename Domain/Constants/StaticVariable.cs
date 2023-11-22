@@ -78,6 +78,7 @@ namespace Domain.Constants
         public const string LIMIT_REASON = "Lí do không được vượt quá 600 ký tự";
         public const string LIMIT_MURDER_WEAPON = "Hung khí không được vượt quá 100 ký tự";
         public const string LIMIT_CHARGE = "Tội danh không được vượt quá 100 ký tự";
+        public const string LIMIT_CRIME_SCENE = "Địa điểm xảy ra vụ án không được vượt quá 200 ký tự";
 
         //Error message
         public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";

@@ -1,6 +1,7 @@
 ﻿using Application.Features.Case.Command.Add;
 using Application.Features.Case.Command.Delete;
 using Application.Features.Case.Command.Edit;
+using Application.Features.Case.Queries.GetAll;
 using Application.Features.Case.Queries.GetById;
 using Domain.Constants;
 using Domain.Wrappers;
@@ -64,6 +65,28 @@ namespace WebApi.Controllers.V1.Case
         {
             var result = await Mediator.Send(command);
             return (result.Succeeded) ? Ok(result) : BadRequest(result);
+        }
+        /// <summary>
+        /// Get All Case 
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<PaginatedResult<GetAllCaseResponse>>> GetAllCriminal([FromQuery] GetAllCaseParameter parameter)
+        {
+            return Ok(await Mediator.Send(new GetAllCaseQuery()
+            {
+                Status = parameter.Status,
+                TimeTakesPlace = parameter.TimeTakesPlace,
+                TypeOfViolation = parameter.TypeOfViolation,
+                Area = parameter.Area,
+                IsExport = parameter.IsExport,
+                OrderBy = parameter.OrderBy,
+                Keyword = parameter.Keyword,
+                PageNumber = parameter.PageNumber,
+                PageSize = parameter.PageSize,
+            }));
         }
     }
 }

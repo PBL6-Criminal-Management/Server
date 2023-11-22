@@ -18,9 +18,11 @@ namespace Domain.Entities.Case
         [Column("type_of_violation", TypeName = "smallint")]
         public TypeOfViolation TypeOfViolation { get; set; }
         [Column("status", TypeName = "smallint")]
-        public short Status { get; set; }
+        public CaseStatus Status { get; set; }
         [Column("charge", TypeName = "nvarchar(100)")]
         public string Charge { get; set; } = null!;
+        [Column("crime_scene", TypeName = "nvarchar(200)")]
+        public string CrimeScene { get; set; } = null!;
 
         //Relationship
         public virtual ICollection<Domain.Entities.CaseImage.CaseImage>? CaseImages { get; set; }

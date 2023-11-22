@@ -18,7 +18,7 @@ namespace Application.Features.Case.Queries.GetById
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime? EndDate { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
-        public short Status { get; set; }
+        public CaseStatus Status { get; set; }
         public string Charge { get; set; } = null!;
         public List<EvidenceResponse>? Evidences { get; set; } = new List<EvidenceResponse>();
         public List<WitnessResponse>? Witnesses { get; set; } = new List<WitnessResponse>();

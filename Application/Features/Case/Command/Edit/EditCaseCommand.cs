@@ -38,9 +38,11 @@ namespace Application.Features.Case.Command.Edit
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime? EndDate { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
-        public short Status { get; set; }
+        public CaseStatus Status { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
         public string Charge { get; set; } = null!;
+        [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
+        public string CrimeScene { get; set; } = null!;
         public List<EvidenceRequest>? Evidences { get; set; }
         public List<WitnessRequest> Witnesses { get; set; }
         public List<ImageRequest>? CaseImage { get; set; }
