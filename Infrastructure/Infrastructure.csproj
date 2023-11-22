@@ -8,11 +8,8 @@
 
 	<ItemGroup>
 	  <Compile Remove="Repositories\Employee\**" />
-	  <Compile Remove="Services\FaceDetect\TrainedImages\**" />
 	  <EmbeddedResource Remove="Repositories\Employee\**" />
-	  <EmbeddedResource Remove="Services\FaceDetect\TrainedImages\**" />
 	  <None Remove="Repositories\Employee\**" />
-	  <None Remove="Services\FaceDetect\TrainedImages\**" />
 	</ItemGroup>
 
 	<ItemGroup>

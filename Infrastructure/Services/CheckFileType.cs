@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Dtos.Requests;
 using Microsoft.AspNetCore.Http;
+using Domain.Constants;
 
 namespace Infrastructure.Services
 {
@@ -16,13 +17,13 @@ namespace Infrastructure.Services
                     string[] allowedExtensions = { ".jpg", ".png", ".gif", ".jpeg" };
                     if (!allowedExtensions.Contains(extension))
                     {
-                        return $"File {file.FileName} has invalid file extension! (Only extensions: {String.Join(", ", allowedExtensions)} are allowed)";
+                        return StaticVariable.FILE_IS_NOT_IMAGE + $" (Chỉ chấp nhận: {String.Join(", ", allowedExtensions)})";
                     }
 
                     string[] allowedMimeTypes = { "image/jpeg", "image/png", "image/gif" };
                     if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
                     {
-                        return "Invalid file type. Only image files are allowed.";
+                        return StaticVariable.FILE_TYPE_IS_INVALID;
                     }
                 }
             }
@@ -36,16 +37,16 @@ namespace Infrastructure.Services
                 if (file != null)
                 {
                     string extension = Path.GetExtension(file.FileName).ToLower();
-                    string[] allowedImagesExtensions = { ".mp3", ".mp4", ".mpeg" };
-                    if (!allowedImagesExtensions.Contains(extension))
+                    string[] allowedVideosExtensions = { ".mp3", ".mp4", ".mpeg" };
+                    if (!allowedVideosExtensions.Contains(extension))
                     {
-                        return $"File {file.FileName} has invalid file extension! (Only video extensions: {string.Join(", ", allowedImagesExtensions)} are allowed)";
+                        return StaticVariable.FILE_IS_NOT_VIDEO + $" (Chỉ chấp nhận: {String.Join(", ", allowedVideosExtensions)})";
                     }
 
                     string[] allowedMimeTypes = { "video/mp3", "video/mp4", "video/mpeg" };
                     if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
                     {
-                        return "Invalid file type. Only video files are allowed.";
+                        return StaticVariable.FILE_TYPE_IS_INVALID;
                     }
                 }
             }

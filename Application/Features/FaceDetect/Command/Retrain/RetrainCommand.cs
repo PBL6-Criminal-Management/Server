@@ -1,6 +1,7 @@
-﻿using Application.Interfaces.Services;
+﻿using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
+using Newtonsoft.Json;
 
 namespace Application.Features.FaceDetect.Command.Retrain
 {
@@ -9,16 +10,32 @@ namespace Application.Features.FaceDetect.Command.Retrain
     }
     internal class RetrainCommandHandler : IRequestHandler<RetrainCommand, Result<string>>
     {
-        private readonly IFaceDetectService _faceDetectService;
-
-        public RetrainCommandHandler(IFaceDetectService faceDetectService)
-        {
-            _faceDetectService = faceDetectService;
-        }
-
         public async Task<Result<string>> Handle(RetrainCommand request, CancellationToken cancellationToken)
         {
-            return await Result<string>.SuccessAsync(_faceDetectService.TrainImagesFromDir());
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.PostAsync(StaticVariable.AI_SERVER_BASE_URL + "/retrain", null);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Read and deserialize the JSON content
+                        string jsonContent = await response.Content.ReadAsStringAsync();
+                        dynamic? result = JsonConvert.DeserializeObject(jsonContent);
+                        string message = result != null ? result.message : "";
+                        return await Result<string>.SuccessAsync(message);
+                    }
+                    else
+                    {
+                        return await Result<string>.FailAsync($"Lỗi: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return await Result<string>.FailAsync($"Lỗi: {ex.Message}");
+                }
+            }
         }
     }
 }

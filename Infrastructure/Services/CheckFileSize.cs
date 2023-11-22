@@ -1,5 +1,6 @@
-using Application.Dtos.Requests;
+﻿using Application.Dtos.Requests;
 using Application.Interfaces;
+using Domain.Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Services
@@ -12,10 +13,10 @@ namespace Infrastructure.Services
             foreach (IFormFile file in request.Files)
             {
                 long fileSize = file.Length;
-                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //10MB  
+                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //50MB  
                 if (fileSize >= maxSizeImage)
                 {
-                    result = $"Do not upload image over max size {maxSizeImage / (1024 * 1024)} MB";
+                    result = StaticVariable.IMAGE_LENGTH_IS_TOO_BIG + $" ({maxSizeImage / (1024 * 1024)} MB)";
                     return result;
                 }
 
@@ -33,7 +34,7 @@ namespace Infrastructure.Services
 
                 if (fileSize >= maxSizeVideo)
                 {
-                    result = $"Do not upload video over max size {maxSizeVideo / (1024 * 1024)} MB";
+                    result = StaticVariable.VIDEO_LENGTH_IS_TOO_BIG + $" ({maxSizeVideo / (1024 * 1024)} MB)";
                     return result;
                 }
 
