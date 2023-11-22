@@ -35,6 +35,13 @@ namespace Domain.Constants
         public const string CHANGE_ROLE_FAIL = "Thay đổi role không thành công";
         public const string NOT_FOUND_CRIMINAL = "Không tìm thấy tội phạm phù hợp!";
 
+        //File message
+        public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";
+        public const string FILE_IS_NOT_VIDEO = "Tệp cung cấp không phải là video hoặc có phần đuôi mở rộng không hợp lệ!";
+        public const string FILE_TYPE_IS_INVALID = "Kiểu tệp không hợp lệ!";
+        public const string IMAGE_LENGTH_IS_TOO_BIG = "Ảnh vượt quá kích thước tối đa cho phép!";
+        public const string VIDEO_LENGTH_IS_TOO_BIG = "Video vượt quá kích thước tối đa cho phép!";
+
         //AI Model
         public const string UNKNOWN = "Không nhận diện ra";
         public const string AI_MODEL_HAS_NOT_TRAINED_YET = "Mô hình AI chưa được huấn luyện!";
@@ -83,5 +90,8 @@ namespace Domain.Constants
         //Error message
         public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";
         public const string INTERNAL_SERVER_ERROR = "Lỗi server";
+
+        //public const string AI_SERVER_BASE_URL = "https://face-recognition-z0vz.onrender.com";
+        public const string AI_SERVER_BASE_URL = "http://localhost:8000";
     }
 }

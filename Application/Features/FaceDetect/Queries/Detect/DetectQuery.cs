@@ -1,15 +1,16 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.Responses.DetectResult;
+using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
-using Application.Interfaces.Services;
 using Application.Interfaces.WantedCriminal;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Application.Features.FaceDetect.Queries.Detect
 {
@@ -26,7 +27,6 @@ namespace Application.Features.FaceDetect.Queries.Detect
         private readonly ICaseCriminalRepository _caseCriminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IUploadService _uploadService;
-        private readonly IFaceDetectService _faceDetectService;
         private readonly ICheckFileType _checkFileType;
         private readonly ICheckSizeFile _checkSizeFile;
 
@@ -37,7 +37,6 @@ namespace Application.Features.FaceDetect.Queries.Detect
             ICaseCriminalRepository caseCriminalRepository,
             ICriminalImageRepository criminalImageRepository,
             IUploadService uploadService,
-            IFaceDetectService faceDetectService,
             ICheckFileType checkFileType,
             ICheckSizeFile checkSizeFile)
         {
@@ -47,7 +46,6 @@ namespace Application.Features.FaceDetect.Queries.Detect
             _caseCriminalRepository = caseCriminalRepository;
             _criminalImageRepository = criminalImageRepository;
             _uploadService = uploadService;
-            _faceDetectService = faceDetectService;
             _checkFileType = checkFileType;
             _checkSizeFile = checkSizeFile;
         }
@@ -70,23 +68,49 @@ namespace Application.Features.FaceDetect.Queries.Detect
             if (isValidFileSize != "")
                 return await Result<DetectResponse>.FailAsync(isValidFileSize);
 
-            var detectResult = _faceDetectService.FaceDetect(request.CriminalImage, false);
+            DetectResult? detectResult = null;
 
-            if (detectResult.Message != null)
-            {
-                if(detectResult.Message.Equals(StaticVariable.UNKNOWN))
-                    return await Result<DetectResponse>.SuccessAsync(new DetectResponse
+            using (HttpClient client = new HttpClient())
+            {                
+                try
+                {
+                    using (MultipartFormDataContent content = new MultipartFormDataContent())
                     {
-                        CanPredict = false,
-                        ResultFile = detectResult.DetectResultFile,
-                        DetectConfidence = null,
-                        FoundCriminal = null
-                    });
-                else
-                    return await Result<DetectResponse>.FailAsync(detectResult.Message);
+                        // Add the image file to the request
+                        content.Add(new StreamContent(request.CriminalImage.OpenReadStream()), "CriminalImage", "image.jpg");
+                        HttpResponseMessage response = await client.PostAsync(StaticVariable.AI_SERVER_BASE_URL + "/detect", content);
+
+                        // Read and deserialize the JSON content
+                        string jsonContent = await response.Content.ReadAsStringAsync();
+                        detectResult = JsonConvert.DeserializeObject<DetectResult>(jsonContent);
+                        if (detectResult == null)
+                            return await Result<DetectResponse>.FailAsync($"Lỗi server");
+                    }                    
+                }
+                catch (Exception ex)
+                {
+                    return await Result<DetectResponse>.FailAsync($"Lỗi: {ex.Message}");
+                }
             }
 
-            var criminalId = detectResult.CriminalId;
+            if(detectResult.error != null)
+                return await Result<DetectResponse>.FailAsync(detectResult.error);
+
+            if(detectResult.message != null)
+                return await Result<DetectResponse>.SuccessAsync(detectResult.message);
+
+            if (detectResult.isPredictable == null || !(bool)detectResult.isPredictable)
+            {
+                return await Result<DetectResponse>.SuccessAsync(new DetectResponse
+                {
+                    CanPredict = false,
+                    ResultFile = detectResult.image,
+                    DetectConfidence = null,
+                    FoundCriminal = null
+                });
+            }
+
+            int criminalId = detectResult.label != null ? (int)detectResult.label : - 1;
 
             var caseOfCriminal = (from caseCriminal in _caseCriminalRepository.Entities
                                   join _case in _caseRepository.Entities on caseCriminal.CaseId equals _case.Id
@@ -162,13 +186,13 @@ namespace Application.Features.FaceDetect.Queries.Detect
                 return await Result<DetectResponse>.SuccessAsync(new DetectResponse
                 {
                     CanPredict = true,
-                    ResultFile = detectResult.DetectResultFile,
-                    DetectConfidence = detectResult.DetectConfidence,
+                    ResultFile = detectResult.image,
+                    DetectConfidence = detectResult.confidence,
                     FoundCriminal = null
                 });
 
-            query.ResultFile = detectResult.DetectResultFile;
-            query.DetectConfidence = detectResult.DetectConfidence;
+            query.ResultFile = detectResult.image;
+            query.DetectConfidence = detectResult.confidence;
 
             return await Result<DetectResponse>.SuccessAsync(query);
         }

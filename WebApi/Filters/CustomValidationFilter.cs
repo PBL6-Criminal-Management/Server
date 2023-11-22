@@ -14,12 +14,12 @@ public class CustomValidationFilter : IResultFilter
             if (error != null)
             {
                 string[] errors = error["error"] as string[];
-                context.Result = new BadRequestObjectResult(Result<string>.Fail(errors[0]));
+                context.Result = new BadRequestObjectResult(Result<string>.Fail(string.Join("\n", errors)));
             }
             else if (badRequestResult.Value is ValidationProblemDetails validationProblemDetails)
             {
                 var errors = validationProblemDetails.Errors.Where(x => !x.Key.Equals("command")).SelectMany(x => x.Value).ToList();
-                context.Result = new BadRequestObjectResult(Result<string>.Fail(errors[0]));
+                context.Result = new BadRequestObjectResult(Result<string>.Fail(string.Join("\n", errors)));
             }
         }
     }

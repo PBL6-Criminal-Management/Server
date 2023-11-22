@@ -5,6 +5,7 @@ using System.Text;
 using Application.Dtos.Requests.Identity;
 using Application.Dtos.Responses.Identity;
 using Application.Interfaces.Services.Identity;
+using Domain.Constants.Enum;
 using Domain.Entities;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Identity;
@@ -45,6 +46,9 @@ namespace Infrastructure.Services.Identity
             var token = await GenerateJwtAsync(user);
 
             var roles = await _userManager.GetRolesAsync(user);
+            Role role = Role.None;
+            if (roles != null && roles.Count > 0)
+                role = (Role)Enum.Parse(typeof(Role), roles.First());
 
             var response = new TokenResponse
             {
@@ -53,8 +57,9 @@ namespace Infrastructure.Services.Identity
                 AvatarUrl = user.AvatarUrl!,
                 Email = user.Email,
                 UserName = user.UserName,
-                Role = roles.First(),
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime
+                Role = role,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                UserId = user.UserId
             };
             return await Result<TokenResponse>.SuccessAsync(response);
         }
@@ -74,9 +79,13 @@ namespace Infrastructure.Services.Identity
                 return await Result<TokenResponse>.FailAsync("Token không hợp lệ");
             var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
             user.RefreshToken = GenerateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
             await _userManager.UpdateAsync(user);
 
             var roles = await _userManager.GetRolesAsync(user);
+            Role role = Role.None;
+            if (roles != null && roles.Count > 0)
+                role = (Role)Enum.Parse(typeof(Role), roles.First());
 
             var response = new TokenResponse
             {
@@ -85,8 +94,9 @@ namespace Infrastructure.Services.Identity
                 AvatarUrl = user.AvatarUrl!,
                 Email = user.Email,
                 UserName = user.UserName,
-                Role = roles.First(),
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime
+                Role = role,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                UserId = user.UserId
             };
             return await Result<TokenResponse>.SuccessAsync(response);
         }
