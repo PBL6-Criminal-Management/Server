@@ -15,16 +15,16 @@ namespace Application.Features.Account.Queries.GetAll
     }
     internal class GetAllUserQueryHandler : IRequestHandler<GetAllUserQuery, PaginatedResult<GetAllUserResponse>>
     {
-        private readonly IAccountRepository _accountRepostitory;
+        private readonly IAccountRepository _accountRepository;
         private readonly IAccountService _accountService;
         private readonly IUploadService _uploadService;
         private readonly UserManager<AppUser> _userManager;
 
-        public GetAllUserQueryHandler(IAccountRepository accountRepostitory,
+        public GetAllUserQueryHandler(IAccountRepository accountRepository,
             IAccountService accountService, IUploadService uploadService,
             UserManager<AppUser> userManager)
         {
-            _accountRepostitory = accountRepostitory;
+            _accountRepository = accountRepository;
             _accountService = accountService;
             _uploadService = uploadService;
             _userManager = userManager;
@@ -33,10 +33,11 @@ namespace Application.Features.Account.Queries.GetAll
         {
             if (!string.IsNullOrEmpty(request.Keyword))
                 request.Keyword = request.Keyword.Trim();
-            var query = _accountRepostitory.Entities.AsEnumerable()
+            var query = _accountRepository.Entities.AsEnumerable()
                         .Where(user => !user.IsDeleted)
                         .Select(user => new GetAllUserResponse
                         {
+                            Id = user.Id,
                             Name = user.Name,
                             Email = user.Email,
                             CreatedAt = user.CreatedAt,
@@ -57,6 +58,7 @@ namespace Application.Features.Account.Queries.GetAll
                          .AsQueryable()
                          .Select(user => new GetAllUserResponse
                          {
+                             Id = user.Id,
                              Name = user.Name,
                              Email = user.Email,
                              CreatedAt = user.CreatedAt,
