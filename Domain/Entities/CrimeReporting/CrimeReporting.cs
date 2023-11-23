@@ -1,4 +1,5 @@
-﻿using Domain.Contracts;
+﻿using Domain.Constants.Enum;
+using Domain.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.CrimeReporting
@@ -17,7 +18,7 @@ namespace Domain.Entities.CrimeReporting
         [Column("content", TypeName = "text")]
         public string Content { get; set; } = null!;
         [Column("status", TypeName = "smallint")]
-        public short Status { get; set; }
+        public ReportStatus Status { get; set; }
         [Column("note", TypeName = "text")]
         public string? Note { get; set; }
 

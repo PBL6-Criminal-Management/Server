@@ -25,6 +25,10 @@ using Application.Interfaces.Victim;
 using Infrastructure.Repositories.Victim;
 using Application.Interfaces.CaseVictim;
 using Infrastructure.Repositories.CaseVictim;
+using Application.Interfaces.ReportingImage;
+using Infrastructure.Repositories.ReportingImage;
+using Application.Interfaces.CrimeReporting;
+using Infrastructure.Repositories.CrimeReporting;
 
 namespace Infrastructure.Extensions
 {
@@ -81,6 +85,14 @@ namespace Infrastructure.Extensions
         public static void AddCaseVictimRepository(this IServiceCollection services)
         {
             services.AddScoped<ICaseVictimRepository, CaseVictimRepository>();
+        }
+        public static void AddReportingImageRepository(this IServiceCollection services)
+        {
+            services.AddScoped<IReportingImageRepository, ReportingImageRepository>();
+        }
+        public static void AddCrimeReportingRepository(this IServiceCollection services)
+        {
+            services.AddScoped<ICrimeReportingRepository, CrimeReportingRepository>();
         }
     }
 }

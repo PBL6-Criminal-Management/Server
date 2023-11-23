@@ -6,6 +6,7 @@ namespace Application.Features.Account.Queries.GetAll
 {
     public class GetAllUserResponse
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }

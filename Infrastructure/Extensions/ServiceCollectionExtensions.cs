@@ -75,6 +75,8 @@ namespace Infrastructure.Extensions
             services.AddCaseWitnessRepository();
             services.AddVictimRepository();
             services.AddCaseVictimRepository();
+            services.AddCrimeReportingRepository();
+            services.AddReportingImageRepository();
         }
     }
 }
