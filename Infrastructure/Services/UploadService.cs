@@ -2,42 +2,68 @@
 using Application.Dtos.Responses.Upload;
 using Application.Interfaces;
 using Application.Shared;
+using Domain.Constants;
 using Domain.Wrappers;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace Infrastructure.Services
 {
     public class UploadService : IUploadService
     {
         private readonly ICurrentUserService _currentUserService;
+        private readonly ICheckFileType _checkFileType;
+        private readonly ICheckFileSize _checkFileSize;
 
-        public UploadService(ICurrentUserService currentUserService)
+        public UploadService(ICurrentUserService currentUserService, ICheckFileType checkFileType, ICheckFileSize checkFileSize)
         {
             _currentUserService = currentUserService;
+            _checkFileType = checkFileType;
+            _checkFileSize = checkFileSize;
         }
 
         public async Task<Result<List<UploadResponse>>> UploadAsync(UploadRequest request)
         {
-           List<UploadResponse> responses = new List<UploadResponse>();
-           foreach(var file in request.Files)
-           {
-                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-                var folderName = (request.FilePath != null) ? Path.Combine("Files", request.FilePath) : "Files";
-                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-                var isImage = CheckFilesIsImage(request);
-                var isVideo = CheckFilesIsVideo(request);
-                var isMaxSizeImage = CheckImageSize(request);
-                var isMaxSizeVideo = CheckVideoSize(request);
-                if (!isImage && !isVideo)
+            List<UploadResponse> responses = new List<UploadResponse>();
+            List<UploadFile> listFiles = new List<UploadFile>();
+            StringBuilder listMessages = new StringBuilder();
+
+            if(request.FilePath != null)
+                request.FilePath = TrimNonUrlCharacters(request.FilePath);
+
+            var folderName = (request.FilePath != null) ? Path.Combine("Files", request.FilePath) : "Files";
+            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+            foreach (var file in request.Files)
+            {
+                var fileName = $"{Guid.NewGuid()}_{TrimNonUrlCharacters(file.FileName)}";
+                var checkFileIsImage = _checkFileType.CheckFileIsImage(file);
+                var checkFileIsVideo = _checkFileType.CheckFileIsVideo(file);
+                var checkImageSize = _checkFileSize.CheckImageSize(file);
+                var checkVideoSize = _checkFileSize.CheckVideoSize(file);
+                if (checkFileIsImage == "" || checkFileIsVideo == "")
                 {
-                    return await Result<List<UploadResponse>>.FailAsync($"{file.FileName} is not an valid image or video");
+                    if (checkFileIsImage == "")
+                    {
+                        if (checkImageSize != "")
+                        {
+                            listMessages.Append(Environment.NewLine + checkImageSize);
+                            continue;
+                        }
+                    }
+                    else if (checkVideoSize != "")
+                    {
+                        listMessages.Append(Environment.NewLine + checkVideoSize);
+                        continue;
+                    }
                 }
-                if (!isMaxSizeImage && isImage)
+                else
                 {
-                    return await Result<List<UploadResponse>>.FailAsync($"{file.FileName} is over allowed image size(5MB) ");
-                }
-                if (!isMaxSizeVideo && isVideo)
-                {
-                    return await Result<List<UploadResponse>>.FailAsync($"{file.FileName} is over allowed video size(30MB)");
+                    listMessages.Append(Environment.NewLine + $"File {file.FileName} không phải là ảnh hoặc video hợp lệ!");
+                    continue;
                 }
 
                 if (!Directory.Exists(pathToSave))
@@ -52,21 +78,128 @@ namespace Infrastructure.Services
                     await file.CopyToAsync(stream);
                 }
 
-                responses.Add( new UploadResponse()
+                responses.Add(new UploadResponse()
                 {
-                    FilePath = dbPath,
+                    FilePath = dbPath.Replace("/", "\\"),
                     FileUrl = Path.Combine(_currentUserService.HostServerName, dbPath).Replace("\\", "/")
                 });
-           }
 
-            return await Result<List<UploadResponse>>.SuccessAsync(responses);
+                listFiles.Add(new UploadFile { File = file, FileName = fileName});
+            }
+
+            //Only upload criminal images to gg drive
+            if(request.FilePath != null && request.FilePath.Split("/").Count() == 2)
+            {
+                string rootFolder = request.FilePath.Split("/")[0];
+                if(rootFolder.Equals(StaticVariable.TRAINED_IMAGES_FOLDER_NAME) && int.TryParse(request.FilePath.Split("/")[1], out int criminalId))
+                {
+                    UploadToGGDrive(listFiles, criminalId.ToString());
+                }
+            }
+
+            if(listMessages.Length > 0)
+                return await Result<List<UploadResponse>>.SuccessAsync(responses, listMessages.Remove(0, Environment.NewLine.Length).ToString().Split(Environment.NewLine).ToList());
+            else
+                return await Result<List<UploadResponse>>.SuccessAsync(responses);
+        }
+
+        static string TrimNonUrlCharacters(string input)
+        {
+            // Define a regular expression pattern to match characters not allowed in a URL
+            string pattern = "^:?#%!$&'()*+,;=]$";
+            foreach (char c in pattern)
+                input = input.Replace(c.ToString(), "");
+
+            while(input.Length > 0 && (input.StartsWith('/') || input.StartsWith('\\')))
+                input = input.TrimStart('/').TrimStart('\\');
+
+            while(input.Length > 0 && (input.EndsWith('/') || input.EndsWith('\\')))
+                input = input.TrimEnd('/').TrimEnd('\\');
+
+            return input;
+        }
+
+        private void UploadToGGDrive(List<UploadFile> files, string criminalId)
+        {
+            string ApplicationName = "CriminalManagement";
+
+            GoogleCredential credential;
+
+            using(var stream = new FileStream("../Infrastructure/Services/exalted-pattern-400909-3eaa10f4b2b4.json", FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream).CreateScoped(new[]
+                {
+                    DriveService.Scope.DriveFile,
+                });
+            }
+
+            var service = new DriveService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            });
+
+            string? folderXId = FindFolderByName(service, criminalId, StaticVariable.TRAINED_IMAGES_FOLDER_ID);
+            if (folderXId == null)
+                folderXId = CreateFolder(service, criminalId, StaticVariable.TRAINED_IMAGES_FOLDER_ID);
+
+            foreach(UploadFile file in files)
+            {
+                var fileMetadata = new Google.Apis.Drive.v3.Data.File()
+                {
+                    Name = file.FileName, // The desired name for the file on Google Drive
+                    Parents = new List<string> { folderXId }, // The ID of the target folder
+                };
+
+                using (var stream = file.File.OpenReadStream())
+                {
+                    var request = service.Files.Create(fileMetadata, stream, "image/png");
+                    request.Fields = "id";
+                    request.Upload();
+                }
+            }
+        }
+
+        string? FindFolderByName(DriveService service, string folderName, string parentFolderId)
+        {
+            FilesResource.ListRequest listRequest = service.Files.List();
+            listRequest.Q = $"name='{folderName}' and '{parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder'";
+            listRequest.Fields = "files(id)";
+
+            // Execute the request
+            var result = listRequest.Execute();
+            var files = result.Files;
+
+            // Check if the folder exists
+            if (files != null && files.Count > 0)
+            {
+                return files[0].Id;
+            }
+
+            return null; // Folder not found
+        }
+
+        string CreateFolder(DriveService service, string folderName, string parentId)
+        {
+            var folderMetadata = new Google.Apis.Drive.v3.Data.File
+            {
+                Name = folderName,
+                MimeType = "application/vnd.google-apps.folder",
+                Parents = new List<string> { parentId },
+            };
+
+            var request = service.Files.Create(folderMetadata);
+            request.Fields = "id";
+            var folder = request.Execute();
+
+            return folder.Id;
         }
 
         public string GetFullUrl(string? filePath)
         {
-            if (!string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrWhiteSpace(filePath))
             {
-                var result = _currentUserService.HostServerName + "/" + filePath;
+                var result = Path.Combine(_currentUserService.HostServerName, filePath).Replace("\\", "/");
                 return result;
             }
 
@@ -81,84 +214,13 @@ namespace Infrastructure.Services
             {
                 File.Delete(fileToDelete);
             }
-            return Result<bool>.SuccessAsync(true, ApplicationConstants.SuccessMessage.DeletedSuccess); ;
-            //throw new ApiException(ApplicationConstants.ErrorMessage.NotFound);
-        }
+            return Result<bool>.SuccessAsync(true, ApplicationConstants.SuccessMessage.DeletedSuccess);
+        }       
+    }
 
-        public static bool CheckFilesIsImage(UploadRequest request)
-        {
-            if (request.Files != null)
-            {
-                foreach(var file in request.Files)
-                {
-                    string extension = Path.GetExtension(file.FileName).ToLower();
-                    string[] allowedExtensions = { ".jpg", ".png", ".gif", ".jpeg" };
-                    if (!allowedExtensions.Contains(extension))
-                    {
-                        return false;
-                    }
-
-                    string[] allowedMimeTypes = { "image/jpeg", "image/png", "image/gif" };
-                    if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        public static bool CheckFilesIsVideo(UploadRequest request)
-        {
-            if (request.Files != null)
-            {
-                foreach( var file in request.Files)
-                {
-                    string extension = Path.GetExtension(file.FileName).ToLower();
-                    string[] allowedImagesExtensions = { ".mp3", ".mp4", ".mpeg" };
-                    if (!allowedImagesExtensions.Contains(extension))
-                    {
-                        return false;
-                    }
-
-                    string[] allowedMimeTypes = { "video/mp3", "video/mp4", "video/mpeg" };
-                    if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        public static bool CheckImageSize(UploadRequest request)
-        {
-            foreach(var file in request.Files)
-            {
-                long fileSize = file.Length;
-                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //5MB  
-                if (fileSize >= maxSizeImage)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public static bool CheckVideoSize(UploadRequest request)
-        {
-            foreach (var file in request.Files)
-            {
-                long fileSize = file.Length;
-                long maxSizeVideo = ICheckSizeFile.VIDEO_MAX_SIZE; //30MB
-
-                if (fileSize >= maxSizeVideo)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+    class UploadFile
+    {
+        public string FileName { get; set; }
+        public IFormFile File { get; set; }
     }
 }

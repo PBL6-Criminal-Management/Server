@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Application.Dtos.Requests.Identity;
 using Application.Dtos.Responses.Identity;
+using Application.Interfaces;
 using Application.Interfaces.Services.Identity;
 using Domain.Constants.Enum;
 using Domain.Entities;
@@ -19,11 +20,15 @@ namespace Infrastructure.Services.Identity
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly AppConfiguration _appConfig;
+        private readonly IUploadService _uploadService;
 
-        public IdentityService(UserManager<AppUser> userManager, IOptions<AppConfiguration> appConfig)
+        private DateTime tokenExpireTime;
+
+        public IdentityService(UserManager<AppUser> userManager, IOptions<AppConfiguration> appConfig, IUploadService uploadService)
         {
             _userManager = userManager;
             _appConfig = appConfig.Value;
+            _uploadService = uploadService;
         }
 
         public async Task<Result<TokenResponse>> LoginAsync(TokenRequest model)
@@ -39,11 +44,12 @@ namespace Infrastructure.Services.Identity
                 return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
             }
 
-            user.RefreshToken = GenerateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-            await _userManager.UpdateAsync(user);
-
             var token = await GenerateJwtAsync(user);
+
+            user.RefreshToken = GenerateRefreshToken();
+            user.TokenExpiryTime = tokenExpireTime;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
 
             var roles = await _userManager.GetRolesAsync(user);
             Role role = Role.None;
@@ -54,10 +60,11 @@ namespace Infrastructure.Services.Identity
             {
                 Token = token,
                 RefreshToken = user.RefreshToken,
-                AvatarUrl = user.AvatarUrl!,
+                AvatarUrl = _uploadService.GetFullUrl(user.AvatarUrl),
                 Email = user.Email,
-                UserName = user.UserName,
+                Username = user.UserName,
                 Role = role,
+                TokenExpiryTime = user.TokenExpiryTime,
                 RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
                 UserId = user.UserId
             };
@@ -75,11 +82,12 @@ namespace Infrastructure.Services.Identity
             var user = await _userManager.FindByEmailAsync(userEmail);
             if (user == null)
                 return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
-            if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                 return await Result<TokenResponse>.FailAsync("Token không hợp lệ");
             var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
             user.RefreshToken = GenerateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            user.TokenExpiryTime = tokenExpireTime;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _userManager.UpdateAsync(user);
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -91,10 +99,11 @@ namespace Infrastructure.Services.Identity
             {
                 Token = token,
                 RefreshToken = user.RefreshToken,
-                AvatarUrl = user.AvatarUrl!,
+                AvatarUrl = _uploadService.GetFullUrl(user.AvatarUrl),
                 Email = user.Email,
-                UserName = user.UserName,
+                Username = user.UserName,
                 Role = role,
+                TokenExpiryTime = user.TokenExpiryTime,
                 RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
                 UserId = user.UserId
             };
@@ -138,9 +147,10 @@ namespace Infrastructure.Services.Identity
 
         private string GenerateEncryptedToken(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
         {
+            tokenExpireTime = DateTime.UtcNow.AddHours(2);
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(2),
+                expires: tokenExpireTime,
                 signingCredentials: signingCredentials);
             var tokenHandler = new JwtSecurityTokenHandler();
             var encryptedToken = tokenHandler.WriteToken(token);

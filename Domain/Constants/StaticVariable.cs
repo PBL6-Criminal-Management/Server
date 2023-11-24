@@ -49,6 +49,8 @@ namespace Domain.Constants
         public const string AI_MODEL_HAS_TRAINED_SUCCESSFULLY = "Mô hình AI được huấn luyện thành công!";
         public const string AI_SERVER_BASE_URL = "https://face-recognition-z0vz.onrender.com";
         //public const string AI_SERVER_BASE_URL = "http://localhost:8000";
+        public const string TRAINED_IMAGES_FOLDER_ID = "1FcPN4UNVUZHO7JL5MPSfCgIxmhmY9LC5";
+        public const string TRAINED_IMAGES_FOLDER_NAME = "TrainedImages";
 
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";

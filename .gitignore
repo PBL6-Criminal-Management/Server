@@ -394,6 +394,7 @@ Application/FaceDetect/InputImage
 Application/FaceDetect/TrainGrayImage
 Application/FaceDetect/ImageToTrain
 #Files save
-WebApi/Files
+WebApi/Files/*
+!WebApi/Files/Avatar
 
 .vscode

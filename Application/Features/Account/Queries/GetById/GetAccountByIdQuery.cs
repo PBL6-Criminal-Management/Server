@@ -48,7 +48,7 @@ namespace Application.Features.Account.Queries.GetById
                                       Address = e.Address,
                                       Email = e.Email,
                                       IsActive = user.IsActive,
-                                      AccountName = user.UserName!,
+                                      Username = user.UserName!,
                                       Role = _accountService.GetRoleIdAsync(user.UserId).Result,
                                       Image = e.Image,
                                       ImageLink = _uploadService.GetFullUrl(e.Image),

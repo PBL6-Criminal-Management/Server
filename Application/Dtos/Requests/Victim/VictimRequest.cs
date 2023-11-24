@@ -11,7 +11,6 @@ namespace Application.Dtos.Requests.Victim
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
         [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
-        [JsonPropertyName("citizen_id")]
         public string CitizenID { get; set; } = null!;
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_PHONENUMBER)]
         [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
