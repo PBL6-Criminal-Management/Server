@@ -17,6 +17,8 @@ namespace Domain.Entities
         public bool IsActive { get; set; }
         [Column("refresh_token", TypeName = "varchar(2000)")]
         public string? RefreshToken { get; set; }
+        [Column("token_expiry_time", TypeName = "datetime")]
+        public DateTime TokenExpiryTime { get; set; }
         [Column("refresh_token_expiry_time", TypeName = "datetime")]
         public DateTime RefreshTokenExpiryTime { get; set; }
         [Column("created_by", TypeName = "nvarchar(100)")]

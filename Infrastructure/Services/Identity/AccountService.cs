@@ -3,7 +3,6 @@ using Application.Exceptions;
 using Application.Interfaces.Services.Account;
 using Domain.Constants.Enum;
 using Domain.Entities;
-using Domain.Entities.User;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Identity;
 

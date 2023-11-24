@@ -1,43 +1,33 @@
-﻿using Application.Dtos.Requests;
-using Application.Interfaces;
-using Domain.Constants;
+﻿using Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Services
 {
-    public class CheckFileSize : ICheckSizeFile
+    public class CheckFileSize : ICheckFileSize
     {
-        public string CheckImageSize(CheckImageSizeRequest request)
+        public string CheckImageSize(IFormFile file)
         {
             string result = "";
-            foreach (IFormFile file in request.Files)
+            long fileSize = file.Length;
+            long maxSizeImage = ICheckFileSize.MAX_SIZE_IMAGE;
+            if (fileSize > maxSizeImage)
             {
-                long fileSize = file.Length;
-                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //50MB  
-                if (fileSize >= maxSizeImage)
-                {
-                    result = StaticVariable.IMAGE_LENGTH_IS_TOO_BIG + $" ({maxSizeImage / (1024 * 1024)} MB)";
-                    return result;
-                }
-
+                result = $"Ảnh {file.FileName} vượt quá kích thước tối đa cho phép ({maxSizeImage / (1024 * 1024)} MB)";
+                return result;
             }
             return result;
         }
 
-        public string CheckVideoSize(CheckVideoSizeRequest request)
+        public string CheckVideoSize(IFormFile file)
         {
             string result = "";
-            foreach (IFormFile file in request.Files)
+            long fileSize = file.Length;
+            long maxSizeVideo = ICheckFileSize.MAX_SIZE_VIDEO;
+
+            if (fileSize > maxSizeVideo)
             {
-                long fileSize = file.Length;
-                long maxSizeVideo = ICheckSizeFile.VIDEO_MAX_SIZE; //30MB
-
-                if (fileSize >= maxSizeVideo)
-                {
-                    result = StaticVariable.VIDEO_LENGTH_IS_TOO_BIG + $" ({maxSizeVideo / (1024 * 1024)} MB)";
-                    return result;
-                }
-
+                result = $"Video {file.FileName} vượt quá kích thước tối đa cho phép ({maxSizeVideo / (1024 * 1024)} MB)";
+                return result;
             }
             return result;
         }

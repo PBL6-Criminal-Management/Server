@@ -22,7 +22,6 @@ namespace Application.Features.Account.Command.Add
         public string Name { get; set; } = null!;
 
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
-        [JsonPropertyName("citizen_id")]
         public string CitizenID { get; set; } = null!;
 
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]

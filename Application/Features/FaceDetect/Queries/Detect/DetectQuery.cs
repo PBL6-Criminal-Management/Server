@@ -28,7 +28,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IUploadService _uploadService;
         private readonly ICheckFileType _checkFileType;
-        private readonly ICheckSizeFile _checkSizeFile;
+        private readonly ICheckFileSize _checkFileSize;
 
         public DetectQueryHandler(
             ICriminalRepository criminalRepository,
@@ -38,7 +38,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
             ICriminalImageRepository criminalImageRepository,
             IUploadService uploadService,
             ICheckFileType checkFileType,
-            ICheckSizeFile checkSizeFile)
+            ICheckFileSize checkFileSize)
         {
             _criminalRepository = criminalRepository;
             _wantedCriminalRepository = wantedCriminalRepository;
@@ -47,23 +47,17 @@ namespace Application.Features.FaceDetect.Queries.Detect
             _criminalImageRepository = criminalImageRepository;
             _uploadService = uploadService;
             _checkFileType = checkFileType;
-            _checkSizeFile = checkSizeFile;
+            _checkFileSize = checkFileSize;
         }
 
         public async Task<Result<DetectResponse>> Handle(DetectQuery request, CancellationToken cancellationToken)
         {
-            var isFileImage = _checkFileType.CheckFilesIsImage(new Dtos.Requests.CheckImagesTypeRequest
-            {
-                Files = new List<IFormFile>() { request.CriminalImage }
-            });
+            var isFileImage = _checkFileType.CheckFileIsImage(request.CriminalImage);
 
             if (isFileImage != "")
                 return await Result<DetectResponse>.FailAsync(isFileImage);
 
-            var isValidFileSize = _checkSizeFile.CheckImageSize(new Dtos.Requests.CheckImageSizeRequest
-            {
-                Files = new List<IFormFile> { request.CriminalImage }
-            });
+            var isValidFileSize = _checkFileSize.CheckImageSize(request.CriminalImage);
 
             if (isValidFileSize != "")
                 return await Result<DetectResponse>.FailAsync(isValidFileSize);

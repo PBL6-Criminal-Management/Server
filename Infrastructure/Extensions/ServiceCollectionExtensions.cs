@@ -56,7 +56,7 @@ namespace Infrastructure.Extensions
             services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<IExcelService, ExcelService>();
             services.AddScoped<ICheckFileType, CheckFileType>();
-            services.AddScoped<ICheckSizeFile, CheckFileSize>();
+            services.AddScoped<ICheckFileSize, CheckFileSize>();
             services.AddScoped<IUploadService, UploadService>();
         }
 

@@ -20,7 +20,6 @@ namespace Application.Features.Account.Command.Edit
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
-        [JsonPropertyName("citizen_id")]
         public string CitizenID { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }

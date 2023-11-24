@@ -15,7 +15,6 @@ namespace Application.Features.Criminal.Queries.GetById
         public string Nationality { get; set; } = null!;
         public string Ethnicity { get; set; } = null!;
         public string? Religion { get; set; }
-        [JsonPropertyName("citizen_id")]
         public string CitizenID { get; set; } = null!;
         public string CareerAndWorkplace { get; set; } = null!;
         public string PermanentResidence { get; set; } = null!;
@@ -23,12 +22,10 @@ namespace Application.Features.Criminal.Queries.GetById
         public string FatherName { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly FatherBirthday { get; set; }
-        [JsonPropertyName("father_citizen_id")]
         public string FatherCitizenID { get; set; } = null!;
         public string MotherName { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly MotherBirthday { get; set; }
-        [JsonPropertyName("mother_citizen_id")]
         public string MotherCitizenID { get; set; } = null!;
         public string Characteristics { get; set; } = null!;
         //public string OtherCharacteristics { get; set; } = null!;
