@@ -39,7 +39,7 @@ namespace Shared.Services
                 email.Body = builder.ToMessageBody();
                 using var smtp = new SmtpClient();
                 await smtp.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-                await smtp.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
+                await smtp.AuthenticateAsync(_mailSettings.Username, _mailSettings.Password);
                 await smtp.SendAsync(email);
                 await smtp.DisconnectAsync(true);
             }
@@ -71,7 +71,7 @@ namespace Shared.Services
                 email.Body = builder.ToMessageBody();
                 using var smtp = new SmtpClient();
                 await smtp.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-                await smtp.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
+                await smtp.AuthenticateAsync(_mailSettings.Username, _mailSettings.Password);
                 await smtp.SendAsync(email);
                 await smtp.DisconnectAsync(true);
             }

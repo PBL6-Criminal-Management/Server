@@ -32,7 +32,7 @@ namespace WebApi.Controllers.Account
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
         {
-            var result = await _accountService.ChangePasswordAsync(request, _currentUserService.UserName);
+            var result = await _accountService.ChangePasswordAsync(request, _currentUserService.Username);
             return Ok(result);
         }
 

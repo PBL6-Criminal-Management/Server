@@ -30,7 +30,7 @@ namespace Application.Features.Account.Command.Add
         [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = StaticVariable.INVALID_USER_NAME)]
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_USERNAME)]
         [DefaultValue("string")]
-        public string UserName { get; set; } = null!;
+        public string Username { get; set; } = null!;
 
         [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PASSWORD)]
         [StringLength(100, MinimumLength = 8, ErrorMessage = StaticVariable.LIMIT_PASSWORD)]
@@ -78,7 +78,7 @@ namespace Application.Features.Account.Command.Add
         {
             request.Id = null;
 
-            var isUsernameExists = await _accountService.IsExistUsername(request.UserName);
+            var isUsernameExists = await _accountService.IsExistUsername(request.Username);
             if (isUsernameExists)
             {
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.USERNAME_EXISTS_MSG);

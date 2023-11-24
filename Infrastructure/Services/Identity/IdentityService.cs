@@ -33,7 +33,7 @@ namespace Infrastructure.Services.Identity
 
         public async Task<Result<TokenResponse>> LoginAsync(TokenRequest model)
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
+            var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
                 return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
