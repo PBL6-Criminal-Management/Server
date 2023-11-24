@@ -17,9 +17,9 @@ namespace Infrastructure.Services.Identity
             _userManager = userManager;
         }
 
-        public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest model, string userName)
+        public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest model, string username)
         {
-            var user = await this._userManager.FindByNameAsync(userName);
+            var user = await this._userManager.FindByNameAsync(username);
             if (user == null)
             {
                 return await Result.FailAsync("Không tìm thấy người dùng");
@@ -35,9 +35,9 @@ namespace Infrastructure.Services.Identity
             return identityResult.Succeeded ? await Result.SuccessAsync() : await Result.FailAsync("Đổi mật khẩu không thành công");
         }
 
-        public async Task<bool> IsExistUsername(string userName)
+        public async Task<bool> IsExistUsername(string username)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = await _userManager.FindByNameAsync(username);
             return user != null;
         }
         public async Task<bool> AddAcount(AppUser user, string password, string role)

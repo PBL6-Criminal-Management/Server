@@ -12,7 +12,7 @@ namespace WebApi.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public string UserName => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        public string Username => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         public string RoleName => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
         public string HostServerName => _httpContextAccessor.HttpContext?.Request.Scheme + "://" + _httpContextAccessor.HttpContext?.Request.Host;
         public string OriginRequest => _httpContextAccessor.HttpContext?.Request.Headers["Origin"].ToString();
