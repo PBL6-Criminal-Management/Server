@@ -48,7 +48,7 @@ namespace Application.Features.Criminal.Queries.GetAll
                             (criminal, caseOfCriminals) => new { criminal, caseOfCriminals })
                             .Where(o => !o.criminal.IsDeleted
                                     && (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(o.criminal.Name, request.Keyword)
-                                                                || StringHelper.Contains(o.criminal.AnotherName, request.Keyword)
+                                                                || (o.criminal.AnotherName == null || StringHelper.Contains(o.criminal.AnotherName, request.Keyword))
                                                                 || StringHelper.Contains(o.criminal.HomeTown, request.Keyword))
                                     && (!request.Status.HasValue || o.criminal.Status == request.Status)
                                     && (!request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)

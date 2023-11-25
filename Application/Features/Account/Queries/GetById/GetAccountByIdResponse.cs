@@ -6,7 +6,7 @@ namespace Application.Features.Account.Queries.GetById
     public class GetAccountByIdResponse
     {
         public string Name { get; set; } = null!;
-        public string CitizenID { get; set; } = null!;
+        public string CitizenId { get; set; } = null!;
         public bool? Gender { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }

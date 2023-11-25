@@ -264,8 +264,8 @@ namespace Application.Features.Case.Command.Edit
                     var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.Id == witness.Id && !_.IsDeleted);
                     if (checkWitnessExist == null || witness.Id == 0)
                     {
-                        var checkCitizenIDExist = await _witnessRepository.FindAsync(_ => _.CitizenID.Equals(witness.CitizenID));
-                        if (checkCitizenIDExist == null)
+                        var checkCitizenIdExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
+                        if (checkCitizenIdExist == null)
                         {
                             var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
                             await _witnessRepository.AddAsync(addWitness);
@@ -281,7 +281,7 @@ namespace Application.Features.Case.Command.Edit
                             await _caseWitnessRepository.AddAsync(new Domain.Entities.CaseWitness.CaseWitness
                             {
                                 CaseId = request.Id,
-                                WitnessId = checkCitizenIDExist.Id
+                                WitnessId = checkCitizenIdExist.Id
                             });
                         }
                     }
@@ -329,8 +329,8 @@ namespace Application.Features.Case.Command.Edit
                     var checkVictimExist = await _victimRepository.FindAsync(_ => _.Id == victim.Id && !_.IsDeleted);
                     if (checkVictimExist == null || victim.Id == 0)
                     {
-                        var checkCitizenIDExist = await _victimRepository.FindAsync(_ => _.CitizenID.Equals(victim.CitizenID));
-                        if (checkCitizenIDExist == null)
+                        var checkCitizenIdExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId));
+                        if (checkCitizenIdExist == null)
                         {
                             var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);
                             await _victimRepository.AddAsync(addVictim);
@@ -346,7 +346,7 @@ namespace Application.Features.Case.Command.Edit
                             await _caseVictimRepository.AddAsync(new Domain.Entities.CaseVictim.CaseVictim
                             {
                                 CaseId = request.Id,
-                                VictimId = checkCitizenIDExist.Id
+                                VictimId = checkCitizenIdExist.Id
                             });
                         }
                     }

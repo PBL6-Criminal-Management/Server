@@ -41,7 +41,7 @@ namespace Application.Features.Account.Queries.GetById
                                   select new GetAccountByIdResponse()
                                   {
                                       Name = e.Name,
-                                      CitizenID = e.CitizenID,
+                                      CitizenId = e.CitizenId,
                                       Gender = e.Gender,
                                       Birthday = e.Birthday,
                                       PhoneNumber = e.PhoneNumber,

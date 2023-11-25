@@ -22,7 +22,7 @@ namespace Application.Features.Account.Command.Add
         public string Name { get; set; } = null!;
 
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
-        public string CitizenID { get; set; } = null!;
+        public string CitizenId { get; set; } = null!;
 
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
@@ -84,8 +84,8 @@ namespace Application.Features.Account.Command.Add
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.USERNAME_EXISTS_MSG);
             }
 
-            var isCitizenIDExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenID == request.CitizenID && !x.IsDeleted);
-            if (isCitizenIDExists != null)
+            var isCitizenIdExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenId == request.CitizenId && !x.IsDeleted);
+            if (isCitizenIdExists != null)
             {
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }

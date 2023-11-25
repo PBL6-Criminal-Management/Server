@@ -24,18 +24,18 @@ namespace Application.Features.FaceDetect.Queries.Detect
         public string Nationality { get; set; } = null!;
         public string Ethnicity { get; set; } = null!;
         public string? Religion { get; set; }
-        public string CitizenID { get; set; } = null!;
+        public string CitizenId { get; set; } = null!;
         public string CareerAndWorkplace { get; set; } = null!;
         public string PermanentResidence { get; set; } = null!;
         public string CurrentAccommodation { get; set; } = null!;
         public string FatherName { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly FatherBirthday { get; set; }
-        public string FatherCitizenID { get; set; } = null!;
+        public string FatherCitizenId { get; set; } = null!;
         public string MotherName { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly MotherBirthday { get; set; }
-        public string MotherCitizenID { get; set; } = null!;
+        public string MotherCitizenId { get; set; } = null!;
         public string Characteristics { get; set; } = null!;
         //public string OtherCharacteristics { get; set; } = null!;
         public CriminalStatus Status { get; set; }

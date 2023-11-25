@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231117045816_ChangeCMNDCCCDFieldToCitizenID")]
-    partial class ChangeCMNDCCCDFieldToCitizenID
+    [Migration("20231117045816_ChangeCMNDCCCDFieldToCitizenId")]
+    partial class ChangeCMNDCCCDFieldToCitizenId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -606,7 +606,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("characteristics");
 
-                    b.Property<string>("CitizenID")
+                    b.Property<string>("CitizenId")
                         .IsRequired()
                         .HasColumnType("varchar(12)")
                         .HasColumnName("citizen_id");
@@ -649,7 +649,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("father_birthday");
 
-                    b.Property<string>("FatherCitizenID")
+                    b.Property<string>("FatherCitizenId")
                         .IsRequired()
                         .HasColumnType("varchar(12)")
                         .HasColumnName("father_citizen_id");
@@ -680,7 +680,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("mother_birthday");
 
-                    b.Property<string>("MotherCitizenID")
+                    b.Property<string>("MotherCitizenId")
                         .IsRequired()
                         .HasColumnType("varchar(12)")
                         .HasColumnName("mother_citizen_id");
@@ -913,7 +913,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("birthday");
 
-                    b.Property<string>("CitizenID")
+                    b.Property<string>("CitizenId")
                         .IsRequired()
                         .HasColumnType("varchar(12)")
                         .HasColumnName("citizen_id");
@@ -981,7 +981,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("birthday");
 
-                    b.Property<string>("CitizenID")
+                    b.Property<string>("CitizenId")
                         .IsRequired()
                         .HasColumnType("varchar(12)")
                         .HasColumnName("citizen_id");
@@ -1095,7 +1095,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("address");
 
-                    b.Property<string>("CitizenID")
+                    b.Property<string>("CitizenId")
                         .IsRequired()
                         .HasColumnType("varchar(12)")
                         .HasColumnName("citizen_id");

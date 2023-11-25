@@ -13,6 +13,15 @@
 	  <Content Remove="Controllers\V1\Employee\**" />
 	  <EmbeddedResource Remove="Controllers\V1\Employee\**" />
 	  <None Remove="Controllers\V1\Employee\**" />
+      <Content Include="..\WebApi\Files\Avatar\**\*" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Files\Avatar\NotFound\notFoundAvatar.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Files\Avatar\NotFound\notFoundAvatar.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>

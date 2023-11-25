@@ -20,7 +20,7 @@ namespace Application.Features.Account.Command.Edit
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         public string Name { get; set; } = null!;
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
-        public string CitizenID { get; set; } = null!;
+        public string CitizenId { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
@@ -68,8 +68,8 @@ namespace Application.Features.Account.Command.Edit
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
-            var isCitizenIDExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenID == request.CitizenID && !x.IsDeleted && x.Id != request.Id);
-            if (isCitizenIDExists != null)
+            var isCitizenIdExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenId == request.CitizenId && !x.IsDeleted && x.Id != request.Id);
+            if (isCitizenIdExists != null)
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }

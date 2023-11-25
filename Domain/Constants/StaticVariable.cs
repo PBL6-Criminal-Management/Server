@@ -54,7 +54,7 @@ namespace Domain.Constants
 
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";
-        public const string LIMIT_CITIZEN_ID = "CitizenID không được vượt quá 15 ký tự!";
+        public const string LIMIT_CITIZEN_ID = "CitizenId không được vượt quá 15 ký tự!";
         public const string LIMIT_ADDRESS = "Địa chỉ không được vượt quá 200 ký tự!";
         public const string LIMIT_PHONENUMBER = "Số điện thoại không được vượt quá 15 ký tự!";
         public const string LIMIT_EMAIL = "Email không được vượt quá 100 ký tự!";
