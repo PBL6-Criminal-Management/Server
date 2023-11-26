@@ -54,7 +54,7 @@ namespace Infrastructure.Services.Identity
             var mailRequest = new EmailRequest()
             {
                 Body = "Kích vào link sau để thiết lập lại mật khẩu của bạn:\n" + passwordResetUrl,
-                Subject = "Reset Password",
+                Subject = "Thiết lập lại mật khẩu",
                 To = request.Email
             };
             _backgroundJobClient.Enqueue(() => _mailService.SendAsync(mailRequest));
@@ -116,6 +116,8 @@ namespace Infrastructure.Services.Identity
                     return StaticVariable.PASSWORD_REQUIRE_NON_ALPHANUMERIC;
                 case "PasswordRequiresUpper":
                     return StaticVariable.PASSWORD_REQUIRE_UPPER;
+                case "DuplicateEmail":
+                    return StaticVariable.EMAIL_EXISTS_MSG;
                 
                 default:
                     return $"Thay đổi mật khẩu thất bại với lỗi: {errorCode}";
@@ -126,6 +128,10 @@ namespace Infrastructure.Services.Identity
         {
             await _userManager.CreateAsync(user, password);
             var result = await _userManager.AddToRoleAsync(user, role);
+            string msg = string.Join("\n", result.Errors.Select(e => MapErrorMessage(e.Code)));
+            if(msg != "")
+                throw new ApiException(msg);
+
             return result.Succeeded;
         }
 

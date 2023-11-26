@@ -1,4 +1,5 @@
-﻿using Domain.Constants;
+﻿using Application.Exceptions;
+using Domain.Constants;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -19,7 +20,7 @@ namespace Application.CustomConverter
 
                 return utcDateTime;
             }
-            throw new Exception(StaticVariable.NOT_CORRECT_DATE_FORMAT);
+            throw new ApiException(StaticVariable.NOT_CORRECT_DATE_FORMAT);
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
