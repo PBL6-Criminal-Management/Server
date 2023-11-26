@@ -1,12 +1,16 @@
-﻿using Application.Exceptions;
+﻿using Application.Dtos.Requests.SendEmail;
+using Application.Exceptions;
 using Application.Interfaces.Account;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Interfaces.Services.Identity;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Entities;
+using Domain.Helpers;
 using Domain.Wrappers;
+using Hangfire;
 using MediatR;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -27,10 +31,10 @@ namespace Application.Features.Account.Command.Add
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = StaticVariable.INVALID_USER_NAME)]
+        //[RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = StaticVariable.INVALID_USER_NAME)]
+        [DefaultValue(null)]
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_USERNAME)]
-        [DefaultValue("string")]
-        public string Username { get; set; } = null!;
+        public string? Username { get; set; }
 
         [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PASSWORD)]
         [StringLength(100, MinimumLength = 8, ErrorMessage = StaticVariable.LIMIT_PASSWORD)]
@@ -65,23 +69,37 @@ namespace Application.Features.Account.Command.Add
         private readonly IAccountRepository _accountRepository;
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly IUserService _userService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IEmailService _mailService;
 
-        public AddAccountCommandHandler(IMapper mapper, IAccountRepository AccountRepository, IUnitOfWork<long> unitOfWork, IUserService userService)
+        public AddAccountCommandHandler(IMapper mapper, IAccountRepository AccountRepository, IUnitOfWork<long> unitOfWork, IUserService userService, IBackgroundJobClient backgroundJobClient, IEmailService mailService)
         {
             _mapper = mapper;
             _accountRepository = AccountRepository;
             _unitOfWork = unitOfWork;
             _userService = userService;
+            _backgroundJobClient = backgroundJobClient;
+            _mailService = mailService;
         }
 
         public async Task<Result<AddAccountCommand>> Handle(AddAccountCommand request, CancellationToken cancellationToken)
         {
             request.Id = null;
 
-            var isUsernameExists = await _userService.IsExistUsername(request.Username);
-            if (isUsernameExists)
+            string[] wordsInName = StringHelper.ConvertFromVietnameseText(request.Name).Split(' ');
+
+            request.Username = wordsInName.Last() + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => w[0]));
+            long count = 2; string name = request.Username;
+            while (true)
             {
-                return await Result<AddAccountCommand>.FailAsync(StaticVariable.USERNAME_EXISTS_MSG);
+                var isUsernameExists = await _userService.IsExistUsername(request.Username);
+                if (isUsernameExists)
+                {
+                    request.Username = name + count;
+                    count++;
+                }
+                else
+                    break;
             }
 
             var isCitizenIdExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenId == request.CitizenId && !x.IsDeleted);
@@ -120,6 +138,17 @@ namespace Application.Features.Account.Command.Add
             {
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.UNKNOWN_ERROR);
             }
+            var mailRequest = new EmailRequest()
+            {
+                Body = $"Tài khoản của bạn đã được tạo trên hệ thống:<br>" +
+                $"Tên đăng nhập: {request.Username}<br>" +
+                $"Mật khẩu: {request.Password}<br>" +
+                $"Hãy đăng nhập vào hệ thống và đổi mật khẩu ngay để tránh bị lộ thông tin cá nhân.<br>" +
+                $"Liên hệ với người quản trị nếu bạn gặp bất kì vấn đề gì khi đăng nhập vào hệ thống!<br>",
+                Subject = "Tài khoản được cấp",
+                To = request.Email
+            };
+            _backgroundJobClient.Enqueue(() => _mailService.SendAsync(mailRequest));
 
             return await Result<AddAccountCommand>.SuccessAsync(request);
         }

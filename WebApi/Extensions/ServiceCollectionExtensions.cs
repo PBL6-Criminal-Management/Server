@@ -84,7 +84,7 @@ namespace WebApi.Extensions
                     QueuePollInterval = TimeSpan.FromSeconds(15),
                     JobExpirationCheckInterval = TimeSpan.FromHours(1),
                     CountersAggregateInterval = TimeSpan.FromMinutes(5),
-                    PrepareSchemaIfNecessary = true,
+                    PrepareSchemaIfNecessary = false,
                     DashboardJobListLimit = 50000,
                     TransactionTimeout = TimeSpan.FromMinutes(1),
                     TablesPrefix = "Hangfire"

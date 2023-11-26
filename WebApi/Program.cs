@@ -1,4 +1,5 @@
 using Application.Extensions;
+using Hangfire;
 using Infrastructure.Extensions;
 using Serilog;
 using Shared.Extensions;

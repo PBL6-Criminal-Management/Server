@@ -88,7 +88,10 @@ namespace Domain.Constants
         public const string LIMIT_MOTHER_NAME = "Tên mẹ của tội phạm không được vượt quá 100 ký tự!";
         public const string LIMIT_MOTHER_CITIZEN_ID = "Chứng minh nhân dân của mẹ tội phạm không được vượt quá 12 ký tự!";
         public const string LIMIT_PERMANENT_RESIDENCE = "Địa chỉ thường trú không được vượt quá 200 ký tự!";
-        public const string LIMIT_CURRENT_ACCOMMODATION = "Địa chỉ hiện tại không được vượt quá 200 ký tự";
+        public const string LIMIT_CURRENT_ACCOMMODATION = "Địa chỉ hiện tại không được vượt quá 200 ký tự!";
+        public const string LIMIT_CURRENT_ACTIVITY = "Hoạt động hiện hành không được vượt quá 200 ký tự!";
+        public const string LIMIT_WANTED_DECISION_NO = "Số ra quyết định không được vượt quá 50 ký tự!";
+        public const string LIMIT_DECISION_MAKING_UNIT = "Đơn vị ra quyết định không được vượt quá 100 ký tự!";
         public const string LIMIT_ENTRY_AND_EXITINFORMATION = "Thông tin xuất nhập cảnh không được vượt quá 500 ký tự!";
         public const string LIMIT_FACEBOOK = "Facebook không được vượt quá 100 ký tự!";
         public const string LIMIT_ZALO = "Zalo không được vượt quá 100 ký tự!";

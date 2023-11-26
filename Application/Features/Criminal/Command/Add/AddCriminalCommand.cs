@@ -1,7 +1,9 @@
 ﻿using Application.Dtos.Requests.Image;
+using Application.Dtos.Requests.WantedCriminal;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.WantedCriminal;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
@@ -85,19 +87,25 @@ namespace Application.Features.Criminal.Command.Add
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]
         public string? OtherInformation { get; set; }
         public List<ImageRequest>? CriminalImages { get; set; }
-
+        public List<WantedCriminalRequest>? WantedCriminals { get; set; }
     }
     internal class AddCriminalCommandHandler : IRequestHandler<AddCriminalCommand, Result<AddCriminalCommand>>
     {
         private readonly ICriminalRepository _criminalRepository; 
+        private readonly IWantedCriminalRepository _wantedCriminalRepository; 
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICriminalImageRepository _criminalImageRepository;
 
-        public AddCriminalCommandHandler(ICriminalRepository criminalRepository, IUnitOfWork<long> unitOfWork,
-            IMapper mapper, ICriminalImageRepository criminalImageRepository)
+        public AddCriminalCommandHandler(
+            ICriminalRepository criminalRepository,
+            IWantedCriminalRepository wantedCriminalRepository, 
+            IUnitOfWork<long> unitOfWork,
+            IMapper mapper, 
+            ICriminalImageRepository criminalImageRepository)
         {
             _criminalRepository = criminalRepository;
+            _wantedCriminalRepository = wantedCriminalRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _criminalImageRepository = criminalImageRepository;
@@ -113,12 +121,21 @@ namespace Application.Features.Criminal.Command.Add
             var addCriminal = _mapper.Map<Domain.Entities.Criminal.Criminal>(request);
             await _criminalRepository.AddAsync(addCriminal);
             await _unitOfWork.Commit(cancellationToken);
+
             if (request.CriminalImages != null)
             {
                 var addImage = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
                 addImage.ForEach(x => x.CriminalId = addCriminal.Id);
                 await _criminalImageRepository.AddRangeAsync(addImage);
             }
+
+            if(request.WantedCriminals != null)
+            {
+                var wantedCriminals = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminals);
+                wantedCriminals.ForEach(x => x.CriminalId = addCriminal.Id);
+                await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
+            }
+
             return await Result<AddCriminalCommand>.SuccessAsync(request);
         }
     }
