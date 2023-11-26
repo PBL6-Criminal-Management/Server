@@ -1,6 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Interfaces.Account;
-using Application.Interfaces.Services.Account;
+using Application.Interfaces.Services.Identity;
 using Domain.Entities;
 using Domain.Helpers;
 using Domain.Wrappers;
@@ -16,16 +16,16 @@ namespace Application.Features.Account.Queries.GetAll
     internal class GetAllUserQueryHandler : IRequestHandler<GetAllUserQuery, PaginatedResult<GetAllUserResponse>>
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IAccountService _accountService;
+        private readonly IUserService _userService;
         private readonly IUploadService _uploadService;
         private readonly UserManager<AppUser> _userManager;
 
         public GetAllUserQueryHandler(IAccountRepository accountRepository,
-            IAccountService accountService, IUploadService uploadService,
+            IUserService userService, IUploadService uploadService,
             UserManager<AppUser> userManager)
         {
             _accountRepository = accountRepository;
-            _accountService = accountService;
+            _userService = userService;
             _uploadService = uploadService;
             _userManager = userManager;
         }
@@ -41,12 +41,12 @@ namespace Application.Features.Account.Queries.GetAll
                             Name = user.Name,
                             Email = user.Email,
                             CreatedAt = user.CreatedAt,
-                            Username = _userManager.Users.Where(u => u.UserId == user.Id).FirstOrDefault() == null ? "" : _userManager.Users.Where(u => u.UserId == user.Id).FirstOrDefault().UserName,
+                            Username = _userManager.Users.Where(u => u.UserId == user.Id).FirstOrDefault() == null ? "" : _userManager.Users.Where(u => u.UserId == user.Id).FirstOrDefault()!.UserName!,
                             Address = user.Address,
                             Birthday = user.Birthday,
                             Image = user.Image,
                             ImageLink = _uploadService.GetFullUrl(user.Image),
-                            RoleId = _accountService.GetRoleIdAsync(user.Id).Result
+                            RoleId = _userService.GetRoleIdAsync(user.Id).Result
                         })
                         .AsQueryable()
                         .Where(user => (string.IsNullOrEmpty(request.Keyword)

@@ -1,5 +1,4 @@
-﻿using Domain.Constants.Enum;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.Dtos.Requests.Identity
 {

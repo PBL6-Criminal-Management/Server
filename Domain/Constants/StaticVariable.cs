@@ -27,6 +27,7 @@ namespace Domain.Constants
         public const string INVALID_EMAIL = "Email không hợp lệ!";
         public const string INVALID_USER_NAME = "Tên người dùng không hợp lệ!";
         public const string INVALID_PASSWORD = "Mật khẩu không hợp lệ!";
+        public const string NOT_MATCH_PASSWORD = "Mật khẩu xác nhận không khớp với mật khẩu mới!";
 
         public const string PHONE_NUMBER_EXISTS_MSG = "Số điện thoại đã tồn tại trong cơ sở dữ liệu!";
         public const string EMAIL_EXISTS_MSG = "Email đã tồn tại trong cơ sở dữ liệu!";
@@ -34,6 +35,17 @@ namespace Domain.Constants
         public const string CITIZEN_ID_EXISTS_MSG = "CMND hoặc CCCD đã tồn tại trong cơ sở dữ liệu!";
         public const string CHANGE_ROLE_FAIL = "Thay đổi role không thành công";
         public const string NOT_FOUND_CRIMINAL = "Không tìm thấy tội phạm phù hợp!";
+
+        public const string NOT_CORRECT_DATE_FORMAT = "Ngày nhập không đúng định dạng!";
+        public const string INCORRECT_PASSWORD = "Mật khẩu cũ không đúng!";
+        public const string PASSWORD_TOO_SHORT = "Mật khẩu mới quá ngắn, hãy nhập mật khẩu từ 8 ký tự trở lên!";
+        public const string PASSWORD_REQUIRE_DIGIT = "Mật khẩu phải có ít nhất 1 chữ số!";
+        public const string PASSWORD_REQUIRE_LOWER = "Mật khẩu phải có ít nhất 1 kí tự viết thường!";
+        public const string PASSWORD_REQUIRE_NON_ALPHANUMERIC = "Mật khẩu không thể chứa chữ và số!";
+        public const string PASSWORD_REQUIRE_UPPER = "Mật khẩu phải có ít nhất 1 kí tự viết hoa!";
+
+        public const string CHANGE_PASSWORD_SUCCESSFULLY = "Thay đổi mật khẩu thành công!";
+        public const string SEND_EMAIL_SUCCESSFULLY = "Đã gửi thông tin thay đổi mật khẩu qua email của bạn!";
 
         //File message
         public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";

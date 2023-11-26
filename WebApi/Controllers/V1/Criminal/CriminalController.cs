@@ -74,7 +74,7 @@ namespace WebApi.Controllers.V1.Criminal
         /// <param name="command"></param>
         /// <returns></returns>
         [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> EditCriminal(EditCriminalCommand command)
         {
             var result = await Mediator.Send(command);

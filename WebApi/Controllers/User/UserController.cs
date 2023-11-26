@@ -1,24 +1,20 @@
-﻿using Application.Dtos.Requests.Account;
-using Application.Dtos.Requests.Identity;
+﻿using Application.Dtos.Requests.Identity;
 using Application.Interfaces;
-using Application.Interfaces.Services.Account;
 using Application.Interfaces.Services.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers.Account
+namespace WebApi.Controllers.User
 {
-    [Route("api/account")]
+    [Route("api/user")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IAccountService _accountService;
         private readonly IUserService _userService;
         private readonly ICurrentUserService _currentUserService;
 
-        public AccountController(IAccountService accountService, ICurrentUserService currentUserService, IUserService userService)
+        public UserController(ICurrentUserService currentUserService, IUserService userService)
         {
-            _accountService = accountService;
             _currentUserService = currentUserService;
             _userService = userService;
         }
@@ -32,8 +28,8 @@ namespace WebApi.Controllers.Account
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
         {
-            var result = await _accountService.ChangePasswordAsync(request, _currentUserService.Username);
-            return Ok(result);
+            var result = await _userService.ChangePasswordAsync(request, _currentUserService.Username);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
 
         /// <summary>
@@ -45,8 +41,8 @@ namespace WebApi.Controllers.Account
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordRequest request)
         {
-            var origin = Request.Headers["origin"];
-            return Ok(await _userService.ForgotPasswordAsync(request, origin));
+            var result = await _userService.ForgotPasswordAsync(request);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
 
         /// <summary>
@@ -58,7 +54,8 @@ namespace WebApi.Controllers.Account
         [AllowAnonymous]
         public async Task<IActionResult> ResetPasswordAsync(ResetPasswordRequest request)
         {
-            return Ok(await _userService.ResetPasswordAsync(request));
+            var result = await _userService.ResetPasswordAsync(request);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
     }
 }

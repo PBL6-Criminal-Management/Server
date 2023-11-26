@@ -1,7 +1,7 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces.Account;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.Services.Account;
+using Application.Interfaces.Services.Identity;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
@@ -64,21 +64,21 @@ namespace Application.Features.Account.Command.Add
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IUnitOfWork<long> _unitOfWork;
-        private readonly IAccountService _accountService;
+        private readonly IUserService _userService;
 
-        public AddAccountCommandHandler(IMapper mapper, IAccountRepository AccountRepository, IUnitOfWork<long> unitOfWork, IAccountService accountService)
+        public AddAccountCommandHandler(IMapper mapper, IAccountRepository AccountRepository, IUnitOfWork<long> unitOfWork, IUserService userService)
         {
             _mapper = mapper;
             _accountRepository = AccountRepository;
             _unitOfWork = unitOfWork;
-            _accountService = accountService;
+            _userService = userService;
         }
 
         public async Task<Result<AddAccountCommand>> Handle(AddAccountCommand request, CancellationToken cancellationToken)
         {
             request.Id = null;
 
-            var isUsernameExists = await _accountService.IsExistUsername(request.Username);
+            var isUsernameExists = await _userService.IsExistUsername(request.Username);
             if (isUsernameExists)
             {
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.USERNAME_EXISTS_MSG);
@@ -115,7 +115,7 @@ namespace Application.Features.Account.Command.Add
 
             var user = _mapper.Map<AppUser>(request);
             
-            bool result = await _accountService.AddAcount(user, request.Password, request.Role.ToDescriptionString());
+            bool result = await _userService.AddUser(user, request.Password, request.Role.ToDescriptionString());
             if (result == false)
             {
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.UNKNOWN_ERROR);

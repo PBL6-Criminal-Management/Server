@@ -50,7 +50,7 @@ try
 
     builder.Services.AddSwaggerExtension();
 
-    //builder.Services.AddHangFire(builder.Configuration);
+    builder.Services.AddHangFire(builder.Configuration);
 
     builder.Services.AddApiversioningExtension();
 
@@ -89,7 +89,7 @@ try
 
     app.UseSwaggerExtension();
 
-    //app.UseHangfireExtension();
+    app.UseHangfireExtension();
 
     app.UseErrorHandlingMiddleware();
 
