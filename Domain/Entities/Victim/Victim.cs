@@ -10,7 +10,7 @@ namespace Domain.Entities.Victim
         [Column("name", TypeName = "nvarchar(100)")]
         public string Name { get; set; } = null!;
         [Column("citizen_id", TypeName = "varchar(12)")]
-        public string CitizenID { get; set; } = null!;
+        public string CitizenId { get; set; } = null!;
         [Column("gender", TypeName = "bit")]
         public bool? Gender { get; set; }
         [Column("birthday", TypeName = "date")]

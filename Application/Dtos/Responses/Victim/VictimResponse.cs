@@ -8,7 +8,7 @@ namespace Application.Dtos.Responses.Victim
         public string Name { get; set; } = null!;
         public DateOnly? Birthday { get; set; }
         public bool? Gender { get; set; }
-        public string CitizenID { get; set; } = null!;
+        public string CitizenId { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;
     }

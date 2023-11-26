@@ -78,7 +78,7 @@ namespace Application.Features.Case.Queries.GetById
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    CitizenID = c.CitizenID,
+                    CitizenId = c.CitizenId,
                     PhoneNumber = c.PhoneNumber,
                     Address = c.Address,
                     Testimony = c.Testimony,
@@ -110,7 +110,7 @@ namespace Application.Features.Case.Queries.GetById
                    Birthday = v.Birthday,
                    Gender = v.Gender,
                    PhoneNumber = v.PhoneNumber,
-                   CitizenID = v.CitizenID,
+                   CitizenId = v.CitizenId,
                    Address = v.Address
                }).ToListAsync();
             if (victimOfCase.Any()) response.Victims?.AddRange(victimOfCase);

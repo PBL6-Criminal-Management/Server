@@ -2,7 +2,7 @@
 {
     public class RequestParameter
     {
-        public string? Keyword { get; set; }
+        public virtual string? Keyword { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public bool IsExport { get; set; }

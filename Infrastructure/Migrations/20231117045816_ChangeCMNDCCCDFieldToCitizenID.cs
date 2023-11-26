@@ -5,7 +5,7 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangeCMNDCCCDFieldToCitizenID : Migration
+    public partial class ChangeCMNDCCCDFieldToCitizenId : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

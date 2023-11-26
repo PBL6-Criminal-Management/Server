@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231121075637_AddCrimeSceneTableCase")]
-    partial class AddCrimeSceneTableCase
+    [Migration("20231125172020_MakeAnotherNameFieldNullable")]
+    partial class MakeAnotherNameFieldNullable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -200,6 +200,10 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
+
+                    b.Property<DateTime>("TokenExpiryTime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("token_expiry_time");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
@@ -585,7 +589,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("AnotherName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("another_name");
 

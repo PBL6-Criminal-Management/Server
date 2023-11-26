@@ -131,7 +131,7 @@ namespace Application.Features.Case.Command.Add
                 List<long> witnessIds = new List<long>();
                 foreach (var witness in request.Witnesses)
                 {
-                    var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenID.Equals(witness.CitizenID));
+                    var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
                     if (checkWitnessExist == null)
                     {
                         var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
@@ -168,7 +168,7 @@ namespace Application.Features.Case.Command.Add
                 List<long> victimIds = new List<long>();
                 foreach (var victim in request.Victims)
                 {
-                    var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenID.Equals(victim.CitizenID) && !_.IsDeleted);
+                    var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted);
                     if (checkVictimExist == null)
                     {
                         var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);

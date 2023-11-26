@@ -31,7 +31,7 @@ namespace Infrastructure.Services
             List<UploadFile> listFiles = new List<UploadFile>();
             StringBuilder listMessages = new StringBuilder();
 
-            if(request.FilePath != null)
+            if (request.FilePath != null)
                 request.FilePath = TrimNonUrlCharacters(request.FilePath);
 
             var folderName = (request.FilePath != null) ? Path.Combine("Files", request.FilePath) : "Files";
@@ -84,20 +84,20 @@ namespace Infrastructure.Services
                     FileUrl = Path.Combine(_currentUserService.HostServerName, dbPath).Replace("\\", "/")
                 });
 
-                listFiles.Add(new UploadFile { File = file, FileName = fileName});
+                listFiles.Add(new UploadFile { File = file, FileName = fileName });
             }
 
             //Only upload criminal images to gg drive
-            if(request.FilePath != null && request.FilePath.Split("/").Count() == 2)
+            if (request.FilePath != null && request.FilePath.Split("/").Count() == 2)
             {
                 string rootFolder = request.FilePath.Split("/")[0];
-                if(rootFolder.Equals(StaticVariable.TRAINED_IMAGES_FOLDER_NAME) && int.TryParse(request.FilePath.Split("/")[1], out int criminalId))
+                if (rootFolder.Equals(StaticVariable.TRAINED_IMAGES_FOLDER_NAME) && int.TryParse(request.FilePath.Split("/")[1], out int criminalId))
                 {
                     UploadToGGDrive(listFiles, criminalId.ToString());
                 }
             }
 
-            if(listMessages.Length > 0)
+            if (listMessages.Length > 0)
                 return await Result<List<UploadResponse>>.SuccessAsync(responses, listMessages.Remove(0, Environment.NewLine.Length).ToString().Split(Environment.NewLine).ToList());
             else
                 return await Result<List<UploadResponse>>.SuccessAsync(responses);
@@ -110,10 +110,10 @@ namespace Infrastructure.Services
             foreach (char c in pattern)
                 input = input.Replace(c.ToString(), "");
 
-            while(input.Length > 0 && (input.StartsWith('/') || input.StartsWith('\\')))
+            while (input.Length > 0 && (input.StartsWith('/') || input.StartsWith('\\')))
                 input = input.TrimStart('/').TrimStart('\\');
 
-            while(input.Length > 0 && (input.EndsWith('/') || input.EndsWith('\\')))
+            while (input.Length > 0 && (input.EndsWith('/') || input.EndsWith('\\')))
                 input = input.TrimEnd('/').TrimEnd('\\');
 
             return input;
@@ -125,7 +125,11 @@ namespace Infrastructure.Services
 
             GoogleCredential credential;
 
-            using (var stream = new FileStream(Directory.GetCurrentDirectory().Split("\\WebApi")[0] + "/Infrastructure/Services/exalted-pattern-400909-3eaa10f4b2b4.json", FileMode.Open, FileAccess.Read))
+            string filePath = Directory.GetCurrentDirectory().Split("\\WebApi")[0] + "/Infrastructure/Services/exalted-pattern-400909-3eaa10f4b2b4.json";
+            if (!Path.Exists(filePath))
+                filePath = Directory.GetCurrentDirectory() + "/exalted-pattern-400909-3eaa10f4b2b4.json";
+
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 credential = GoogleCredential.FromStream(stream).CreateScoped(new[]
                 {
@@ -150,7 +154,7 @@ namespace Infrastructure.Services
             if (folderXId == null)
                 folderXId = CreateFolder(service, criminalId, StaticVariable.TRAINED_IMAGES_FOLDER_ID);
 
-            foreach(UploadFile file in files)
+            foreach (UploadFile file in files)
             {
                 var fileMetadata = new Google.Apis.Drive.v3.Data.File()
                 {
@@ -202,11 +206,19 @@ namespace Infrastructure.Services
             return folder.Id;
         }
 
-        public string GetFullUrl(string? filePath)
+        public bool IsFileExists(string? filePath)
         {
             if (!string.IsNullOrWhiteSpace(filePath))
+                return File.Exists(Path.Combine(Directory.GetCurrentDirectory(), filePath));
+
+            return false;
+        }
+
+        public string GetFullUrl(string? filePath)
+        {
+            if (IsFileExists(filePath))
             {
-                var result = Path.Combine(_currentUserService.HostServerName, filePath).Replace("\\", "/");
+                var result = Path.Combine(_currentUserService.HostServerName, filePath!).Replace("\\", "/");
                 return result;
             }
 
@@ -217,7 +229,7 @@ namespace Infrastructure.Services
         {
             var fileToDelete = Path.Combine(Directory.GetCurrentDirectory(), filePath);
 
-            if (File.Exists(fileToDelete))
+            if (File.Exists(fileToDelete) && !fileToDelete.Equals("Files/Avatar/NotFound/notFoundAvatar.jpg"))
             {
                 File.Delete(fileToDelete);
             }
