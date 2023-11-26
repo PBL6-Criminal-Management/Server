@@ -1,6 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Interfaces.Account;
-using Application.Interfaces.Services.Account;
+using Application.Interfaces.Services.Identity;
 using Domain.Constants;
 using Domain.Entities;
 using Domain.Wrappers;
@@ -18,14 +18,14 @@ namespace Application.Features.Account.Queries.GetById
     internal class GetAccountByIdQueryHandler : IRequestHandler<GetAccountByIdQuery, Result<GetAccountByIdResponse>>
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IAccountService _accountService;
+        private readonly IUserService _userService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IUploadService _uploadService;
 
-        public GetAccountByIdQueryHandler(IAccountRepository accountRepository, IAccountService accountService, UserManager<AppUser> userManager, IUploadService uploadService)
+        public GetAccountByIdQueryHandler(IAccountRepository accountRepository, IUserService userService, UserManager<AppUser> userManager, IUploadService uploadService)
         {
-            _accountRepository = accountRepository; 
-            _accountService = accountService;
+            _accountRepository = accountRepository;
+            _userService = userService;
             _userManager = userManager;
             _uploadService = uploadService;
         }
@@ -49,7 +49,7 @@ namespace Application.Features.Account.Queries.GetById
                                       Email = e.Email,
                                       IsActive = user.IsActive,
                                       Username = user.UserName!,
-                                      Role = _accountService.GetRoleIdAsync(user.UserId).Result,
+                                      Role = _userService.GetRoleIdAsync(user.UserId).Result,
                                       Image = e.Image,
                                       ImageLink = _uploadService.GetFullUrl(e.Image),
                                   }).FirstOrDefaultAsync(cancellationToken: cancellationToken);

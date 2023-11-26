@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Domain.Constants;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,13 +11,15 @@ namespace Application.CustomConverter
         private string timeZoneId = "SE Asia Standard Time";
         public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            string dateString = reader.GetString();
-            DateTime localDateTime = DateTime.ParseExact(dateString, formatDate, CultureInfo.InvariantCulture);
+            string? dateString = reader.GetString();
+            if(DateTime.TryParseExact(dateString, formatDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime localDateTime))
+            {
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                DateOnly utcDateTime = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeToUtc(localDateTime, vietnamTimeZone));
 
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-            DateOnly utcDateTime = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeToUtc(localDateTime, vietnamTimeZone));
-
-            return utcDateTime;
+                return utcDateTime;
+            }
+            throw new Exception(StaticVariable.NOT_CORRECT_DATE_FORMAT);
         }
 
         public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)

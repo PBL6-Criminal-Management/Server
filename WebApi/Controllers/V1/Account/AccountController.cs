@@ -83,7 +83,7 @@ namespace WebApi.Controllers.V1.Account
         /// <param name="command"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> EditAcount(EditAccountCommand command)
         {
             var result = await Mediator.Send(command);

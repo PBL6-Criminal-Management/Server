@@ -2,6 +2,7 @@
 using Domain.Wrappers;
 using MediatR;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace Application.Features.FaceDetect.Command.Retrain
 {
@@ -14,6 +15,7 @@ namespace Application.Features.FaceDetect.Command.Retrain
         {
             using (HttpClient client = new HttpClient())
             {
+                client.Timeout = Timeout.InfiniteTimeSpan;
                 try
                 {
                     HttpResponseMessage response = await client.PostAsync(StaticVariable.AI_SERVER_BASE_URL + "/retrain", null);

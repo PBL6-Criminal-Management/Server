@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
 using Hangfire;
+using Hangfire.MySql;
 using Infrastructure.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,7 @@ using Shared.Configurations;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Transactions;
 using WebApi.Services;
 
 namespace WebApi.Extensions
@@ -67,11 +69,30 @@ namespace WebApi.Extensions
 
         public static void AddHangFire(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddHangfire(x =>
-            {
-                x.UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"));
-            });
+            //ms sql
+            //services.AddHangfire(x =>
+            //{
+            //    x.UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"));
+            //});
+            //services.AddHangfireServer();
+
+            //mysql
+            var options =
+                new MySqlStorageOptions
+                {
+                    TransactionIsolationLevel = IsolationLevel.ReadCommitted,
+                    QueuePollInterval = TimeSpan.FromSeconds(15),
+                    JobExpirationCheckInterval = TimeSpan.FromHours(1),
+                    CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                    PrepareSchemaIfNecessary = true,
+                    DashboardJobListLimit = 50000,
+                    TransactionTimeout = TimeSpan.FromMinutes(1),
+                    TablesPrefix = "Hangfire"
+                };
+            services.AddHangfire(x => 
+                x.UseStorage(new MySqlStorage(configuration.GetConnectionString("DefaultConnection"), options)));
             services.AddHangfireServer();
+
         }
 
         public static void AddApiversioningExtension(this IServiceCollection services)

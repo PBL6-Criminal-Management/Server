@@ -1,8 +1,7 @@
-﻿
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Application.Interfaces.Account;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.Services.Account;
+using Application.Interfaces.Services.Identity;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
@@ -49,16 +48,16 @@ namespace Application.Features.Account.Command.Edit
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
-        private readonly IAccountService _accountService;
+        private readonly IUserService _userService;
 
         public EditAccountCommandHandler(IAccountRepository accountRepository, IUnitOfWork<long> unitOfWork,
-            IMapper mapper, IUploadService uploadService, IAccountService accountService)
+            IMapper mapper, IUploadService uploadService, IUserService userService)
         {
             _accountRepository = accountRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _uploadService = uploadService;
-            _accountService = accountService;
+            _userService = userService;
         }
 
         public async Task<Result<EditAccountCommand>> Handle(EditAccountCommand request, CancellationToken cancellationToken)
@@ -95,7 +94,7 @@ namespace Application.Features.Account.Command.Edit
                 deleleImagePath = account.Image;
             }
             _mapper.Map(request, account);
-            var checkChangeRole = await _accountService.ChangeRole(request.Id, request.Role);
+            var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role);
             if (!checkChangeRole)
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
@@ -106,6 +105,15 @@ namespace Application.Features.Account.Command.Edit
             {
                 await _uploadService.DeleteAsync(deleleImagePath);
             }
+            await _userService.EditUser(new Dtos.Requests.Identity.EditUserRequest
+            {
+                Id = request.Id,
+                FullName = request.Name,
+                Email = request.Email,
+                Phone = request.PhoneNumber,
+                ImageFile = request.Image,
+            });
+
             return await Result<EditAccountCommand>.SuccessAsync(request);
         }
     }

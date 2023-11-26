@@ -1,7 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
-using Application.Interfaces.Services.Account;
 using Application.Interfaces.Services.Identity;
 using Infrastructure.Contexts;
 using Infrastructure.Repositories;
@@ -52,7 +51,6 @@ namespace Infrastructure.Extensions
 
             services.AddScoped<ITokenService, IdentityService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAuditService, AuditService>();
             services.AddScoped<IExcelService, ExcelService>();
             services.AddScoped<ICheckFileType, CheckFileType>();

@@ -65,7 +65,8 @@ namespace Application.Features.FaceDetect.Queries.Detect
             DetectResult? detectResult = null;
 
             using (HttpClient client = new HttpClient())
-            {                
+            {
+                client.Timeout = Timeout.InfiniteTimeSpan;
                 try
                 {
                     using (MultipartFormDataContent content = new MultipartFormDataContent())

@@ -60,7 +60,7 @@ namespace WebApi.Controllers.V1.Case
         /// <param name="command"></param>
         /// <returns></returns>
         [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> EditCase(EditCaseCommand command)
         {
             var result = await Mediator.Send(command);
