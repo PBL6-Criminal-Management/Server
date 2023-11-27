@@ -2,7 +2,6 @@
 using Domain.Wrappers;
 using MediatR;
 using Newtonsoft.Json;
-using System.Net.Http;
 
 namespace Application.Features.FaceDetect.Command.Retrain
 {

@@ -70,5 +70,11 @@ namespace Infrastructure.Repositories
             //dispose unmanaged resources
             disposed = true;
         }
+
+        //MySQL
+        public IExecutionStrategy CreateExecutionStrategy()
+        {
+            return _dbContext.Database.CreateExecutionStrategy();
+        }
     }
 }

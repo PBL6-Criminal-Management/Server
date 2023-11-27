@@ -10,6 +10,7 @@ using Domain.Constants.Enum;
 using Domain.Entities.CriminalImage;
 using Domain.Wrappers;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -119,24 +120,46 @@ namespace Application.Features.Criminal.Command.Add
                 return await Result<AddCriminalCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }
             var addCriminal = _mapper.Map<Domain.Entities.Criminal.Criminal>(request);
-            await _criminalRepository.AddAsync(addCriminal);
-            await _unitOfWork.Commit(cancellationToken);
 
-            if (request.CriminalImages != null)
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
+
+            var result = await executionStrategy.ExecuteAsync(async () =>
             {
-                var addImage = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
-                addImage.ForEach(x => x.CriminalId = addCriminal.Id);
-                await _criminalImageRepository.AddRangeAsync(addImage);
-            }
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    await _criminalRepository.AddAsync(addCriminal);
+                    await _unitOfWork.Commit(cancellationToken);
 
-            if(request.WantedCriminals != null)
-            {
-                var wantedCriminals = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminals);
-                wantedCriminals.ForEach(x => x.CriminalId = addCriminal.Id);
-                await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
-            }
+                    if (request.CriminalImages != null)
+                    {
+                        var addImage = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
+                        addImage.ForEach(x => x.CriminalId = addCriminal.Id);
+                        await _criminalImageRepository.AddRangeAsync(addImage);
+                    }
 
-            return await Result<AddCriminalCommand>.SuccessAsync(request);
+                    if (request.WantedCriminals != null)
+                    {
+                        var wantedCriminals = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminals);
+                        wantedCriminals.ForEach(x => x.CriminalId = addCriminal.Id);
+                        await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
+                    }
+
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<AddCriminalCommand>.SuccessAsync(request);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<AddCriminalCommand>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
+            });
+
+            return result;            
         }
     }
 }

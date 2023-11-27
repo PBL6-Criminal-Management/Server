@@ -4,6 +4,7 @@ using Application.Interfaces.Services.Identity;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Account.Command.Delete
 {
@@ -28,19 +29,35 @@ namespace Application.Features.Account.Command.Delete
         {
             var account = await _accountRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
             if (account == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
-            try
+
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
+
+            var result = await executionStrategy.ExecuteAsync(async () =>
             {
-                await _userService.DeleteUser(new Dtos.Requests.Identity.DeleteUserRequest
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
                 {
-                    Id = request.Id,
-                });
-                await _accountRepository.DeleteAsync(account);
-                await _unitOfWork.Commit(cancellationToken);
-                return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_USER);
-            }catch (System.Exception ex)
-            {
-                return await Result<long>.FailAsync(ex.Message);
-            }
+                    await _userService.DeleteUser(new Dtos.Requests.Identity.DeleteUserRequest
+                    {
+                        Id = request.Id,
+                    });
+                    await _accountRepository.DeleteAsync(account);
+                    await _unitOfWork.Commit(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_USER);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<long>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
+            });
+
+            return result;
         }
     }
 }

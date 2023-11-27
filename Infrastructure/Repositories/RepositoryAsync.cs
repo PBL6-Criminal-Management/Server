@@ -108,6 +108,11 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Set<T>().Where(includeProperties).ToListAsync();
         }
+        public Task RemoveAsync(T entity)
+        {
+            _dbContext.Remove(entity);
+            return Task.CompletedTask;
+        }
         public Task RemoveRangeAsync(List<T> entity)
         {
             _dbContext.RemoveRange(entity);

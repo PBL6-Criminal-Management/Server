@@ -7,6 +7,7 @@ using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Wrappers;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -94,27 +95,49 @@ namespace Application.Features.Account.Command.Edit
                 deleleImagePath = account.Image;
             }
             _mapper.Map(request, account);
-            var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role);
-            if (!checkChangeRole)
+
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
+
+            var result = await executionStrategy.ExecuteAsync(async () =>
             {
-                return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
-            }
-            await _accountRepository.UpdateAsync(account);
-            await _unitOfWork.Commit(cancellationToken);
-            if (!deleleImagePath.Equals(""))
-            {
-                await _uploadService.DeleteAsync(deleleImagePath);
-            }
-            await _userService.EditUser(new Dtos.Requests.Identity.EditUserRequest
-            {
-                Id = request.Id,
-                FullName = request.Name,
-                Email = request.Email,
-                Phone = request.PhoneNumber,
-                ImageFile = request.Image,
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role);
+                    if (!checkChangeRole)
+                    {
+                        return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
+                    }
+                    await _accountRepository.UpdateAsync(account);
+                    await _unitOfWork.Commit(cancellationToken);
+                    if (!deleleImagePath.Equals(""))
+                    {
+                        await _uploadService.DeleteAsync(deleleImagePath);
+                    }
+                    await _userService.EditUser(new Dtos.Requests.Identity.EditUserRequest
+                    {
+                        Id = request.Id,
+                        FullName = request.Name,
+                        Email = request.Email,
+                        Phone = request.PhoneNumber,
+                        ImageFile = request.Image,
+                    });
+
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<EditAccountCommand>.SuccessAsync(request);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<EditAccountCommand>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
             });
 
-            return await Result<EditAccountCommand>.SuccessAsync(request);
+            return result;
         }
     }
 }

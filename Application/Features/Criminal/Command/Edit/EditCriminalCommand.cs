@@ -13,6 +13,10 @@ using Domain.Constants.Enum;
 using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
 using Domain.Entities.CriminalImage;
+using Application.Dtos.Requests.WantedCriminal;
+using Application.Interfaces.WantedCriminal;
+using Application.Exceptions;
+using Application.Features.Account.Command.Edit;
 
 namespace Application.Features.Criminal.Command.Edit
 {
@@ -88,20 +92,23 @@ namespace Application.Features.Criminal.Command.Edit
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]
         public string? OtherInformation { get; set; }
         public List<ImageRequest>? CriminalImages { get; set; }
+        public List<WantedCriminalRequest>? WantedCriminals { get; set; }
     }
     internal class EditCriminalCommandHandler : IRequestHandler<EditCriminalCommand, Result<EditCriminalCommand>>
     {
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly ICriminalRepository _criminalRepository;
+        private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
-        public EditCriminalCommandHandler(IUnitOfWork<long> unitOfWork, ICriminalRepository criminalRepository,
-            ICriminalImageRepository criminalImageRepository, IMapper mapper, IUploadService uploadService) {
+        public EditCriminalCommandHandler(IUnitOfWork<long> unitOfWork, ICriminalRepository criminalRepository, IWantedCriminalRepository wantedCriminalRepository,
+        ICriminalImageRepository criminalImageRepository, IMapper mapper, IUploadService uploadService) {
             _criminalImageRepository = criminalImageRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _criminalRepository = criminalRepository;
+            _wantedCriminalRepository = wantedCriminalRepository;
             _uploadService = uploadService;
         }
 
@@ -111,34 +118,87 @@ namespace Application.Features.Criminal.Command.Edit
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
+
             var editCriminal = await _criminalRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
             if (editCriminal == null) return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
-            _mapper.Map(request, editCriminal);
-            await _criminalRepository.UpdateAsync(editCriminal);
-            if(request.CriminalImages != null)
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
+
+            var result = await executionStrategy.ExecuteAsync(async () =>
             {
-                List<string?> listNewFile = request.CriminalImages.Select(_ => _.FilePath).ToList();
-                var requestImages = await _criminalImageRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
-                if (requestImages.Any())
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
                 {
-                    foreach(var image in requestImages)
-                    {
-                        if(!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);
-                    }
-                    await _criminalImageRepository.RemoveRangeAsync(requestImages);
+                    _mapper.Map(request, editCriminal);
+                    await _criminalRepository.UpdateAsync(editCriminal);
+
                     await _unitOfWork.Commit(cancellationToken);
+
+                    var imagesInDB = await _criminalImageRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
+
+                    if (request.CriminalImages != null && request.CriminalImages.Any())
+                    {
+                        List<string?> listNewFile = request.CriminalImages.Select(_ => _.FilePath).ToList();
+                        if (imagesInDB.Any())
+                        {
+                            foreach (var image in imagesInDB)
+                            {
+                                //if image in database not exist in request
+                                if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);  //remove that image in server
+                            }
+                            await _criminalImageRepository.RemoveRangeAsync(imagesInDB);  //remove all images in db
+                            await _unitOfWork.Commit(cancellationToken);
+                        }
+                        var images = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
+                        var requestImage = images.Select(x =>
+                        {
+                            x.Id = 0;
+                            x.CriminalId = editCriminal.Id;
+                            return x;
+                        }).ToList();
+                        await _criminalImageRepository.AddRangeAsync(requestImage);
+                        await _unitOfWork.Commit(cancellationToken);
+                    }
+                    else
+                    {
+                        if (imagesInDB.Any())
+                        {
+                            await _uploadService.DeleteRangeAsync(imagesInDB.Select(i => i.FilePath).ToList());
+                            await _criminalImageRepository.RemoveRangeAsync(imagesInDB);
+                            await _unitOfWork.Commit(cancellationToken);
+                        }
+                    }
+
+                    var wantedCriminalsInDB = await _wantedCriminalRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
+
+                    if (wantedCriminalsInDB.Any())
+                    {
+                        await _wantedCriminalRepository.RemoveRangeAsync(wantedCriminalsInDB);  //remove all wantedCriminals in db
+                        await _unitOfWork.Commit(cancellationToken);
+                    }
+
+                    if (request.WantedCriminals != null && request.WantedCriminals.Any())
+                    {
+                        var wantedCriminals = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminals);
+                        wantedCriminals.ForEach(w => w.CriminalId = request.Id);
+                        await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
+                        await _unitOfWork.Commit(cancellationToken);
+                    }
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<EditCriminalCommand>.SuccessAsync(request);
                 }
-                var images = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
-                var requestImage = images.Select(x =>
+                catch (Exception ex)
                 {
-                    x.Id = 0;
-                    x.CriminalId = editCriminal.Id;
-                    return x;
-                }).ToList();
-                await _criminalImageRepository.AddRangeAsync(requestImage);
-            }
-            return await Result<EditCriminalCommand>.SuccessAsync(request);
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<EditCriminalCommand>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
+            });
+
+            return result;
         }
     }
 }

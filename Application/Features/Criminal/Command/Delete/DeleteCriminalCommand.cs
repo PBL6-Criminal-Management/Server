@@ -6,6 +6,7 @@ using Application.Interfaces.WantedCriminal;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Criminal.Command.Delete
 {
@@ -39,22 +40,44 @@ namespace Application.Features.Criminal.Command.Delete
         {
             var criminal = await _criminalRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
             if (criminal == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
-            await _criminalRepository.DeleteAsync(criminal);
 
-            var caseCriminal = _caseCriminalRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted);
-            if (caseCriminal != null) 
-                await _caseCriminalRepository.DeleteRange(caseCriminal.ToList());
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
 
-            var wantedCriminal = await _wantedCriminalRepository.FindAsync(a => a.CriminalId == request.Id && !a.IsDeleted);
-            if (wantedCriminal != null) 
-                await _wantedCriminalRepository.DeleteAsync(wantedCriminal);
+            var result = await executionStrategy.ExecuteAsync(async () =>
+            {
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    await _criminalRepository.DeleteAsync(criminal);
 
-            var criminalImages = _criminalImageRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted);
-            if (criminalImages != null) 
-                await _criminalImageRepository.DeleteRange(criminalImages.ToList());
+                    var caseCriminal = _caseCriminalRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted);
+                    if (caseCriminal != null)
+                        await _caseCriminalRepository.DeleteRange(caseCriminal.ToList());
 
-            await _unitOfWork.Commit(cancellationToken);
-            return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_SUCCESS);
+                    var wantedCriminal = await _wantedCriminalRepository.FindAsync(a => a.CriminalId == request.Id && !a.IsDeleted);
+                    if (wantedCriminal != null)
+                        await _wantedCriminalRepository.DeleteAsync(wantedCriminal);
+
+                    var criminalImages = _criminalImageRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted);
+                    if (criminalImages != null)
+                        await _criminalImageRepository.DeleteRange(criminalImages.ToList());
+
+                    await _unitOfWork.Commit(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_SUCCESS);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<long>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
+            });
+
+            return result;            
         }
     }
 }
