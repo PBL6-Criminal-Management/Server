@@ -1,9 +1,12 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.Requests.WantedCriminal;
+using Application.Dtos.Responses.File;
+using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.WantedCriminal;
+using AutoMapper;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
@@ -24,8 +27,9 @@ namespace Application.Features.Criminal.Queries.GetById
         private readonly ICaseCriminalRepository _caseCriminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IUploadService _uploadService;
+        private readonly IMapper _mapper;
 
-        public GetCriminalByIdQueryHandler(ICriminalRepository criminalRepository, IWantedCriminalRepository wantedCriminalRepository, ICaseRepository caseRepository, ICaseCriminalRepository caseCriminalRepository, ICriminalImageRepository criminalImageRepository, IUploadService uploadService)
+        public GetCriminalByIdQueryHandler(ICriminalRepository criminalRepository, IWantedCriminalRepository wantedCriminalRepository, ICaseRepository caseRepository, ICaseCriminalRepository caseCriminalRepository, ICriminalImageRepository criminalImageRepository, IUploadService uploadService, IMapper mapper)
         {
             _criminalRepository = criminalRepository;
             _wantedCriminalRepository = wantedCriminalRepository;
@@ -33,6 +37,7 @@ namespace Application.Features.Criminal.Queries.GetById
             _caseCriminalRepository = caseCriminalRepository;
             _criminalImageRepository = criminalImageRepository;
             _uploadService = uploadService;
+            _mapper = mapper;
         }
 
         public async Task<Result<GetCriminalByIdResponse>> Handle(GetCriminalByIdQuery request, CancellationToken cancellationToken)
@@ -50,11 +55,14 @@ namespace Application.Features.Criminal.Queries.GetById
                 return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
             var imageOfCriminal = (from criminalImage in _criminalImageRepository.Entities
-                                 where criminalImage.CriminalId == request.Id
+                                 where criminalImage.CriminalId == request.Id && !criminalImage.IsDeleted
                                  select criminalImage.FilePath).FirstOrDefault();
 
+            var criminalImages = from criminalImage in _criminalImageRepository.Entities
+                                 where criminalImage.CriminalId == request.Id && !criminalImage.IsDeleted
+                                 select criminalImage;
+
             var query = await  (from criminal in _criminalRepository.Entities
-                                from wantedCriminal in _wantedCriminalRepository.Entities.Where(wantedCriminal => wantedCriminal.CriminalId == criminal.Id).DefaultIfEmpty()
                                 where criminal.Id == request.Id && !criminal.IsDeleted
                                 select new GetCriminalByIdResponse()
                                 {
@@ -94,18 +102,26 @@ namespace Application.Features.Criminal.Queries.GetById
                                     Research = criminal.Research,
                                     ApproachArrange = criminal.ApproachArrange,
                                     OtherInformation = criminal.OtherInformation,
-                                    IsWantedCriminal = wantedCriminal != null,
-                                    WantedType = wantedCriminal.WantedType,
-                                    CurrentActivity = wantedCriminal.CurrentActivity,
-                                    WantedDecisionNo = wantedCriminal.WantedDecisionNo,
-                                    WantedDecisionDay = wantedCriminal.WantedDecisionDay,
-                                    DecisionMakingUnit = wantedCriminal.DecisionMakingUnit,
+                                    Vehicles = criminal.Vehicles,
+                                    IsWantedCriminal = true,
                                     Image = imageOfCriminal,
                                     ImageLink = _uploadService.GetFullUrl(imageOfCriminal),
                                 }).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (query == null)
                 return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
+
+            var fileResponse = criminalImages.Select(i => new FileResponse
+            {
+                FileName = i.FileName,
+                FileUrl = _uploadService.GetFullUrl(i.FilePath)
+            });
+
+            query.CriminalImages = fileResponse.ToList();
+
+            var wantedCriminals = _wantedCriminalRepository.Entities.Where(wantedCriminal => wantedCriminal.CriminalId == request.Id);
+            query.IsWantedCriminal = wantedCriminals.Any();
+            query.WantedCriminals = _mapper.Map<List<WantedCriminalRequest>>(wantedCriminals);
 
             return await Result<GetCriminalByIdResponse>.SuccessAsync(query);
         }

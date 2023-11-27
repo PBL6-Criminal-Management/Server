@@ -15,8 +15,6 @@ using Application.Interfaces;
 using Domain.Entities.CriminalImage;
 using Application.Dtos.Requests.WantedCriminal;
 using Application.Interfaces.WantedCriminal;
-using Application.Exceptions;
-using Application.Features.Account.Command.Edit;
 
 namespace Application.Features.Criminal.Command.Edit
 {
@@ -134,41 +132,6 @@ namespace Application.Features.Criminal.Command.Edit
 
                     await _unitOfWork.Commit(cancellationToken);
 
-                    var imagesInDB = await _criminalImageRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
-
-                    if (request.CriminalImages != null && request.CriminalImages.Any())
-                    {
-                        List<string?> listNewFile = request.CriminalImages.Select(_ => _.FilePath).ToList();
-                        if (imagesInDB.Any())
-                        {
-                            foreach (var image in imagesInDB)
-                            {
-                                //if image in database not exist in request
-                                if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);  //remove that image in server
-                            }
-                            await _criminalImageRepository.RemoveRangeAsync(imagesInDB);  //remove all images in db
-                            await _unitOfWork.Commit(cancellationToken);
-                        }
-                        var images = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
-                        var requestImage = images.Select(x =>
-                        {
-                            x.Id = 0;
-                            x.CriminalId = editCriminal.Id;
-                            return x;
-                        }).ToList();
-                        await _criminalImageRepository.AddRangeAsync(requestImage);
-                        await _unitOfWork.Commit(cancellationToken);
-                    }
-                    else
-                    {
-                        if (imagesInDB.Any())
-                        {
-                            await _uploadService.DeleteRangeAsync(imagesInDB.Select(i => i.FilePath).ToList());
-                            await _criminalImageRepository.RemoveRangeAsync(imagesInDB);
-                            await _unitOfWork.Commit(cancellationToken);
-                        }
-                    }
-
                     var wantedCriminalsInDB = await _wantedCriminalRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
 
                     if (wantedCriminalsInDB.Any())
@@ -184,6 +147,44 @@ namespace Application.Features.Criminal.Command.Edit
                         await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
                         await _unitOfWork.Commit(cancellationToken);
                     }
+
+                    var imagesInDB = await _criminalImageRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
+
+                    if (request.CriminalImages != null && request.CriminalImages.Any())
+                    {
+                        var images = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
+                        var requestImage = images.Select(x =>
+                        {
+                            x.Id = 0;
+                            x.CriminalId = editCriminal.Id;
+                            return x;
+                        }).ToList();
+                        await _criminalImageRepository.AddRangeAsync(requestImage);
+                        await _unitOfWork.Commit(cancellationToken);
+
+                        List<string> listNewFile = request.CriminalImages.Select(_ => _.FilePath).ToList();
+
+                        if (imagesInDB.Any() && listNewFile.Any())
+                        {
+                            await _criminalImageRepository.RemoveRangeAsync(imagesInDB);  //remove all images in db
+                            await _unitOfWork.Commit(cancellationToken);
+                            foreach (var image in imagesInDB)
+                            {
+                                //if image in database not exist in request
+                                if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);  //remove that image in server
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (imagesInDB.Any())
+                        {
+                            await _criminalImageRepository.RemoveRangeAsync(imagesInDB);
+                            await _unitOfWork.Commit(cancellationToken);
+                            await _uploadService.DeleteRangeAsync(imagesInDB.Select(i => i.FilePath).ToList());
+                        }
+                    }
+
                     await transaction.CommitAsync(cancellationToken);
                     return await Result<EditCriminalCommand>.SuccessAsync(request);
                 }

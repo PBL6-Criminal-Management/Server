@@ -1,4 +1,6 @@
-﻿using Domain.Constants.Enum;
+﻿using Application.Dtos.Requests.WantedCriminal;
+using Application.Dtos.Responses.File;
+using Domain.Constants.Enum;
 using System.Text.Json.Serialization;
 
 namespace Application.Features.Criminal.Queries.GetById
@@ -46,16 +48,12 @@ namespace Application.Features.Criminal.Queries.GetById
         public string PhoneModel { get; set; } = null!;
         public string? Research { get; set; }
         public string? ApproachArrange { get; set; }
-        public string? OtherInformation { get; set; }
-        public bool IsWantedCriminal { get; set; }
-        public WantedType? WantedType { get; set; }
-        public string? CurrentActivity { get; set; }
-        public string? WantedDecisionNo { get; set; } = null!;
-        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
-        public DateOnly? WantedDecisionDay { get; set; }
-        public string? DecisionMakingUnit { get; set; } = null!;
+        public string? OtherInformation { get; set; }      
         public string? Image { get; set; }
         public string? ImageLink { get; set; }
-        //public string? Vehicles { get; set; }
+        public bool IsWantedCriminal { get; set; }
+        public string? Vehicles { get; set; }
+        public List<FileResponse>? CriminalImages { get; set; }
+        public List<WantedCriminalRequest>? WantedCriminals { get; set; }
     }
 }

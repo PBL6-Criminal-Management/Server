@@ -45,7 +45,7 @@ namespace Application.Features.Case.Command.Edit
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
         public string CrimeScene { get; set; } = null!;
         public List<EvidenceRequest>? Evidences { get; set; }
-        public List<WitnessRequest> Witnesses { get; set; }
+        public List<WitnessRequest> Witnesses { get; set; } = null!;
         public List<ImageRequest>? CaseImage { get; set; }
         public List<long>? CriminalIds { get; set; }
         public List<long>? InvestigatorIds { get; set; }
@@ -178,28 +178,6 @@ namespace Application.Features.Case.Command.Edit
                         {
                             await _evidenceRepository.DeleteRange(caseEvidences);
                         }
-                    }
-                    if (request.CaseImage != null && request.CaseImage.Count > 0)
-                    {
-                        List<string?> listNewFile = request.CaseImage.Select(_ => _.FilePath).ToList();
-                        var requestImages = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                        if (requestImages.Any())
-                        {
-                            foreach (var image in requestImages)
-                            {
-                                if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);
-                            }
-                            await _caseImageRepository.RemoveRangeAsync(requestImages);
-                            await _unitOfWork.Commit(cancellationToken);
-                        }
-                        var images = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImage);
-                        var requestImage = images.Select(_ =>
-                        {
-                            _.Id = 0;
-                            _.CaseId = request.Id;
-                            return _;
-                        }).ToList();
-                        await _caseImageRepository.AddRangeAsync(requestImage);
                     }
                     var caseCriminals = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                     if (request.CriminalIds != null && request.CriminalIds.Count > 0)
@@ -394,6 +372,36 @@ namespace Application.Features.Case.Command.Edit
                         {
                             await _caseVictimRepository.DeleteRange(caseVictims);
                         }
+                    }
+
+                    var caseImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+
+                    if (request.CaseImage != null && request.CaseImage.Count > 0)
+                    {
+                        var images = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImage);
+                        var requestImage = images.Select(_ =>
+                        {
+                            _.Id = 0;
+                            _.CaseId = request.Id;
+                            return _;
+                        }).ToList();
+                        await _caseImageRepository.AddRangeAsync(requestImage);
+                        await _caseImageRepository.RemoveRangeAsync(caseImagesInDb);
+                        await _unitOfWork.Commit(cancellationToken);
+
+                        List<string> listNewFile = request.CaseImage.Select(_ => _.FilePath).ToList();
+
+                        if (caseImagesInDb.Any() && listNewFile.Any())
+                        {
+                            foreach (var image in caseImagesInDb)
+                            {
+                                if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        await _uploadService.DeleteRangeAsync(caseImagesInDb.Select(c => c.FilePath).ToList());
                     }
                     await _unitOfWork.Commit(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

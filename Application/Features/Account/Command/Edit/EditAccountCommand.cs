@@ -110,10 +110,6 @@ namespace Application.Features.Account.Command.Edit
                     }
                     await _accountRepository.UpdateAsync(account);
                     await _unitOfWork.Commit(cancellationToken);
-                    if (!deleleImagePath.Equals(""))
-                    {
-                        await _uploadService.DeleteAsync(deleleImagePath);
-                    }
                     await _userService.EditUser(new Dtos.Requests.Identity.EditUserRequest
                     {
                         Id = request.Id,
@@ -124,6 +120,10 @@ namespace Application.Features.Account.Command.Edit
                     });
 
                     await transaction.CommitAsync(cancellationToken);
+                    if (!deleleImagePath.Equals(""))
+                    {
+                        await _uploadService.DeleteAsync(deleleImagePath);
+                    }
                     return await Result<EditAccountCommand>.SuccessAsync(request);
                 }
                 catch (Exception ex)
