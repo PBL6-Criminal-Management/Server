@@ -1,4 +1,3 @@
-using Application.Features.Account.Command.Edit;
 using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
@@ -63,14 +62,6 @@ namespace Application.Features.Case.Command.Delete
                     await _caseCriminalRepository.DeleteRange(caseCriminal);
                     var caseImage = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                     await _caseImageRepository.DeleteRange(caseImage);
-                    foreach (var image in caseImage)
-                    {
-                        var check = await _uploadService.DeleteAsync(image.FilePath);
-                        if (check.Succeeded == false)
-                        {
-                            return await Result<long>.FailAsync(StaticVariable.ERROR_DELETE_IMAGE);
-                        }
-                    }
                     var evidence = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                     await _evidenceRepository.DeleteRange(evidence);
                     var caseWitness = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
@@ -81,6 +72,14 @@ namespace Application.Features.Case.Command.Delete
                     await _caseVictimRepository.DeleteRange(caseVictim);
                     await _unitOfWork.Commit(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
+                    foreach (var image in caseImage)
+                    {
+                        var check = await _uploadService.DeleteAsync(image.FilePath);
+                        if (check.Succeeded == false)
+                        {
+                            return await Result<long>.FailAsync(StaticVariable.ERROR_DELETE_IMAGE);
+                        }
+                    }
                     return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_CASE);
                 }
                 catch (Exception ex)

@@ -41,7 +41,7 @@ namespace Application.Features.Case.Command.Add
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
         public string CrimeScene { get; set; } = null!;
         public List<EvidenceRequest>? Evidences { get; set; }
-        public List<WitnessRequest> Witnesses { get; set; }
+        public List<WitnessRequest> Witnesses { get; set; } = null!;
         public List<ImageRequest>? CaseImage { get; set; }
         public List<long>? CriminalIds { get; set; }
         public List<long>? InvestigatorIds { get; set; }

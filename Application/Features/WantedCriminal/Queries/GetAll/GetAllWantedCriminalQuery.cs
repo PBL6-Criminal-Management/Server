@@ -80,7 +80,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                   gr => gr.criminal.Id,
                                   wantedOfCriminals => wantedOfCriminals.CriminalId,
                                   (gr, wantedOfCriminals) => new { gr.criminal, gr.caseOfCriminals, wantedOfCriminals })
-                            .Where(o => !o.criminal.IsDeleted
+                            .Where(o => !o.criminal.IsDeleted && o.criminal.Status == Domain.Constants.Enum.CriminalStatus.Wanted
                                     && (string.IsNullOrEmpty(request.Keyword)
                                                                 || StringHelper.Contains(o.criminal.Name, request.Keyword)
                                                                 || o.criminal.Birthday.Year.ToString().StartsWith(request.Keyword)
