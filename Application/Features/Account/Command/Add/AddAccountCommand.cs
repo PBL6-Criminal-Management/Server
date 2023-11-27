@@ -12,6 +12,7 @@ using Domain.Helpers;
 using Domain.Wrappers;
 using Hangfire;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -125,32 +126,53 @@ namespace Application.Features.Account.Command.Add
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_ROLE);
             }
 
-            var addAccount = _mapper.Map<Domain.Entities.User.User>(request);
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
 
-            await _accountRepository.AddAsync(addAccount);
-            await _unitOfWork.Commit(cancellationToken);
-            request.Id = addAccount.Id;
-
-            var user = _mapper.Map<AppUser>(request);
-            
-            bool result = await _userService.AddUser(user, request.Password, request.Role.ToDescriptionString());
-            if (result == false)
+            var result = await executionStrategy.ExecuteAsync(async () =>
             {
-                return await Result<AddAccountCommand>.FailAsync(StaticVariable.UNKNOWN_ERROR);
-            }
-            var mailRequest = new EmailRequest()
-            {
-                Body = $"Tài khoản của bạn đã được tạo trên hệ thống:<br>" +
-                $"Tên đăng nhập: {request.Username}<br>" +
-                $"Mật khẩu: {request.Password}<br>" +
-                $"Hãy đăng nhập vào hệ thống và đổi mật khẩu ngay để tránh bị lộ thông tin cá nhân.<br>" +
-                $"Liên hệ với người quản trị nếu bạn gặp bất kì vấn đề gì khi đăng nhập vào hệ thống!<br>",
-                Subject = "Tài khoản được cấp",
-                To = request.Email
-            };
-            _backgroundJobClient.Enqueue(() => _mailService.SendAsync(mailRequest));
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    var addAccount = _mapper.Map<Domain.Entities.User.User>(request);
 
-            return await Result<AddAccountCommand>.SuccessAsync(request);
+                    await _accountRepository.AddAsync(addAccount);
+                    await _unitOfWork.Commit(cancellationToken);
+                    request.Id = addAccount.Id;
+
+                    var user = _mapper.Map<AppUser>(request);
+
+                    bool result = await _userService.AddUser(user, request.Password, request.Role.ToDescriptionString());
+                    if (result == false)
+                    {
+                        return await Result<AddAccountCommand>.FailAsync(StaticVariable.UNKNOWN_ERROR);
+                    }
+                    var mailRequest = new EmailRequest()
+                    {
+                        Body = $"Tài khoản của bạn đã được tạo trên hệ thống:<br>" +
+                        $"Tên đăng nhập: {request.Username}<br>" +
+                        $"Mật khẩu: {request.Password}<br>" +
+                        $"Hãy đăng nhập vào hệ thống và đổi mật khẩu ngay để tránh bị lộ thông tin cá nhân.<br>" +
+                        $"Liên hệ với người quản trị nếu bạn gặp bất kì vấn đề gì khi đăng nhập vào hệ thống!<br>",
+                        Subject = "Tài khoản được cấp",
+                        To = request.Email
+                    };
+                    _backgroundJobClient.Enqueue(() => _mailService.SendAsync(mailRequest));
+
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<AddAccountCommand>.SuccessAsync(request);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<AddAccountCommand>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
+            });
+
+            return result;
         }
     }
 }

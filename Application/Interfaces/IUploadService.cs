@@ -10,5 +10,6 @@ namespace Application.Interfaces
         bool IsFileExists(string? filePath);
         string GetFullUrl(string? filePath);
         Task<Result<bool>> DeleteAsync(string filePath);
+        Task<Result<bool>> DeleteRangeAsync(List<string> filePaths);
     }
 }

@@ -229,7 +229,7 @@ namespace Infrastructure.Services
         {
             var fileToDelete = Path.Combine(Directory.GetCurrentDirectory(), filePath);
 
-            if (File.Exists(fileToDelete) && !fileToDelete.Equals("Files/Avatar/NotFound/notFoundAvatar.jpg"))
+            if (File.Exists(fileToDelete) && !filePath.Equals("Files/Avatar/NotFound/notFoundAvatar.jpg"))
             {
                 File.Delete(fileToDelete);
             }
@@ -244,6 +244,14 @@ namespace Infrastructure.Services
                     RemoveImageFromGGDrive(CreateDriveService(), string.Join("/", filePath.Split("/").TakeLast(2)));
                 }
             }
+
+            return Result<bool>.SuccessAsync(true, ApplicationConstants.SuccessMessage.DeletedSuccess);
+        }
+
+        public Task<Result<bool>> DeleteRangeAsync(List<string> filePaths)
+        {
+            foreach (var filePath in filePaths)
+                DeleteAsync(filePath);
 
             return Result<bool>.SuccessAsync(true, ApplicationConstants.SuccessMessage.DeletedSuccess);
         }

@@ -13,5 +13,8 @@ namespace Application.Interfaces.Repositories
         IDbContextTransaction BeginTransaction();
 
         Task<IDbContextTransaction> BeginTransactionAsync();
+
+        //MySQL
+        public IExecutionStrategy CreateExecutionStrategy();
     }
 }

@@ -1,3 +1,4 @@
+using Application.Features.Account.Command.Edit;
 using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
@@ -49,36 +50,51 @@ namespace Application.Features.Case.Command.Delete
         {
             var caseDelete = await _caseRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
             if (caseDelete == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
-            try
+
+            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
+
+            var result = await executionStrategy.ExecuteAsync(async () =>
             {
-                await _caseRepository.DeleteAsync(caseDelete);
-                var caseCriminal = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _caseCriminalRepository.DeleteRange(caseCriminal);
-                var caseImage = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _caseImageRepository.DeleteRange(caseImage);
-                foreach (var image in caseImage)
+                var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
                 {
-                    var check = await _uploadService.DeleteAsync(image.FilePath);
-                    if (check.Succeeded == false)
+                    await _caseRepository.DeleteAsync(caseDelete);
+                    var caseCriminal = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _caseCriminalRepository.DeleteRange(caseCriminal);
+                    var caseImage = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _caseImageRepository.DeleteRange(caseImage);
+                    foreach (var image in caseImage)
                     {
-                        return await Result<long>.FailAsync(StaticVariable.ERROR_DELETE_IMAGE);
+                        var check = await _uploadService.DeleteAsync(image.FilePath);
+                        if (check.Succeeded == false)
+                        {
+                            return await Result<long>.FailAsync(StaticVariable.ERROR_DELETE_IMAGE);
+                        }
                     }
+                    var evidence = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _evidenceRepository.DeleteRange(evidence);
+                    var caseWitness = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _caseWitnessRepository.DeleteRange(caseWitness);
+                    var caseInvestigator = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _caseInvestigatorRepository.DeleteRange(caseInvestigator);
+                    var caseVictim = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _caseVictimRepository.DeleteRange(caseVictim);
+                    await _unitOfWork.Commit(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_CASE);
                 }
-                var evidence = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _evidenceRepository.DeleteRange(evidence);
-                var caseWitness = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _caseWitnessRepository.DeleteRange(caseWitness);
-                var caseInvestigator = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _caseInvestigatorRepository.DeleteRange(caseInvestigator);
-                var caseVictim = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                await _caseVictimRepository.DeleteRange(caseVictim);
-                await _unitOfWork.Commit(cancellationToken);
-                return await Result<long>.SuccessAsync(request.Id, StaticVariable.DELETE_CASE);
-            }
-            catch (System.Exception ex)
-            {
-                return await Result<long>.FailAsync(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return await Result<long>.FailAsync(ex.Message);
+                }
+                finally
+                {
+                    await transaction.DisposeAsync();
+                }
+            });
+
+            return result;
         }
     }
 }
