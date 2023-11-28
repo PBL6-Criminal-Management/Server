@@ -13,6 +13,8 @@ namespace Domain.Constants.Enum
         [Display(Description = "Chưa kết án")]
         NotYetConvicted = 3,
         [Display(Description = "Án treo")]
-        SuspendedSentence = 4
+        SuspendedSentence = 4,
+        [Display(Description = "Đã bị bắt")]
+        Arrested = 5
     }
 }

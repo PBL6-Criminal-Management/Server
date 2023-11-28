@@ -18,7 +18,6 @@ using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Wrappers;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -41,7 +40,7 @@ namespace Application.Features.Case.Command.Add
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
         public string CrimeScene { get; set; } = null!;
         public List<EvidenceRequest>? Evidences { get; set; }
-        public List<WitnessRequest> Witnesses { get; set; } = null!;
+        public List<WitnessRequest> Witnesses { get; set; }
         public List<ImageRequest>? CaseImage { get; set; }
         public List<long>? CriminalIds { get; set; }
         public List<long>? InvestigatorIds { get; set; }
@@ -112,129 +111,107 @@ namespace Application.Features.Case.Command.Add
                 }
             }
             var addCase = _mapper.Map<Domain.Entities.Case.Case>(request);
-
-            var executionStrategy = _unitOfWork.CreateExecutionStrategy();
-
-            var result = await executionStrategy.ExecuteAsync(async () =>
+            await _caseRepository.AddAsync(addCase);
+            await _unitOfWork.Commit(cancellationToken);
+            if (request.CriminalIds != null && request.CriminalIds.Count > 0)
             {
-                var transaction = await _unitOfWork.BeginTransactionAsync();
-                try
+                caseCriminals.ForEach(_ => _.CaseId = addCase.Id);
+                await _caseCriminalRepository.AddRangeAsync(caseCriminals);
+            }
+            if (request.CaseImage != null && request.CaseImage.Count > 0)
+            {
+                var addImage = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImage);
+                addImage.ForEach(x => x.CaseId = addCase.Id);
+                await _caseImageRepository.AddRangeAsync(addImage);
+            }
+            // await _unitOfWork.Commit(cancellationToken);
+            if (request.Witnesses != null && request.Witnesses.Count > 0)
+            {
+                List<Domain.Entities.Witness.Witness> addWitnesses = new List<Domain.Entities.Witness.Witness>();
+                List<long> witnessIds = new List<long>();
+                foreach (var witness in request.Witnesses)
                 {
-                    await _caseRepository.AddAsync(addCase);
+                    var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
+                    if (checkWitnessExist == null)
+                    {
+                        var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
+                        addWitnesses.Add(addWitness);
+                    }
+                    else
+                    {
+                        witnessIds.Add(checkWitnessExist.Id);
+                    }
+                }
+                if (addWitnesses.Count > 0)
+                {
+                    await _witnessRepository.AddRangeAsync(addWitnesses);
                     await _unitOfWork.Commit(cancellationToken);
-                    if (request.CriminalIds != null && request.CriminalIds.Count > 0)
+                    foreach (var witness in addWitnesses)
                     {
-                        caseCriminals.ForEach(_ => _.CaseId = addCase.Id);
-                        await _caseCriminalRepository.AddRangeAsync(caseCriminals);
+                        witnessIds.Add(witness.Id);
                     }
-                    if (request.CaseImage != null && request.CaseImage.Count > 0)
+                }
+                List<Domain.Entities.CaseWitness.CaseWitness> caseWitnesses = new List<Domain.Entities.CaseWitness.CaseWitness>();
+                foreach (var id in witnessIds)
+                {
+                    caseWitnesses.Add(new Domain.Entities.CaseWitness.CaseWitness
                     {
-                        var addImage = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImage);
-                        addImage.ForEach(x => x.CaseId = addCase.Id);
-                        await _caseImageRepository.AddRangeAsync(addImage);
-                    }
-                    // await _unitOfWork.Commit(cancellationToken);
-                    if (request.Witnesses != null && request.Witnesses.Count > 0)
+                        CaseId = addCase.Id,
+                        WitnessId = id
+                    });
+                }
+                await _caseWitnessRepository.AddRangeAsync(caseWitnesses);
+            }
+            if (request.Victims != null && request.Victims.Count > 0)
+            {
+                List<Domain.Entities.Victim.Victim> addVictims = new List<Domain.Entities.Victim.Victim>();
+                List<long> victimIds = new List<long>();
+                foreach (var victim in request.Victims)
+                {
+                    var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted);
+                    if (checkVictimExist == null)
                     {
-                        List<Domain.Entities.Witness.Witness> addWitnesses = new List<Domain.Entities.Witness.Witness>();
-                        List<long> witnessIds = new List<long>();
-                        foreach (var witness in request.Witnesses)
-                        {
-                            var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
-                            if (checkWitnessExist == null)
-                            {
-                                var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
-                                addWitnesses.Add(addWitness);
-                            }
-                            else
-                            {
-                                witnessIds.Add(checkWitnessExist.Id);
-                            }
-                        }
-                        if (addWitnesses.Count > 0)
-                        {
-                            await _witnessRepository.AddRangeAsync(addWitnesses);
-                            await _unitOfWork.Commit(cancellationToken);
-                            foreach (var witness in addWitnesses)
-                            {
-                                witnessIds.Add(witness.Id);
-                            }
-                        }
-                        List<Domain.Entities.CaseWitness.CaseWitness> caseWitnesses = new List<Domain.Entities.CaseWitness.CaseWitness>();
-                        foreach (var id in witnessIds)
-                        {
-                            caseWitnesses.Add(new Domain.Entities.CaseWitness.CaseWitness
-                            {
-                                CaseId = addCase.Id,
-                                WitnessId = id
-                            });
-                        }
-                        await _caseWitnessRepository.AddRangeAsync(caseWitnesses);
+                        var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);
+                        addVictims.Add(addVictim);
                     }
-                    if (request.Victims != null && request.Victims.Count > 0)
+                    else
                     {
-                        List<Domain.Entities.Victim.Victim> addVictims = new List<Domain.Entities.Victim.Victim>();
-                        List<long> victimIds = new List<long>();
-                        foreach (var victim in request.Victims)
-                        {
-                            var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted);
-                            if (checkVictimExist == null)
-                            {
-                                var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);
-                                addVictims.Add(addVictim);
-                            }
-                            else
-                            {
-                                victimIds.Add(checkVictimExist.Id);
-                            }
-                        }
-                        if (addVictims.Count > 0)
-                        {
-                            await _victimRepository.AddRangeAsync(addVictims);
-                            await _unitOfWork.Commit(cancellationToken);
-                            foreach (var victim in addVictims)
-                            {
-                                victimIds.Add(victim.Id);
-                            }
-                        }
-                        List<Domain.Entities.CaseVictim.CaseVictim> caseVictims = new List<Domain.Entities.CaseVictim.CaseVictim>();
-                        foreach (var id in victimIds)
-                        {
-                            caseVictims.Add(new Domain.Entities.CaseVictim.CaseVictim
-                            {
-                                CaseId = addCase.Id,
-                                VictimId = id
-                            });
-                        }
-                        await _caseVictimRepository.AddRangeAsync(caseVictims);
+                        victimIds.Add(checkVictimExist.Id);
                     }
-                    if (request.InvestigatorIds != null && request.InvestigatorIds.Count > 0)
-                    {
-                        foreach (var id in request.InvestigatorIds)
-                        {
-                            await _caseInvestigatorRepository.AddAsync(new Domain.Entities.CaseInvestigator.CaseInvestigator
-                            {
-                                CaseId = addCase.Id,
-                                InvestigatorId = id
-                            });
-                        }
-                    }
+                }
+                if (addVictims.Count > 0)
+                {
+                    await _victimRepository.AddRangeAsync(addVictims);
                     await _unitOfWork.Commit(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
-                    return await Result<AddCaseCommand>.SuccessAsync(request);
+                    foreach (var victim in addVictims)
+                    {
+                        victimIds.Add(victim.Id);
+                    }
                 }
-                catch (Exception ex)
+                List<Domain.Entities.CaseVictim.CaseVictim> caseVictims = new List<Domain.Entities.CaseVictim.CaseVictim>();
+                foreach (var id in victimIds)
                 {
-                    await transaction.RollbackAsync(cancellationToken);
-                    return await Result<AddCaseCommand>.FailAsync(ex.Message);
+                    caseVictims.Add(new Domain.Entities.CaseVictim.CaseVictim
+                    {
+                        CaseId = addCase.Id,
+                        VictimId = id
+                    });
                 }
-                finally
+                await _caseVictimRepository.AddRangeAsync(caseVictims);
+            }
+            if (request.InvestigatorIds != null && request.InvestigatorIds.Count > 0)
+            {
+                foreach (var id in request.InvestigatorIds)
                 {
-                    await transaction.DisposeAsync();
+                    await _caseInvestigatorRepository.AddAsync(new Domain.Entities.CaseInvestigator.CaseInvestigator
+                    {
+                        CaseId = addCase.Id,
+                        InvestigatorId = id
+                    });
                 }
-            });
-
-            return result;            
+            }
+            await _unitOfWork.Commit(cancellationToken);
+            return await Result<AddCaseCommand>.SuccessAsync(request);
         }
     }
 }
