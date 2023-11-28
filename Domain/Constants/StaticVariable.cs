@@ -105,7 +105,10 @@ namespace Domain.Constants
         public const string LIMIT_MURDER_WEAPON = "Hung khí không được vượt quá 100 ký tự";
         public const string LIMIT_CHARGE = "Tội danh không được vượt quá 100 ký tự";
         public const string LIMIT_CRIME_SCENE = "Địa điểm xảy ra vụ án không được vượt quá 200 ký tự";
-
+        public const string LIMIT_REPORTER_NAME = "Họ và tên của người tố giác tội phạm không được vượt quá 100 ký tự";
+        public const string LIMIT_REPORTER_EMAIL = "Email của người tố giác tội phạm không được vượt quá 100 ký tự";
+        public const string LIMIT_REPORTER_PHONE = "Số điện thoại của người tố giác tội phạm không được vượt quá 15 ký tự";
+        public const string LIMIT_REPORTER_ADDRESS = "Địa chỉ của người tố giác tội phạm không được vượt quá 200 ký tự";
         //Error message
         public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";
         public const string INTERNAL_SERVER_ERROR = "Lỗi server";
