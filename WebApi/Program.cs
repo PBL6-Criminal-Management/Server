@@ -1,6 +1,7 @@
 using Application.Extensions;
-using Hangfire;
+using Application.Hubs.Notification;
 using Infrastructure.Extensions;
+using Microsoft.AspNetCore.ResponseCompression;
 using Serilog;
 using Shared.Extensions;
 using System.Net.NetworkInformation;
@@ -80,7 +81,16 @@ try
 
     builder.Services.AddLazyCache();
 
+    //SignalR
+    builder.Services.AddSignalR();
+    builder.Services.AddResponseCompression(options =>
+        options.MimeTypes = ResponseCompressionDefaults
+        .MimeTypes
+        .Concat(new[] { "application/octet-stream" })
+    );
+
     var app = builder.Build();
+    app.UseResponseCompression();
 
     app.UseRouting();
 
@@ -101,6 +111,7 @@ try
     app.UseAuthorization();
 
     //app.UseHealthChecks("/health");
+    app.MapHub<NotificationService>("/notification");
 
     app.UseEndpoints(endpoints =>
     {
