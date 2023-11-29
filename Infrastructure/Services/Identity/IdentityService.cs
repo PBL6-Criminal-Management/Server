@@ -83,7 +83,7 @@ namespace Infrastructure.Services.Identity
             if (user == null)
                 return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
             if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                return await Result<TokenResponse>.FailAsync("Token không hợp lệ");
+                return await Result<TokenResponse>.FailAsync("RefreshToken không hợp lệ hoặc đã hết hạn");
             var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
             user.RefreshToken = GenerateRefreshToken();
             user.TokenExpiryTime = tokenExpireTime;
@@ -166,7 +166,8 @@ namespace Infrastructure.Services.Identity
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 RoleClaimType = ClaimTypes.Role,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                ValidateLifetime = false
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);

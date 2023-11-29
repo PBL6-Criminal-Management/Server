@@ -17,6 +17,7 @@ namespace Domain.Constants
         public const string DELETE_USER = "Xóa người dùng thành công!";
         public const string DELETE_SUCCESS = "Xóa thành công!";
         public const string DELETE_CASE = "Xóa vụ án thành công";
+        public const string DELETE_REPORT = "Xóa bản tố giác tội phạm thành công";
         public const string SYS_ERROR = "Lỗi hệ thống!";
         public const string NOT_FOUND_EMAIL = "Không tìm thấy email!";
         public const string NOT_FOUND_ROLE = "Không tìm thấy vai trò phù hợp!";
