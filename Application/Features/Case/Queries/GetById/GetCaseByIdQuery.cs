@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.Responses.File;
+using Application.Interfaces;
 using Application.Interfaces.Account;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
@@ -69,7 +70,7 @@ namespace Application.Features.Case.Queries.GetById
             }
             var response = _mapper.Map<GetCaseByIdResponse>(caseCheck);
             var evidenceOfCase = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-            if (evidenceOfCase.Any()) response.Evidences?.AddRange(_mapper.Map<List<Dtos.Responses.Evidence.EvidenceResponse>>(evidenceOfCase));
+            if (evidenceOfCase.Any()) response.Evidences = _mapper.Map<List<Dtos.Responses.Evidence.EvidenceResponse>>(evidenceOfCase).ToList();
             var witnessOfCase = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id)
             .Join(_witnessRepository.Entities,
                 cW => cW.WitnessId,
@@ -84,7 +85,7 @@ namespace Application.Features.Case.Queries.GetById
                     Testimony = c.Testimony,
                     Date = c.Date
                 }).ToListAsync();
-            if (witnessOfCase.Any()) response.Witnesses?.AddRange(witnessOfCase);
+            if (witnessOfCase.Any()) response.Witnesses = witnessOfCase;
             var investigatorOFCase = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
             .Join(_accountRepository.Entities,
                 cI => cI.InvestigatorId,
@@ -98,7 +99,7 @@ namespace Application.Features.Case.Queries.GetById
                     PhoneNumber = i.PhoneNumber,
                     Address = i.Address
                 }).ToListAsync();
-            if (investigatorOFCase.Any()) response.Investigators?.AddRange(investigatorOFCase);
+            if (investigatorOFCase.Any()) response.Investigators = investigatorOFCase;
             var victimOfCase = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
             .Join(_victimRepository.Entities,
                cV => cV.VictimId,
@@ -113,7 +114,7 @@ namespace Application.Features.Case.Queries.GetById
                    CitizenId = v.CitizenId,
                    Address = v.Address
                }).ToListAsync();
-            if (victimOfCase.Any()) response.Victims?.AddRange(victimOfCase);
+            if (victimOfCase.Any()) response.Victims = victimOfCase;
             var criminalOfCase = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
             .Join(_criminalRepository.Entities,
                cCr => cCr.CriminalId,
@@ -127,15 +128,13 @@ namespace Application.Features.Case.Queries.GetById
                    PhoneNumber = c.PhoneNumber,
                    Address = c.CurrentAccommodation
                }).ToListAsync();
-            if (criminalOfCase.Any()) response.Criminals?.AddRange(criminalOfCase);
+            if (criminalOfCase.Any()) response.Criminals = criminalOfCase;
             var imageOfCase = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-            if (imageOfCase.Any())
+            response.CaseImages = imageOfCase.Select(i => new FileResponse
             {
-                foreach (var image in imageOfCase)
-                {
-                    response.CaseImages?.Add(_uploadService.GetFullUrl(image.FilePath));
-                }
-            }
+                FileName = i.FileName,
+                FileUrl = _uploadService.GetFullUrl(i.FilePath)
+            }).ToList();
             return await Result<GetCaseByIdResponse>.SuccessAsync(response);
         }
     }

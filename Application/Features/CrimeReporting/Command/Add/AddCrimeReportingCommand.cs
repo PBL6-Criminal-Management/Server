@@ -21,6 +21,7 @@ namespace Application.Features.CrimeReporting.Command.Add
         public string ReporterName { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_REPORTER_EMAIL)]
         public string? ReporterEmail { get; set; }
+        [RegularExpression(@"(\+84|84|0)+(3|5|7|8|9|1[2|6|8|9])+([0-9]{8,10})\b", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_REPORTER_PHONE)]
         public string ReporterPhone { get; set; } = null!;
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_REPORTER_ADDRESS)]

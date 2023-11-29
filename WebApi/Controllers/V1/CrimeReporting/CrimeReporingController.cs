@@ -1,5 +1,8 @@
 ﻿using Application.Features.CrimeReporting.Command.Add;
+using Application.Features.CrimeReporting.Command.Delete;
+using Application.Features.CrimeReporting.Command.Edit;
 using Application.Features.CrimeReporting.Queries.GetAll;
+using Application.Features.CrimeReporting.Queries.GetById;
 using Domain.Constants;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
@@ -36,6 +39,46 @@ namespace WebApi.Controllers.V1.CrimeReporting
         /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddReport(AddCrimeReportingCommand command)
+        {
+            var result = await Mediator.Send(command);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
+        }
+        /// <summary>
+        /// Delete Report
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteReport(long id)
+        {
+            return Ok(await Mediator.Send(new DeleteCrimeReportingCommand()
+            {
+                Id = id
+            }));
+        }
+        /// <summary>
+        /// Get Report detail by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Result<GetCrimeReportingByIdResponse>>> GetReportById(long id)
+        {
+            return Ok(await Mediator.Send(new GetCrimeReportingByIdQuery()
+            {
+                Id = id
+            }));
+        }
+        /// <summary>
+        /// Edit Report
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [HttpPut]
+        public async Task<IActionResult> EditReport(EditCrimeReportingCommand command)
         {
             var result = await Mediator.Send(command);
             return (result.Succeeded) ? Ok(result) : BadRequest(result);

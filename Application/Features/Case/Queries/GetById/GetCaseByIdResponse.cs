@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.Responses.Criminal;
 using Application.Dtos.Responses.Evidence;
+using Application.Dtos.Responses.File;
 using Application.Dtos.Responses.User;
 using Application.Dtos.Responses.Victim;
 using Application.Dtos.Responses.Witness;
@@ -20,12 +21,12 @@ namespace Application.Features.Case.Queries.GetById
         public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
         public string Charge { get; set; } = null!;
-        public List<EvidenceResponse>? Evidences { get; set; } = new List<EvidenceResponse>();
-        public List<WitnessResponse>? Witnesses { get; set; } = new List<WitnessResponse>();
-        public List<string>? CaseImages { get; set; } = new List<string>();
-        public List<CriminalResponse>? Criminals { get; set; } = new List<CriminalResponse>();
-        public List<UserResponse>? Investigators { get; set; } = new List<UserResponse>();
+        public List<EvidenceResponse>? Evidences { get; set; }
+        public List<WitnessResponse>? Witnesses { get; set; }
+        public List<FileResponse>? CaseImages { get; set; }
+        public List<CriminalResponse>? Criminals { get; set; }
+        public List<UserResponse>? Investigators { get; set; }
 
-        public List<VictimResponse>? Victims { get; set; } = new List<VictimResponse>();
+        public List<VictimResponse>? Victims { get; set; }
     }
 }
