@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Requests.Evidence;
 using Application.Dtos.Requests.Image;
 using Application.Dtos.Requests.Victim;
+using Application.Dtos.Requests.WantedCriminal;
 using Application.Dtos.Requests.Witness;
 using Application.Interfaces.Account;
 using Application.Interfaces.Case;
@@ -12,6 +13,7 @@ using Application.Interfaces.CaseWitness;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Victim;
+using Application.Interfaces.WantedCriminal;
 using Application.Interfaces.Witness;
 using AutoMapper;
 using Domain.Constants;
@@ -46,6 +48,7 @@ namespace Application.Features.Case.Command.Add
         public List<long>? CriminalIds { get; set; }
         public List<long>? InvestigatorIds { get; set; }
         public List<VictimRequest>? Victims { get; set; }
+        public List<WantedCriminalRequest>? WantedCriminalRequest { get; set; }
     }
     internal class AddCaseCommandHandler : IRequestHandler<AddCaseCommand, Result<AddCaseCommand>>
     {
@@ -60,13 +63,16 @@ namespace Application.Features.Case.Command.Add
         private readonly IAccountRepository _accountRepository;
         private readonly IVictimRepository _victimRepository;
         private readonly ICaseVictimRepository _caseVictimRepository;
+        private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly IMapper _mapper;
         public AddCaseCommandHandler(IUnitOfWork<long> unitOfWork, ICaseRepository caseRepository,
             ICaseImageRepository caseImageRepository, ICaseCriminalRepository caseCriminalRepository,
             IWitnessRepository witnessRepository, ICriminalRepository criminalRepository,
             ICaseWitnessRepository caseWitnessRepository, ICaseInvestigatorRepository caseInvestigatorRepository,
             IAccountRepository accountRepository, IVictimRepository victimRepository,
-            ICaseVictimRepository caseVictimRepository, IMapper mapper)
+            ICaseVictimRepository caseVictimRepository,
+            IWantedCriminalRepository wantedCriminalRepository,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _caseRepository = caseRepository;
@@ -79,6 +85,7 @@ namespace Application.Features.Case.Command.Add
             _accountRepository = accountRepository;
             _victimRepository = victimRepository;
             _caseVictimRepository = caseVictimRepository;
+            _wantedCriminalRepository = wantedCriminalRepository;
             _mapper = mapper;
         }
         public async Task<Result<AddCaseCommand>> Handle(AddCaseCommand request, CancellationToken cancellationToken)
@@ -218,6 +225,12 @@ namespace Application.Features.Case.Command.Add
                                 InvestigatorId = id
                             });
                         }
+                    }
+                    if (request.WantedCriminalRequest != null && request.WantedCriminalRequest.Count > 0)
+                    {
+                        var wantedCriminalRequest = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminalRequest);
+                        wantedCriminalRequest.ForEach(x => x.CaseId = addCase.Id);
+                        await _wantedCriminalRepository.AddRangeAsync(wantedCriminalRequest);
                     }
                     await _unitOfWork.Commit(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

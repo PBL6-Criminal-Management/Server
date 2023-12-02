@@ -1,5 +1,5 @@
-﻿using Application.Dtos.Requests.WantedCriminal;
-using Application.Dtos.Responses.File;
+﻿using Application.Dtos.Responses.File;
+using Application.Dtos.Responses.WantedCriminal;
 using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
@@ -42,22 +42,10 @@ namespace Application.Features.Criminal.Queries.GetById
 
         public async Task<Result<GetCriminalByIdResponse>> Handle(GetCriminalByIdQuery request, CancellationToken cancellationToken)
         {
-            var caseOfCriminal = (from caseCriminal in _caseCriminalRepository.Entities
+            var casesOfCriminal = from caseCriminal in _caseCriminalRepository.Entities
                                   join _case in _caseRepository.Entities on caseCriminal.CaseId equals _case.Id
                                   where !_case.IsDeleted && !caseCriminal.IsDeleted && caseCriminal.CriminalId == request.Id
-                                  group _case by caseCriminal.CriminalId into g
-                                  select new
-                                  {
-                                      g.OrderByDescending(c => c.StartDate).FirstOrDefault()!.Charge,
-                                      RelatedCases = string.Join(", ", g.Select(_case => _case.Id))
-                                  }).FirstOrDefault();
-
-            if (caseOfCriminal == null)
-                return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
-
-            var imageOfCriminal = (from criminalImage in _criminalImageRepository.Entities
-                                   where criminalImage.CriminalId == request.Id && !criminalImage.IsDeleted
-                                   select criminalImage.FilePath).FirstOrDefault();
+                                  select _case;
 
             var criminalImages = from criminalImage in _criminalImageRepository.Entities
                                  where criminalImage.CriminalId == request.Id && !criminalImage.IsDeleted
@@ -88,9 +76,7 @@ namespace Application.Features.Criminal.Queries.GetById
                                    MotherCitizenId = criminal.MotherCitizenId,
                                    Characteristics = criminal.Characteristics,
                                    Status = criminal.Status,
-                                   RelatedCases = caseOfCriminal.RelatedCases,
                                    DangerousLevel = criminal.DangerousLevel,
-                                   Charge = caseOfCriminal.Charge,
                                    DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
                                    ReleaseDate = criminal.ReleaseDate,
                                    EntryAndExitInformation = criminal.EntryAndExitInformation,
@@ -105,8 +91,8 @@ namespace Application.Features.Criminal.Queries.GetById
                                    OtherInformation = criminal.OtherInformation,
                                    Vehicles = criminal.Vehicles,
                                    IsWantedCriminal = true,
-                                   Image = imageOfCriminal,
-                                   ImageLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(imageOfCriminal) ? imageOfCriminal : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
+                                   Avatar = criminal.Avatar,
+                                   AvatarLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(criminal.Avatar) ? criminal.Avatar : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
                                }).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (query == null)
@@ -115,14 +101,37 @@ namespace Application.Features.Criminal.Queries.GetById
             var fileResponse = criminalImages.Select(i => new FileResponse
             {
                 FileName = i.FileName,
+                FilePath = i.FilePath,
                 FileUrl = _uploadService.GetFullUrl(i.FilePath)
             });
 
             query.CriminalImages = fileResponse.ToList();
 
-            var wantedCriminals = _wantedCriminalRepository.Entities.Where(wantedCriminal => wantedCriminal.CriminalId == request.Id);
+            var wantedCriminals = _wantedCriminalRepository.Entities.Where(wantedCriminal => wantedCriminal.CriminalId == request.Id).OrderBy(w => w.WantedDecisionDay);
             query.IsWantedCriminal = wantedCriminals.Any();
-            query.WantedCriminals = _mapper.Map<List<WantedCriminalRequest>>(wantedCriminals);
+            query.WantedCriminals = _mapper.Map<List<WantedCriminalResponse>>(wantedCriminals);
+
+            List<long> listCaseIds = new List<long>();
+
+            if(casesOfCriminal != null)
+            {
+                foreach (var _case in casesOfCriminal)
+                {
+                    listCaseIds.Add(_case.Id);
+
+                    query.WantedCriminals = query.WantedCriminals.Select(criminal =>
+                    {
+                        if (criminal.CaseId == _case.Id)
+                        {
+                            criminal.Charge = _case.Charge;
+                        }
+
+                        return criminal;
+                    }).ToList();
+                }
+                query.RelatedCases = string.Join(", ", listCaseIds);
+                query.Charge = casesOfCriminal.OrderByDescending(c => c.StartDate).FirstOrDefault()!.Charge;
+            }
 
             return await Result<GetCriminalByIdResponse>.SuccessAsync(query);
         }

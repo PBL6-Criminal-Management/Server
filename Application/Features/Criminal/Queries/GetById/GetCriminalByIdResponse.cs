@@ -1,5 +1,5 @@
-﻿using Application.Dtos.Requests.WantedCriminal;
-using Application.Dtos.Responses.File;
+﻿using Application.Dtos.Responses.File;
+using Application.Dtos.Responses.WantedCriminal;
 using Domain.Constants.Enum;
 using System.Text.Json.Serialization;
 
@@ -32,9 +32,9 @@ namespace Application.Features.Criminal.Queries.GetById
         public string Characteristics { get; set; } = null!;
         //public string OtherCharacteristics { get; set; } = null!;
         public CriminalStatus Status { get; set; }
-        public string RelatedCases { get; set; } = null!;
+        public string? RelatedCases { get; set; }
         public string? DangerousLevel { get; set; }
-        public string Charge { get; set; } = null!;
+        public string? Charge { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly DateOfMostRecentCrime { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
@@ -49,11 +49,11 @@ namespace Application.Features.Criminal.Queries.GetById
         public string? Research { get; set; }
         public string? ApproachArrange { get; set; }
         public string? OtherInformation { get; set; }      
-        public string? Image { get; set; }
-        public string? ImageLink { get; set; }
-        public bool IsWantedCriminal { get; set; }
+        public string? Avatar { get; set; }
+        public string? AvatarLink { get; set; }
         public string? Vehicles { get; set; }
         public List<FileResponse>? CriminalImages { get; set; }
-        public List<WantedCriminalRequest>? WantedCriminals { get; set; }
+        public bool IsWantedCriminal { get; set; }
+        public List<WantedCriminalResponse>? WantedCriminals { get; set; }
     }
 }

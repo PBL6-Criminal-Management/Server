@@ -7,6 +7,7 @@ using Application.Interfaces.CaseVictim;
 using Application.Interfaces.CaseWitness;
 using Application.Interfaces.Evidence;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.WantedCriminal;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
@@ -28,11 +29,13 @@ namespace Application.Features.Case.Command.Delete
         private readonly ICaseWitnessRepository _caseWitnessRepository;
         private readonly ICaseInvestigatorRepository _caseInvestigatorRepository;
         private readonly ICaseVictimRepository _caseVictimRepository;
+        private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly IUploadService _uploadService;
         public DeleteCaseCommandHandler(IUnitOfWork<long> unitOfWork, ICaseRepository caseRepository,
             ICaseImageRepository caseImageRepository, ICaseCriminalRepository caseCriminalRepository,
             IEvidenceRepository evidenceRepository, ICaseWitnessRepository caseWitnessRepository,
             IUploadService uploadService, ICaseInvestigatorRepository caseInvestigatorRepository,
+            IWantedCriminalRepository wantedCriminalRepository,
             ICaseVictimRepository caseVictimRepository)
         {
             _unitOfWork = unitOfWork;
@@ -43,6 +46,7 @@ namespace Application.Features.Case.Command.Delete
             _caseWitnessRepository = caseWitnessRepository;
             _caseInvestigatorRepository = caseInvestigatorRepository;
             _caseVictimRepository = caseVictimRepository;
+            _wantedCriminalRepository = wantedCriminalRepository;
             _uploadService = uploadService;
         }
         public async Task<Result<long>> Handle(DeleteCaseCommand request, CancellationToken cancellationToken)
@@ -70,6 +74,9 @@ namespace Application.Features.Case.Command.Delete
                     await _caseInvestigatorRepository.DeleteRange(caseInvestigator);
                     var caseVictim = await _caseVictimRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                     await _caseVictimRepository.DeleteRange(caseVictim);
+                    var wantedCriminals = await _wantedCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
+                    await _wantedCriminalRepository.DeleteRange(wantedCriminals);
+
                     await _unitOfWork.Commit(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
                     foreach (var image in caseImage)

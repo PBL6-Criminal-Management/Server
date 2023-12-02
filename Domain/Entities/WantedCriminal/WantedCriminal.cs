@@ -9,6 +9,8 @@ namespace Domain.Entities.WantedCriminal
     {
         [Column("criminal_id", TypeName = "bigint")]
         public long CriminalId { get; set; }
+        [Column("case_id", TypeName = "bigint")]
+        public long CaseId { get; set; }
         [Column("wanted_type", TypeName = "smallint")]
         public WantedType WantedType { get; set; }
         [Column("current_activity", TypeName = "nvarchar(200)")]
@@ -22,5 +24,6 @@ namespace Domain.Entities.WantedCriminal
 
         //Relationship
         public virtual Domain.Entities.Criminal.Criminal Criminal { get; set; } = null!;
+        public virtual Domain.Entities.Case.Case Case { get; set; } = null!;
     }
 }

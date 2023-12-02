@@ -38,6 +38,7 @@ namespace Application.Features.CrimeReporting.Queries.GetById
             response.ReportingImages = reportingImage.Select(i => new FileResponse
             {
                 FileName = i.FileName,
+                FilePath = i.FilePath,
                 FileUrl = _uploadService.GetFullUrl(i.FilePath)
             }).ToList();
             return await Result<GetCrimeReportingByIdResponse>.SuccessAsync(response);

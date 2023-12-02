@@ -69,6 +69,8 @@ namespace Domain.Entities.Criminal
         public string? DangerousLevel { get; set; }
         [Column("approach_arrange", TypeName = "text")]
         public string? ApproachArrange { get; set; }
+        [Column("avatar", TypeName = "varchar(500)")]
+        public string? Avatar { get; set; }
         [Column("date_of_most_recent_crime", TypeName = "date")]
         public DateOnly DateOfMostRecentCrime { get; set; }
         [Column("release_date", TypeName = "date")]
