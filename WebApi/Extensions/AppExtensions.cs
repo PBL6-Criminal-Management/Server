@@ -13,7 +13,7 @@ namespace WebApi.Extensions
             app.UseSwagger();
             app.UseSwaggerUI(x =>
             {
-                x.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanArchitecture.Source.WebApi");
+                x.SwaggerEndpoint("/swagger/v1/swagger.json", "API version 1");
             });
         }
 

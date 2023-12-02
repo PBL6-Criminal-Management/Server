@@ -123,6 +123,13 @@ namespace Infrastructure.Contexts
                 .HasOne(wt => wt.Criminal)
                 .WithMany(cr => cr.WantedCriminals)
                 .HasForeignKey(wt => wt.CriminalId);
+
+            builder.Entity<WantedCriminal>()
+                .HasOne(wt => wt.Case)
+                .WithMany(cr => cr.WantedCriminals)
+                .HasForeignKey(wt => wt.CaseId);
+
+
             builder.Entity<CriminalImage>()
                 .HasOne(cri => cri.Criminal)
                 .WithMany(cr => cr.CriminalImages)

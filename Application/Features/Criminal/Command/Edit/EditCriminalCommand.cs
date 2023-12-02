@@ -22,9 +22,10 @@ namespace Application.Features.Criminal.Command.Edit
     {
         public long Id { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_ANOTHER_NAME)]
         public string AnotherName { get; set; } = null!;
+        public string? Avatar { get; set; }
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         public string CitizenId { get; set; } = null!;
         public bool? Gender { get; set; }
@@ -90,7 +91,6 @@ namespace Application.Features.Criminal.Command.Edit
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]
         public string? OtherInformation { get; set; }
         public List<ImageRequest>? CriminalImages { get; set; }
-        public List<WantedCriminalRequest>? WantedCriminals { get; set; }
     }
     internal class EditCriminalCommandHandler : IRequestHandler<EditCriminalCommand, Result<EditCriminalCommand>>
     {
@@ -120,6 +120,8 @@ namespace Application.Features.Criminal.Command.Edit
             var editCriminal = await _criminalRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
             if (editCriminal == null) return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
+            var oldAvatar = editCriminal.Avatar;
+
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();
 
             var result = await executionStrategy.ExecuteAsync(async () =>
@@ -137,14 +139,6 @@ namespace Application.Features.Criminal.Command.Edit
                     if (wantedCriminalsInDB.Any())
                     {
                         await _wantedCriminalRepository.RemoveRangeAsync(wantedCriminalsInDB);  //remove all wantedCriminals in db
-                        await _unitOfWork.Commit(cancellationToken);
-                    }
-
-                    if (request.WantedCriminals != null && request.WantedCriminals.Any())
-                    {
-                        var wantedCriminals = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminals);
-                        wantedCriminals.ForEach(w => w.CriminalId = request.Id);
-                        await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
                         await _unitOfWork.Commit(cancellationToken);
                     }
 
@@ -184,6 +178,18 @@ namespace Application.Features.Criminal.Command.Edit
                             await _uploadService.DeleteRangeAsync(imagesInDB.Select(i => i.FilePath).ToList());
                         }
                     }
+
+                    if(oldAvatar != null)
+                    {
+                        if (editCriminal.Avatar != null)
+                        {
+                            if (!editCriminal.Avatar.Equals(oldAvatar))
+                                await _uploadService.DeleteAsync(oldAvatar);
+                        }
+                        else
+                            await _uploadService.DeleteAsync(oldAvatar);
+                    }
+
 
                     await transaction.CommitAsync(cancellationToken);
                     return await Result<EditCriminalCommand>.SuccessAsync(request);

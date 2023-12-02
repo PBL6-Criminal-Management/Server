@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.Requests.Image;
-using Application.Dtos.Requests.WantedCriminal;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Repositories;
@@ -20,9 +19,10 @@ namespace Application.Features.Criminal.Command.Add
     public class AddCriminalCommand : IRequest<Result<AddCriminalCommand>>
     {
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_ANOTHER_NAME)]
         public string AnotherName { get; set; } = null!;
+        public string? Avatar { get; set; }
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         public string CitizenId { get; set; } = null!;
         public bool? Gender { get; set; }
@@ -88,7 +88,6 @@ namespace Application.Features.Criminal.Command.Add
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]
         public string? OtherInformation { get; set; }
         public List<ImageRequest>? CriminalImages { get; set; }
-        public List<WantedCriminalRequest>? WantedCriminals { get; set; }
     }
     internal class AddCriminalCommandHandler : IRequestHandler<AddCriminalCommand, Result<AddCriminalCommand>>
     {
@@ -136,13 +135,6 @@ namespace Application.Features.Criminal.Command.Add
                         var addImage = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
                         addImage.ForEach(x => x.CriminalId = addCriminal.Id);
                         await _criminalImageRepository.AddRangeAsync(addImage);
-                    }
-
-                    if (request.WantedCriminals != null)
-                    {
-                        var wantedCriminals = _mapper.Map<List<Domain.Entities.WantedCriminal.WantedCriminal>>(request.WantedCriminals);
-                        wantedCriminals.ForEach(x => x.CriminalId = addCriminal.Id);
-                        await _wantedCriminalRepository.AddRangeAsync(wantedCriminals);
                     }
 
                     await transaction.CommitAsync(cancellationToken);

@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Responses.File;
+using Application.Dtos.Responses.WantedCriminal;
 using Application.Interfaces;
 using Application.Interfaces.Account;
 using Application.Interfaces.Case;
@@ -10,6 +11,7 @@ using Application.Interfaces.CaseWitness;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.Evidence;
 using Application.Interfaces.Victim;
+using Application.Interfaces.WantedCriminal;
 using Application.Interfaces.Witness;
 using AutoMapper;
 using Domain.Constants;
@@ -37,6 +39,7 @@ namespace Application.Features.Case.Queries.GetById
         private readonly IAccountRepository _accountRepository;
         private readonly ICaseVictimRepository _caseVictimRepository;
         private readonly IVictimRepository _victimRepository;
+        private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly IMapper _mapper;
 
         public GetCaseByIdQueryHandler(ICaseRepository caseRepository, ICaseCriminalRepository caseCriminalRepository,
@@ -45,6 +48,7 @@ namespace Application.Features.Case.Queries.GetById
             ICaseImageRepository caseImageRepository, IUploadService uploadService,
             ICaseInvestigatorRepository caseInvestigatorRepository, IAccountRepository accountRepository,
             ICaseVictimRepository caseVictimRepository, IVictimRepository victimRepository,
+            IWantedCriminalRepository wantedCriminalRepository,
             IMapper mapper)
         {
             _caseRepository = caseRepository;
@@ -59,6 +63,7 @@ namespace Application.Features.Case.Queries.GetById
             _accountRepository = accountRepository;
             _caseVictimRepository = caseVictimRepository;
             _victimRepository = victimRepository;
+            _wantedCriminalRepository = wantedCriminalRepository;
             _mapper = mapper;
         }
         public async Task<Result<GetCaseByIdResponse>> Handle(GetCaseByIdQuery request, CancellationToken cancellationToken)
@@ -133,8 +138,25 @@ namespace Application.Features.Case.Queries.GetById
             response.CaseImages = imageOfCase.Select(i => new FileResponse
             {
                 FileName = i.FileName,
+                FilePath = i.FilePath,
                 FileUrl = _uploadService.GetFullUrl(i.FilePath)
             }).ToList();
+
+            var wantedCriminals = await _caseRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted)
+           .Join(_wantedCriminalRepository.Entities,
+              c => c.Id,
+              w => w.CaseId,
+              (c, w) => new WantedCriminalOfCaseResponse
+              {
+                  CriminalId = w.CriminalId,
+                  WantedType = w.WantedType,
+                  CurrentActivity = w.CurrentActivity,
+                  WantedDecisionNo = w.WantedDecisionNo,
+                  WantedDecisionDay = w.WantedDecisionDay,
+                  DecisionMakingUnit = w.DecisionMakingUnit,
+              }).ToListAsync();
+            if (wantedCriminals.Any()) response.WantedCriminalResponse = wantedCriminals;
+
             return await Result<GetCaseByIdResponse>.SuccessAsync(response);
         }
     }

@@ -10,9 +10,9 @@ namespace Application.Features.Criminal.Queries.GetAll
         public int YearOfBirth { get; set; }
         public string PermanentResidence { get; set; } = null!;
         public CriminalStatus Status { get; set; }
-        public string Charge { get; set; } = null!;
+        public string? Charge { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
-        public DateOnly DateOfMostRecentCrime { get; set; }
+        public DateOnly? DateOfMostRecentCrime { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime CreatedAt { get; set; }
     }

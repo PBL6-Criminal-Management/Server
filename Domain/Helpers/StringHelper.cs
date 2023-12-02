@@ -34,8 +34,11 @@
 
         // Ex: keyword is 'Luận' then result is 'Luận', 'Luận123', ...
         //     keyword is 'Luan' then result is 'Luận', 'Luan', 'Luận123', ...
-        public static bool Contains(string data, string keyword)
+        public static bool Contains(string? data, string keyword)
         {
+            if(data == null)
+                return false;
+
             data = data.ToLower(); keyword = keyword.ToLower();
             string keywordTMP = ConvertFromVietnameseText(keyword);
 

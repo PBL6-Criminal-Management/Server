@@ -3,6 +3,7 @@ using Application.Dtos.Responses.Evidence;
 using Application.Dtos.Responses.File;
 using Application.Dtos.Responses.User;
 using Application.Dtos.Responses.Victim;
+using Application.Dtos.Responses.WantedCriminal;
 using Application.Dtos.Responses.Witness;
 using Domain.Constants.Enum;
 using System.Text.Json.Serialization;
@@ -26,7 +27,7 @@ namespace Application.Features.Case.Queries.GetById
         public List<FileResponse>? CaseImages { get; set; }
         public List<CriminalResponse>? Criminals { get; set; }
         public List<UserResponse>? Investigators { get; set; }
-
         public List<VictimResponse>? Victims { get; set; }
+        public List<WantedCriminalOfCaseResponse>? WantedCriminalResponse { get; set; }
     }
 }

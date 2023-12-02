@@ -28,7 +28,7 @@ namespace WebApi.Extensions
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Source.API.Core",
+                    Title = "Criminal management application API",
                     Description = "This Api will be responsible for overall data distribution and authorization.",
                     Contact = new OpenApiContact
                     {

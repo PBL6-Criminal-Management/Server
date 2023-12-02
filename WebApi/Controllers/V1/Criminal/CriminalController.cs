@@ -59,7 +59,6 @@ namespace WebApi.Controllers.V1.Criminal
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<GetCriminalByIdResponse>>> GetCriminalById(long id)
         {

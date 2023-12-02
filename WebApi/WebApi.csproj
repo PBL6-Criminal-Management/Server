@@ -14,14 +14,21 @@
 	  <EmbeddedResource Remove="Controllers\V1\Employee\**" />
 	  <None Remove="Controllers\V1\Employee\**" />
       <Content Include="..\WebApi\Files\Avatar\**\*" CopyToOutputDirectory="PreserveNewest" />
+      <Content Include="..\WebApi\Files\WantedCriminal\**\*" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <None Remove="Files\Avatar\NotFound\notFoundAvatar.jpg" />
+	  <None Remove="Files\WantedCriminal\27602b9f-c559-4a75-a5c7-500c35588b47_100e0939-dfe5-4275-8b41-1d6451b2343e_Hoan2_102.png" />
+	  <None Remove="Files\WantedCriminal\959e00b2-cf24-41f0-b705-4229451aee43_d39bcbc6-27ea-4b8c-b262-031f92b0ce02_Hoan_082.png" />
+	  <None Remove="Files\WantedCriminal\9a78dddc-621b-4333-b39d-1f19f7f4d74e_7771f098-27ef-488e-9daf-a2b738b4b4ed_Hoan_069.png" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Content Include="Files\Avatar\NotFound\notFoundAvatar.jpg" />
+	  <Content Include="Files\WantedCriminal\27602b9f-c559-4a75-a5c7-500c35588b47_100e0939-dfe5-4275-8b41-1d6451b2343e_Hoan2_102.png" />
+	  <Content Include="Files\WantedCriminal\959e00b2-cf24-41f0-b705-4229451aee43_d39bcbc6-27ea-4b8c-b262-031f92b0ce02_Hoan_082.png" />
+	  <Content Include="Files\WantedCriminal\9a78dddc-621b-4333-b39d-1f19f7f4d74e_7771f098-27ef-488e-9daf-a2b738b4b4ed_Hoan_069.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Asp.Versioning.Mvc" Version="7.0.0" />
@@ -55,6 +62,11 @@
 		<ProjectReference Include="..\Application\Application.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 		<ProjectReference Include="..\Shared\Shared.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="DigiCertGlobalRootCA.crt.pem">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 	<ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" /></VisualStudio></ProjectExtensions>
 

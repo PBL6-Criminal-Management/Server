@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 using Domain.Constants;
 using Domain.Constants.Enum;
 
-namespace Application.Dtos.Requests.WantedCriminal
+namespace Application.Dtos.Responses.WantedCriminal
 {
-    public class WantedCriminalRequest
+    public class WantedCriminalOfCaseResponse
     {
         public long CriminalId { get; set; }
         public WantedType WantedType { get; set; }

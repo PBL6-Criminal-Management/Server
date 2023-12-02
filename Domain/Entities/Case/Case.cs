@@ -31,5 +31,6 @@ namespace Domain.Entities.Case
         public virtual ICollection<Domain.Entities.CaseInvestigator.CaseInvestigator>? CaseInvestigators { get; set; }
         public virtual ICollection<Domain.Entities.CaseWitness.CaseWitness>? CaseWitnesses { get; set; }
         public virtual ICollection<Domain.Entities.CaseVictim.CaseVictim>? CaseVictims { get; set; }
+        public virtual ICollection<Domain.Entities.WantedCriminal.WantedCriminal>? WantedCriminals { get; set; }
     }
 }

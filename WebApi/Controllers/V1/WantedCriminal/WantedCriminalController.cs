@@ -14,7 +14,6 @@ namespace WebApi.Controllers.V1.WantedCriminal
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        [Authorize]
         [HttpGet]
         public async Task<ActionResult<PaginatedResult<GetAllWantedCriminalResponse>>> GetAllWantedCriminal([FromQuery] GetAllWantedCriminalQuery query)
         {

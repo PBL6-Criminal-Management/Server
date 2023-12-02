@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.CaseCriminal;
+﻿using Application.Interfaces;
+using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Repositories;
@@ -20,6 +21,7 @@ namespace Application.Features.Criminal.Command.Delete
         private readonly ICaseCriminalRepository _caseCriminalRepository;
         private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
+        private readonly IUploadService _uploadService;
         private readonly IUnitOfWork<long> _unitOfWork;
 
         public DeleteCriminalCommandHandler(
@@ -27,6 +29,7 @@ namespace Application.Features.Criminal.Command.Delete
             ICaseCriminalRepository caseCriminalRepository,
             IWantedCriminalRepository wantedCriminalRepository,
             ICriminalImageRepository criminalImageRepository,
+            IUploadService uploadService,
             IUnitOfWork<long> unitOfWork
         )
         {
@@ -34,6 +37,7 @@ namespace Application.Features.Criminal.Command.Delete
             _caseCriminalRepository = caseCriminalRepository;
             _wantedCriminalRepository = wantedCriminalRepository;
             _criminalImageRepository = criminalImageRepository;
+            _uploadService = uploadService;
             _unitOfWork = unitOfWork;
         }
         public async Task<Result<long>> Handle(DeleteCriminalCommand request, CancellationToken cancellationToken)
@@ -60,7 +64,12 @@ namespace Application.Features.Criminal.Command.Delete
 
                     var criminalImages = _criminalImageRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted);
                     if (criminalImages != null)
+                    {
                         await _criminalImageRepository.DeleteRange(criminalImages.ToList());
+                        await _uploadService.DeleteRangeAsync(criminalImages.Select(i => i.FilePath).ToList());
+                    }
+                    if(criminal.Avatar != null)
+                        await _uploadService.DeleteAsync(criminal.Avatar);
 
                     await _unitOfWork.Commit(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

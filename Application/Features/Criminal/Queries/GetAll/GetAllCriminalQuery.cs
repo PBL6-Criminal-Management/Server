@@ -43,20 +43,27 @@ namespace Application.Features.Criminal.Queries.GetAll
                                   };
 
             var query = _criminalRepository.Entities.AsEnumerable()
-                            .Join(caseOfCriminals, criminal => criminal.Id,
+                            .GroupJoin(caseOfCriminals, criminal => criminal.Id,
                             caseOfCriminal => caseOfCriminal.CriminalId,
                             (criminal, caseOfCriminals) => new { criminal, caseOfCriminals })
+                            .SelectMany(
+                                x => x.caseOfCriminals.DefaultIfEmpty(), // DefaultIfEmpty ensures a left join behavior
+                                (criminal, caseOfCriminal) => new { criminal.criminal, caseOfCriminal }
+                            )
                             .Where(o => !o.criminal.IsDeleted
                                     && (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(o.criminal.Name, request.Keyword)
                                                                 || (o.criminal.AnotherName == null || StringHelper.Contains(o.criminal.AnotherName, request.Keyword))
-                                                                || StringHelper.Contains(o.criminal.HomeTown, request.Keyword))
+                                                                || StringHelper.Contains(o.criminal.HomeTown, request.Keyword)
+                                                                || StringHelper.Contains(o.criminal.PermanentResidence, request.Keyword)
+                                                                || StringHelper.Contains(o.caseOfCriminal?.Charge, request.Keyword)
+                                                                || (int.TryParse(request.Keyword, out _) && o.criminal.Birthday.Year == int.Parse(request.Keyword)))
                                     && (!request.Status.HasValue || o.criminal.Status == request.Status)
                                     && (!request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)
                                     && (!request.Gender.HasValue || o.criminal.Gender == request.Gender)
                                     && (string.IsNullOrEmpty(request.Characteristics) || StringHelper.Contains(o.criminal.Characteristics, request.Characteristics))
-                                    && (!request.TypeOfViolation.HasValue || o.caseOfCriminals.TypeOfViolation == request.TypeOfViolation)
-                            && (string.IsNullOrEmpty(request.Area) || StringHelper.Contains(o.criminal.HomeTown, request.Area))
-                            && (string.IsNullOrEmpty(request.Charge) || StringHelper.Contains(o.caseOfCriminals.Charge, request.Charge))
+                                    && (!request.TypeOfViolation.HasValue || (o.caseOfCriminal != null && o.caseOfCriminal.TypeOfViolation == request.TypeOfViolation))
+                            && (string.IsNullOrEmpty(request.Area) || StringHelper.Contains(o.criminal.HomeTown, request.Area) || StringHelper.Contains(o.criminal.PermanentResidence, request.Area))
+                            && (string.IsNullOrEmpty(request.Charge) || StringHelper.Contains(o.caseOfCriminal?.Charge, request.Charge))
                             )
                             .Select(o => new GetAllCriminalResponse
                             {
@@ -65,8 +72,8 @@ namespace Application.Features.Criminal.Queries.GetAll
                                 YearOfBirth = o.criminal.Birthday.Year,
                                 PermanentResidence = o.criminal.PermanentResidence,
                                 Status = o.criminal.Status,
-                                Charge = o.caseOfCriminals.Charge,
-                                DateOfMostRecentCrime = o.caseOfCriminals.DateOfMostRecentCrime,
+                                Charge = o.caseOfCriminal?.Charge,
+                                DateOfMostRecentCrime = o.caseOfCriminal?.DateOfMostRecentCrime,
                                 CreatedAt = o.criminal.CreatedAt
                             });
 
