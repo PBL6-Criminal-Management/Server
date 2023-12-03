@@ -20,21 +20,27 @@ namespace Application.Features.Account.Queries.GetById
         private readonly IAccountRepository _accountRepository;
         private readonly IUserService _userService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IUploadService _uploadService;
 
-        public GetAccountByIdQueryHandler(IAccountRepository accountRepository, IUserService userService, UserManager<AppUser> userManager, IUploadService uploadService)
+        public GetAccountByIdQueryHandler(IAccountRepository accountRepository, IUserService userService, UserManager<AppUser> userManager, ICurrentUserService currentUserService, IUploadService uploadService)
         {
             _accountRepository = accountRepository;
             _userService = userService;
             _userManager = userManager;
             _uploadService = uploadService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Result<GetAccountByIdResponse>> Handle(GetAccountByIdQuery request, CancellationToken cancellationToken)
         {
             var user = _userManager.Users.Where(e => e.UserId == request.Id && !e.IsDeleted).FirstOrDefault();
-            if(user == null)
-                return await Result<GetAccountByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
+
+            if (!_currentUserService.RoleName.Equals(RoleConstants.AdministratorRole))
+            {
+                if (user == null || !_currentUserService.Username.Equals(user.UserName))
+                    return await Result<GetAccountByIdResponse>.FailAsync(StaticVariable.NOT_VIEW_ACCOUNT_INFOR_PERMISSION);
+            }
 
             var account = await (from e in _accountRepository.Entities
                                   where e.Id == request.Id && !e.IsDeleted
@@ -47,11 +53,11 @@ namespace Application.Features.Account.Queries.GetById
                                       PhoneNumber = e.PhoneNumber,
                                       Address = e.Address,
                                       Email = e.Email,
-                                      IsActive = user.IsActive,
-                                      Username = user.UserName!,
-                                      Role = _userService.GetRoleIdAsync(user.UserId).Result,
+                                      IsActive = user != null? user.IsActive : false,
+                                      Username = user != null? user.UserName : null,
+                                      Role = user != null? _userService.GetRoleIdAsync(user.UserId).Result : null,
                                       Image = e.Image,
-                                      ImageLink = _uploadService.GetFullUrl(e.Image),
+                                      ImageLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(e.Image) ? e.Image : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
                                   }).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (account == null)

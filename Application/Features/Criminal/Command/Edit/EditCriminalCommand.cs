@@ -13,8 +13,6 @@ using Domain.Constants.Enum;
 using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
 using Domain.Entities.CriminalImage;
-using Application.Dtos.Requests.WantedCriminal;
-using Application.Interfaces.WantedCriminal;
 
 namespace Application.Features.Criminal.Command.Edit
 {
@@ -96,17 +94,15 @@ namespace Application.Features.Criminal.Command.Edit
     {
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly ICriminalRepository _criminalRepository;
-        private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
-        public EditCriminalCommandHandler(IUnitOfWork<long> unitOfWork, ICriminalRepository criminalRepository, IWantedCriminalRepository wantedCriminalRepository,
+        public EditCriminalCommandHandler(IUnitOfWork<long> unitOfWork, ICriminalRepository criminalRepository,
         ICriminalImageRepository criminalImageRepository, IMapper mapper, IUploadService uploadService) {
             _criminalImageRepository = criminalImageRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _criminalRepository = criminalRepository;
-            _wantedCriminalRepository = wantedCriminalRepository;
             _uploadService = uploadService;
         }
 
@@ -133,14 +129,6 @@ namespace Application.Features.Criminal.Command.Edit
                     await _criminalRepository.UpdateAsync(editCriminal);
 
                     await _unitOfWork.Commit(cancellationToken);
-
-                    var wantedCriminalsInDB = await _wantedCriminalRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
-
-                    if (wantedCriminalsInDB.Any())
-                    {
-                        await _wantedCriminalRepository.RemoveRangeAsync(wantedCriminalsInDB);  //remove all wantedCriminals in db
-                        await _unitOfWork.Commit(cancellationToken);
-                    }
 
                     var imagesInDB = await _criminalImageRepository.Entities.Where(_ => _.CriminalId == editCriminal.Id).ToListAsync(cancellationToken);
 

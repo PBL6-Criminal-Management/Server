@@ -10,7 +10,6 @@ using AutoMapper;
 using Domain.Constants;
 using Domain.Wrappers;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Criminal.Queries.GetById
 {
@@ -27,9 +26,11 @@ namespace Application.Features.Criminal.Queries.GetById
         private readonly ICaseCriminalRepository _caseCriminalRepository;
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IUploadService _uploadService;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
-        public GetCriminalByIdQueryHandler(ICriminalRepository criminalRepository, IWantedCriminalRepository wantedCriminalRepository, ICaseRepository caseRepository, ICaseCriminalRepository caseCriminalRepository, ICriminalImageRepository criminalImageRepository, IUploadService uploadService, IMapper mapper)
+        public GetCriminalByIdQueryHandler(ICriminalRepository criminalRepository, IWantedCriminalRepository wantedCriminalRepository, ICaseRepository caseRepository, ICaseCriminalRepository caseCriminalRepository, ICriminalImageRepository criminalImageRepository, IUploadService uploadService,
+            ICurrentUserService currentUserService, IMapper mapper)
         {
             _criminalRepository = criminalRepository;
             _wantedCriminalRepository = wantedCriminalRepository;
@@ -37,11 +38,65 @@ namespace Application.Features.Criminal.Queries.GetById
             _caseCriminalRepository = caseCriminalRepository;
             _criminalImageRepository = criminalImageRepository;
             _uploadService = uploadService;
+            _currentUserService = currentUserService;
             _mapper = mapper;
         }
 
         public async Task<Result<GetCriminalByIdResponse>> Handle(GetCriminalByIdQuery request, CancellationToken cancellationToken)
         {
+            var criminal = _criminalRepository.Entities.FirstOrDefault(c => c.Id == request.Id);
+
+            if (criminal == null || criminal.IsDeleted)
+                return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
+
+            if (_currentUserService.Username == null)
+            {
+                if (!_wantedCriminalRepository.Entities.Any(w => w.CriminalId == request.Id && !w.IsDeleted) || criminal.Status != Domain.Constants.Enum.CriminalStatus.Wanted)
+                    return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_VIEW_CRIMINAL_INFOR_PERMISSION);
+            }
+
+            var query = new GetCriminalByIdResponse()
+            {
+                Name = criminal.Name,
+                Birthday = criminal.Birthday,
+                Gender = criminal.Gender,
+                AnotherName = criminal.AnotherName,
+                PhoneNumber = criminal.PhoneNumber,
+                HomeTown = criminal.HomeTown,
+                Nationality = criminal.Nationality,
+                Ethnicity = criminal.Ethnicity,
+                Religion = criminal.Religion,
+                CitizenId = criminal.CitizenId,
+                CareerAndWorkplace = criminal.CareerAndWorkplace,
+                PermanentResidence = criminal.PermanentResidence,
+                CurrentAccommodation = criminal.CurrentAccommodation,
+                FatherName = criminal.FatherName,
+                FatherBirthday = criminal.FatherBirthday,
+                FatherCitizenId = criminal.FatherCitizenId,
+                MotherName = criminal.MotherName,
+                MotherBirthday = criminal.MotherBirthday,
+                MotherCitizenId = criminal.MotherCitizenId,
+                Characteristics = criminal.Characteristics,
+                Status = criminal.Status,
+                DangerousLevel = criminal.DangerousLevel,
+                DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
+                ReleaseDate = criminal.ReleaseDate,
+                EntryAndExitInformation = criminal.EntryAndExitInformation,
+                BankAccount = criminal.BankAccount,
+                GameAccount = criminal.GameAccount,
+                Facebook = criminal.Facebook,
+                Zalo = criminal.Zalo,
+                OtherSocialNetworks = criminal.OtherSocialNetworks,
+                PhoneModel = criminal.PhoneModel,
+                Research = criminal.Research,
+                ApproachArrange = criminal.ApproachArrange,
+                OtherInformation = criminal.OtherInformation,
+                Vehicles = criminal.Vehicles,
+                IsWantedCriminal = true,
+                Avatar = criminal.Avatar,
+                AvatarLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(criminal.Avatar) ? criminal.Avatar : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
+            };
+
             var casesOfCriminal = from caseCriminal in _caseCriminalRepository.Entities
                                   join _case in _caseRepository.Entities on caseCriminal.CaseId equals _case.Id
                                   where !_case.IsDeleted && !caseCriminal.IsDeleted && caseCriminal.CriminalId == request.Id
@@ -51,63 +106,14 @@ namespace Application.Features.Criminal.Queries.GetById
                                  where criminalImage.CriminalId == request.Id && !criminalImage.IsDeleted
                                  select criminalImage;
 
-            var query = await (from criminal in _criminalRepository.Entities
-                               where criminal.Id == request.Id && !criminal.IsDeleted
-                               select new GetCriminalByIdResponse()
-                               {
-                                   Name = criminal.Name,
-                                   Birthday = criminal.Birthday,
-                                   Gender = criminal.Gender,
-                                   AnotherName = criminal.AnotherName,
-                                   PhoneNumber = criminal.PhoneNumber,
-                                   HomeTown = criminal.HomeTown,
-                                   Nationality = criminal.Nationality,
-                                   Ethnicity = criminal.Ethnicity,
-                                   Religion = criminal.Religion,
-                                   CitizenId = criminal.CitizenId,
-                                   CareerAndWorkplace = criminal.CareerAndWorkplace,
-                                   PermanentResidence = criminal.PermanentResidence,
-                                   CurrentAccommodation = criminal.CurrentAccommodation,
-                                   FatherName = criminal.FatherName,
-                                   FatherBirthday = criminal.FatherBirthday,
-                                   FatherCitizenId = criminal.FatherCitizenId,
-                                   MotherName = criminal.MotherName,
-                                   MotherBirthday = criminal.MotherBirthday,
-                                   MotherCitizenId = criminal.MotherCitizenId,
-                                   Characteristics = criminal.Characteristics,
-                                   Status = criminal.Status,
-                                   DangerousLevel = criminal.DangerousLevel,
-                                   DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
-                                   ReleaseDate = criminal.ReleaseDate,
-                                   EntryAndExitInformation = criminal.EntryAndExitInformation,
-                                   BankAccount = criminal.BankAccount,
-                                   GameAccount = criminal.GameAccount,
-                                   Facebook = criminal.Facebook,
-                                   Zalo = criminal.Zalo,
-                                   OtherSocialNetworks = criminal.OtherSocialNetworks,
-                                   PhoneModel = criminal.PhoneModel,
-                                   Research = criminal.Research,
-                                   ApproachArrange = criminal.ApproachArrange,
-                                   OtherInformation = criminal.OtherInformation,
-                                   Vehicles = criminal.Vehicles,
-                                   IsWantedCriminal = true,
-                                   Avatar = criminal.Avatar,
-                                   AvatarLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(criminal.Avatar) ? criminal.Avatar : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
-                               }).FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
-            if (query == null)
-                return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
-
-            var fileResponse = criminalImages.Select(i => new FileResponse
+            query.CriminalImages = criminalImages.Select(i => new FileResponse
             {
                 FileName = i.FileName,
                 FilePath = i.FilePath,
                 FileUrl = _uploadService.GetFullUrl(i.FilePath)
-            });
+            }).ToList();
 
-            query.CriminalImages = fileResponse.ToList();
-
-            var wantedCriminals = _wantedCriminalRepository.Entities.Where(wantedCriminal => wantedCriminal.CriminalId == request.Id).OrderBy(w => w.WantedDecisionDay);
+            var wantedCriminals = _wantedCriminalRepository.Entities.Where(wantedCriminal => wantedCriminal.CriminalId == request.Id && !wantedCriminal.IsDeleted).OrderBy(w => w.WantedDecisionDay);
             query.IsWantedCriminal = wantedCriminals.Any();
             query.WantedCriminals = _mapper.Map<List<WantedCriminalResponse>>(wantedCriminals);
 
@@ -130,7 +136,7 @@ namespace Application.Features.Criminal.Queries.GetById
                     }).ToList();
                 }
                 query.RelatedCases = string.Join(", ", listCaseIds);
-                query.Charge = casesOfCriminal.OrderByDescending(c => c.StartDate).FirstOrDefault()!.Charge;
+                query.Charge = casesOfCriminal.OrderByDescending(c => c.StartDate).FirstOrDefault()?.Charge;
             }
 
             return await Result<GetCriminalByIdResponse>.SuccessAsync(query);

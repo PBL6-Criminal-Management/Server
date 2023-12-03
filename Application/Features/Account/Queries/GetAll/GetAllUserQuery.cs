@@ -45,7 +45,7 @@ namespace Application.Features.Account.Queries.GetAll
                             Address = user.Address,
                             Birthday = user.Birthday,
                             Image = user.Image,
-                            ImageLink = _uploadService.GetFullUrl(user.Image),
+                            ImageLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(user.Image) ? user.Image : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
                             RoleId = _userService.GetRoleIdAsync(user.Id).Result
                         })
                         .AsQueryable()

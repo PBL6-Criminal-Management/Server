@@ -11,6 +11,11 @@ namespace Domain.Constants
         public const string ADD = "Thêm";
         public const string EDIT = "Sửa";
         public const string DELETE = "Xóa";
+        public const string NOT_VIEW_CRIMINAL_INFOR_PERMISSION = "Bạn không có quyền xem thông tin tội phạm này!";
+        public const string NOT_EDIT_ACCOUNT_PERMISSION = "Bạn không có quyền chỉnh sửa thông tin tài khoản này!";
+        public const string NOT_EDIT_ROLE_PERMISSION = "Bạn không có quyền chỉnh sửa chức vụ cho tài khoản này!";
+        public const string NOT_EDIT_IS_ACTIVE_PERMISSION = "Bạn không có quyền chỉnh sửa trạng thái kích hoạt của tài khoản này!";
+        public const string NOT_VIEW_ACCOUNT_INFOR_PERMISSION = "Bạn không có quyền xem thông tin tài khoản này!";
 
         //Messages
         public const string NOT_FOUND_MSG = "Không thể tìm thấy dữ liệu phù hợp!";
@@ -47,6 +52,8 @@ namespace Domain.Constants
 
         public const string CHANGE_PASSWORD_SUCCESSFULLY = "Thay đổi mật khẩu thành công!";
         public const string SEND_EMAIL_SUCCESSFULLY = "Đã gửi thông tin thay đổi mật khẩu qua email của bạn!";
+
+        public const string USER_HAVE_NOT_ROLE = "Người dùng này chưa có chức vụ nên tự động bỏ qua cập nhật trường chức vụ và trường kích hoạt!";
 
         //File message
         public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";

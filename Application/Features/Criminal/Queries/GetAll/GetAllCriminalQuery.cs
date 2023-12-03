@@ -56,7 +56,7 @@ namespace Application.Features.Criminal.Queries.GetAll
                                                                 || StringHelper.Contains(o.criminal.HomeTown, request.Keyword)
                                                                 || StringHelper.Contains(o.criminal.PermanentResidence, request.Keyword)
                                                                 || StringHelper.Contains(o.caseOfCriminal?.Charge, request.Keyword)
-                                                                || (int.TryParse(request.Keyword, out _) && o.criminal.Birthday.Year == int.Parse(request.Keyword)))
+                                                                || o.criminal.Birthday.Year.ToString().StartsWith(request.Keyword))
                                     && (!request.Status.HasValue || o.criminal.Status == request.Status)
                                     && (!request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)
                                     && (!request.Gender.HasValue || o.criminal.Gender == request.Gender)
