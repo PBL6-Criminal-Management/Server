@@ -11,6 +11,7 @@ namespace Application.Features.Case.Queries.GetAll
         public string? Reason { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
+        public string Area { get; set; } = null!;
         public List<CriminalId>? CriminalOfCase { get; set; }
         public class CriminalId
         {

@@ -1,11 +1,11 @@
+using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
+using Domain.Helpers;
 using Domain.Wrappers;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System.Linq.Dynamic.Core;
 
 namespace Application.Features.Case.Queries.GetAll
@@ -31,19 +31,28 @@ namespace Application.Features.Case.Queries.GetAll
         {
             if (!string.IsNullOrEmpty(request.Keyword))
                 request.Keyword = request.Keyword.Trim();
+
             var query = _caseRepository.Entities.AsEnumerable()
                         .Where(c => !c.IsDeleted &&
+                        (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(c.Charge, request.Keyword) 
+                                                                || StringHelper.Contains(c.CrimeScene, request.Keyword)
+                                                                || StringHelper.Contains(c.TypeOfViolation.ToDescriptionString(), request.Keyword)
+                                                                || StringHelper.Contains(c.Reason, request.Keyword)
+                                                                || (_dateTimeService.ConvertToUtc(c.StartDate) + " - " + (c.EndDate.HasValue ? _dateTimeService.ConvertToUtc(c.EndDate.Value) : "")).Contains(request.Keyword)
+                                                                ) &&
+                        (!request.Status.HasValue || c.Status == request.Status) &&
                         (!request.TypeOfViolation.HasValue || c.TypeOfViolation == request.TypeOfViolation) &&
-                        (string.IsNullOrEmpty(request.Area)) || c.CrimeScene.Contains(request.Area))
+                        (string.IsNullOrEmpty(request.Area) || StringHelper.Contains(c.CrimeScene, request.Area)))
                         .AsQueryable()
                         .Select(c => new GetAllCaseResponse
                         {
                             Id = c.Id,
                             Charge = c.Charge,
-                            TimeTakesPlace = _dateTimeService.ConvertToUtc(c.StartDate) + "-" + (c.EndDate.HasValue ? _dateTimeService.ConvertToUtc(c.EndDate.Value) : ""),
+                            TimeTakesPlace = _dateTimeService.ConvertToUtc(c.StartDate) + " - " + (c.EndDate.HasValue ? _dateTimeService.ConvertToUtc(c.EndDate.Value) : ""),
                             Reason = c.Reason,
                             TypeOfViolation = c.TypeOfViolation,
                             Status = c.Status,
+                            Area = c.CrimeScene,
                             CriminalOfCase = _caseCriminalRepository.Entities.Where(_ => !_.IsDeleted && _.CaseId == c.Id)
                                                 .Join(_criminalRepository.Entities,
                                                     cCr => cCr.CriminalId,
@@ -55,7 +64,8 @@ namespace Application.Features.Case.Queries.GetAll
                                                     })
                                                 .ToList(),
                             CreatedAt = c.CreatedAt
-                        }).ToList();
+                        })
+                        .ToList();
             if (request.TimeTakesPlace.HasValue)
             {
                 var dateCheck = request.TimeTakesPlace.Value.ToString("dd/MM/yyyy HH:mm:ss");
@@ -63,7 +73,7 @@ namespace Application.Features.Case.Queries.GetAll
                 {
                     var c = query[i];
 
-                    if (!_dateTimeService.IsBetween(c.TimeTakesPlace, dateCheck))
+                    if (c.TimeTakesPlace == null || !_dateTimeService.IsBetween(c.TimeTakesPlace, dateCheck))
                     {
                         query.RemoveAt(i);
                         i--;

@@ -1,4 +1,6 @@
-﻿using Domain.Constants.Enum;
+﻿using Application.Dtos.Responses.File;
+using Application.Dtos.Responses.WantedCriminal;
+using Domain.Constants.Enum;
 using System.Text.Json.Serialization;
 
 namespace Application.Features.FaceDetect.Queries.Detect
@@ -13,12 +15,11 @@ namespace Application.Features.FaceDetect.Queries.Detect
 
     public class FoundCriminal
     {
-        public long Id { get; set; }
         public string Name { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly Birthday { get; set; }
         public bool? Gender { get; set; }
-        public string AnotherName { get; set; } = null!;
+        public string? AnotherName { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string HomeTown { get; set; } = null!;
         public string Nationality { get; set; } = null!;
@@ -56,15 +57,11 @@ namespace Application.Features.FaceDetect.Queries.Detect
         public string? Research { get; set; }
         public string? ApproachArrange { get; set; }
         public string? OtherInformation { get; set; }
+        public string? Avatar { get; set; }
+        public string? AvatarLink { get; set; }
+        public string? Vehicles { get; set; }
+        public List<FileResponse>? CriminalImages { get; set; }
         public bool IsWantedCriminal { get; set; }
-        public WantedType? WantedType { get; set; }
-        public string? CurrentActivity { get; set; }
-        public string? WantedDecisionNo { get; set; } = null!;
-        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
-        public DateOnly? WantedDecisionDay { get; set; }
-        public string? DecisionMakingUnit { get; set; } = null!;
-        public string? Image { get; set; }
-        public string? ImageLink { get; set; }
-        //public string? Vehicles { get; set; }
+        public List<WantedCriminalResponse>? WantedCriminals { get; set; }
     }
 }

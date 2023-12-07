@@ -23,6 +23,8 @@ namespace Domain.Entities.Case
         public string Charge { get; set; } = null!;
         [Column("crime_scene", TypeName = "nvarchar(200)")]
         public string CrimeScene { get; set; } = null!;
+        [Column("description", TypeName = "text")]
+        public string? Description { get; set; }
 
         //Relationship
         public virtual ICollection<Domain.Entities.CaseImage.CaseImage>? CaseImages { get; set; }

@@ -2,7 +2,6 @@
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.WantedCriminal;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
@@ -91,21 +90,18 @@ namespace Application.Features.Criminal.Command.Add
     }
     internal class AddCriminalCommandHandler : IRequestHandler<AddCriminalCommand, Result<AddCriminalCommand>>
     {
-        private readonly ICriminalRepository _criminalRepository; 
-        private readonly IWantedCriminalRepository _wantedCriminalRepository; 
+        private readonly ICriminalRepository _criminalRepository;
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICriminalImageRepository _criminalImageRepository;
 
         public AddCriminalCommandHandler(
             ICriminalRepository criminalRepository,
-            IWantedCriminalRepository wantedCriminalRepository, 
             IUnitOfWork<long> unitOfWork,
             IMapper mapper, 
             ICriminalImageRepository criminalImageRepository)
         {
             _criminalRepository = criminalRepository;
-            _wantedCriminalRepository = wantedCriminalRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _criminalImageRepository = criminalImageRepository;

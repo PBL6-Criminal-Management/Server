@@ -5,8 +5,10 @@ using Application.Interfaces.Services.Identity;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
+using Domain.Entities;
 using Domain.Wrappers;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -34,7 +36,7 @@ namespace Application.Features.Account.Command.Edit
         [DefaultValue("string")]
         public string PhoneNumber { get; set; } = null!;
 
-        public Role Role { get; set; }
+        public Role? Role { get; set; }
 
         public bool? Gender { get; set; }
 
@@ -50,15 +52,19 @@ namespace Application.Features.Account.Command.Edit
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
         private readonly IUserService _userService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly UserManager<AppUser> _userManager;
 
         public EditAccountCommandHandler(IAccountRepository accountRepository, IUnitOfWork<long> unitOfWork,
-            IMapper mapper, IUploadService uploadService, IUserService userService)
+            IMapper mapper, IUploadService uploadService, IUserService userService, ICurrentUserService currentUserService, UserManager<AppUser> userManager)
         {
             _accountRepository = accountRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _uploadService = uploadService;
             _userService = userService;
+            _currentUserService = currentUserService;
+            _userManager = userManager;
         }
 
         public async Task<Result<EditAccountCommand>> Handle(EditAccountCommand request, CancellationToken cancellationToken)
@@ -68,6 +74,23 @@ namespace Application.Features.Account.Command.Edit
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
+
+            var user = _userManager.Users.Where(e => e.UserId == request.Id && !e.IsDeleted).FirstOrDefault();
+
+            var roleId = await _userService.GetRoleIdAsync(account.Id);
+            if (!_currentUserService.RoleName.Equals(RoleConstants.AdministratorRole))
+            {
+                if(user == null || !_currentUserService.Username.Equals(user.UserName))
+                    return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_EDIT_ACCOUNT_PERMISSION);
+
+                if (roleId != request.Role)
+                    return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_EDIT_ROLE_PERMISSION);
+
+                if (user.IsActive != request.IsActive)
+                    return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_EDIT_IS_ACTIVE_PERMISSION);
+            }
+
+
             var isCitizenIdExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenId == request.CitizenId && !x.IsDeleted && x.Id != request.Id);
             if (isCitizenIdExists != null)
             {
@@ -85,10 +108,10 @@ namespace Application.Features.Account.Command.Edit
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.PHONE_NUMBER_EXISTS_MSG);
             }
-            if (!Enum.IsDefined(typeof(Role), request.Role))
-            {
-                return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_ROLE);
-            }
+            //if (!Enum.IsDefined(typeof(Role), request.Role))
+            //{
+            //    return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_ROLE);
+            //}
             string deleleImagePath = "";
             if (account.Image != null && account.Image != request.Image)
             {
@@ -103,11 +126,19 @@ namespace Application.Features.Account.Command.Edit
                 var transaction = await _unitOfWork.BeginTransactionAsync();
                 try
                 {
-                    var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role);
-                    if (!checkChangeRole)
+                    string? message = null;
+
+                    if (user != null)
                     {
-                        return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
+                        var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role == null? Role.None : (Role)request.Role);
+                        if (!checkChangeRole)
+                        {
+                            return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
+                        }
                     }
+                    else
+                        message = StaticVariable.USER_HAVE_NOT_ROLE;
+
                     await _accountRepository.UpdateAsync(account);
                     await _unitOfWork.Commit(cancellationToken);
                     await _userService.EditUser(new Dtos.Requests.Identity.EditUserRequest
@@ -117,6 +148,7 @@ namespace Application.Features.Account.Command.Edit
                         Email = request.Email,
                         Phone = request.PhoneNumber,
                         ImageFile = request.Image,
+                        IsActive = request.IsActive
                     });
 
                     await transaction.CommitAsync(cancellationToken);
@@ -124,7 +156,15 @@ namespace Application.Features.Account.Command.Edit
                     {
                         await _uploadService.DeleteAsync(deleleImagePath);
                     }
-                    return await Result<EditAccountCommand>.SuccessAsync(request);
+                    
+                    if(message != null)
+                    {
+                        request.IsActive = false;
+                        request.Role = null;
+                        return await Result<EditAccountCommand>.SuccessAsync(request, message);
+                    }
+                    else
+                        return await Result<EditAccountCommand>.SuccessAsync(request);
                 }
                 catch (Exception ex)
                 {

@@ -22,6 +22,7 @@ namespace Application.Features.Case.Queries.GetById
         public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
         public string Charge { get; set; } = null!;
+        public string Area { get; set; } = null!;
         public List<EvidenceResponse>? Evidences { get; set; }
         public List<WitnessResponse>? Witnesses { get; set; }
         public List<FileResponse>? CaseImages { get; set; }
