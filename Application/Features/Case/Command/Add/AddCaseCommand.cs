@@ -1,5 +1,7 @@
-﻿using Application.Dtos.Requests.Evidence;
+﻿using Application.Dtos.Requests.Criminal;
+using Application.Dtos.Requests.Evidence;
 using Application.Dtos.Requests.Image;
+using Application.Dtos.Requests.Testimony;
 using Application.Dtos.Requests.Victim;
 using Application.Dtos.Requests.WantedCriminal;
 using Application.Dtos.Requests.Witness;
@@ -45,10 +47,11 @@ namespace Application.Features.Case.Command.Add
         public List<EvidenceRequest>? Evidences { get; set; }
         public List<WitnessRequest> Witnesses { get; set; } = null!;
         public List<ImageRequest>? CaseImage { get; set; }
-        public List<long>? CriminalIds { get; set; }
+        public List<CriminalRequest>? Criminals { get; set; }
         public List<long>? InvestigatorIds { get; set; }
         public List<VictimRequest>? Victims { get; set; }
         public List<WantedCriminalRequest>? WantedCriminalRequest { get; set; }
+        public string? Description { get; set; }
     }
     internal class AddCaseCommandHandler : IRequestHandler<AddCaseCommand, Result<AddCaseCommand>>
     {
@@ -102,11 +105,11 @@ namespace Application.Features.Case.Command.Add
                 }
             }
             List<Domain.Entities.CaseCriminal.CaseCriminal> caseCriminals = new List<Domain.Entities.CaseCriminal.CaseCriminal>();
-            if (request.CriminalIds != null && request.CriminalIds.Count > 0)
+            if (request.Criminals != null && request.Criminals.Count > 0)
             {
-                foreach (var criminalId in request.CriminalIds)
+                foreach (var criminal in request.Criminals)
                 {
-                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminalId);
+                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id);
                     if (isCriminalExists == null)
                     {
                         return await Result<AddCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_CRIMINAL);
@@ -114,7 +117,8 @@ namespace Application.Features.Case.Command.Add
                     caseCriminals.Add(new Domain.Entities.CaseCriminal.CaseCriminal
                     {
                         CaseId = 0,
-                        CriminalId = criminalId
+                        CriminalId = criminal.Id,
+                        Testimony = criminal.Testimony
                     });
                 }
             }
@@ -129,7 +133,7 @@ namespace Application.Features.Case.Command.Add
                 {
                     await _caseRepository.AddAsync(addCase);
                     await _unitOfWork.Commit(cancellationToken);
-                    if (request.CriminalIds != null && request.CriminalIds.Count > 0)
+                    if (request.Criminals != null && request.Criminals.Count > 0)
                     {
                         caseCriminals.ForEach(_ => _.CaseId = addCase.Id);
                         await _caseCriminalRepository.AddRangeAsync(caseCriminals);
@@ -143,74 +147,77 @@ namespace Application.Features.Case.Command.Add
                     // await _unitOfWork.Commit(cancellationToken);
                     if (request.Witnesses != null && request.Witnesses.Count > 0)
                     {
-                        List<Domain.Entities.Witness.Witness> addWitnesses = new List<Domain.Entities.Witness.Witness>();
-                        List<long> witnessIds = new List<long>();
+                        List<TestimonyRequest> witnessTestimonies = new List<TestimonyRequest>();
                         foreach (var witness in request.Witnesses)
                         {
                             var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
                             if (checkWitnessExist == null)
                             {
                                 var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
-                                addWitnesses.Add(addWitness);
+
+                                await _witnessRepository.AddAsync(addWitness);
+                                await _unitOfWork.Commit(cancellationToken);
+                                witnessTestimonies.Add(new TestimonyRequest
+                                {
+                                    Id = addWitness.Id,
+                                    Testimony = witness.Testimony
+                                });
                             }
                             else
                             {
-                                witnessIds.Add(checkWitnessExist.Id);
-                            }
-                        }
-                        if (addWitnesses.Count > 0)
-                        {
-                            await _witnessRepository.AddRangeAsync(addWitnesses);
-                            await _unitOfWork.Commit(cancellationToken);
-                            foreach (var witness in addWitnesses)
-                            {
-                                witnessIds.Add(witness.Id);
+                                witnessTestimonies.Add(new TestimonyRequest
+                                {
+                                    Id = checkWitnessExist.Id,
+                                    Testimony = witness.Testimony
+                                });
                             }
                         }
                         List<Domain.Entities.CaseWitness.CaseWitness> caseWitnesses = new List<Domain.Entities.CaseWitness.CaseWitness>();
-                        foreach (var id in witnessIds)
+                        foreach (var witnessTestimony in witnessTestimonies)
                         {
                             caseWitnesses.Add(new Domain.Entities.CaseWitness.CaseWitness
                             {
                                 CaseId = addCase.Id,
-                                WitnessId = id
+                                WitnessId = witnessTestimony.Id,
+                                Testimony = witnessTestimony.Testimony
                             });
                         }
                         await _caseWitnessRepository.AddRangeAsync(caseWitnesses);
                     }
                     if (request.Victims != null && request.Victims.Count > 0)
                     {
-                        List<Domain.Entities.Victim.Victim> addVictims = new List<Domain.Entities.Victim.Victim>();
-                        List<long> victimIds = new List<long>();
+                        List<TestimonyRequest> victimTestimonies = new List<TestimonyRequest>();
                         foreach (var victim in request.Victims)
                         {
                             var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted);
                             if (checkVictimExist == null)
                             {
                                 var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);
-                                addVictims.Add(addVictim);
+                                await _victimRepository.AddAsync(addVictim);
+                                await _unitOfWork.Commit(cancellationToken);
+                                victimTestimonies.Add(new TestimonyRequest
+                                {
+                                    Id = addVictim.Id,
+                                    Testimony = victim.Testimony
+                                });
                             }
                             else
                             {
-                                victimIds.Add(checkVictimExist.Id);
-                            }
-                        }
-                        if (addVictims.Count > 0)
-                        {
-                            await _victimRepository.AddRangeAsync(addVictims);
-                            await _unitOfWork.Commit(cancellationToken);
-                            foreach (var victim in addVictims)
-                            {
-                                victimIds.Add(victim.Id);
+                                victimTestimonies.Add(new TestimonyRequest
+                                {
+                                    Id = checkVictimExist.Id,
+                                    Testimony = victim.Testimony
+                                });
                             }
                         }
                         List<Domain.Entities.CaseVictim.CaseVictim> caseVictims = new List<Domain.Entities.CaseVictim.CaseVictim>();
-                        foreach (var id in victimIds)
+                        foreach (var victimTestimony in victimTestimonies)
                         {
                             caseVictims.Add(new Domain.Entities.CaseVictim.CaseVictim
                             {
                                 CaseId = addCase.Id,
-                                VictimId = id
+                                VictimId = victimTestimony.Id,
+                                Testimony = victimTestimony.Testimony
                             });
                         }
                         await _caseVictimRepository.AddRangeAsync(caseVictims);
@@ -247,7 +254,7 @@ namespace Application.Features.Case.Command.Add
                 }
             });
 
-            return result;            
+            return result;
         }
     }
 }

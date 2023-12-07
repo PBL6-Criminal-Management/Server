@@ -30,5 +30,7 @@ namespace Application.Features.Case.Queries.GetById
         public List<UserResponse>? Investigators { get; set; }
         public List<VictimResponse>? Victims { get; set; }
         public List<WantedCriminalOfCaseResponse>? WantedCriminalResponse { get; set; }
+        public string? Description { get; set; }
+
     }
 }

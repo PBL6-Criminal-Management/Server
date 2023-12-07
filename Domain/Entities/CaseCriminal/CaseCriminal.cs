@@ -10,6 +10,8 @@ namespace Domain.Entities.CaseCriminal
         public long CriminalId { get; set; }
         [Column("case_id", TypeName = "bigint")]
         public long CaseId { get; set; }
+        [Column("testimony", TypeName = "text")]
+        public string Testimony { get; set; } = null!;
 
         //Relationship
         public virtual Domain.Entities.Case.Case Case { get; set; } = null!;
