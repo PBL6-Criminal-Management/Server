@@ -87,8 +87,8 @@ namespace Application.Features.Case.Queries.GetById
                     CitizenId = c.CitizenId,
                     PhoneNumber = c.PhoneNumber,
                     Address = c.Address,
-                    Testimony = c.Testimony,
-                    Date = c.Date
+                    Date = c.Date,
+                    Testimony = cw.Testimony
                 }).ToListAsync();
             if (witnessOfCase.Any()) response.Witnesses = witnessOfCase;
             var investigatorOFCase = await _caseInvestigatorRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
@@ -99,7 +99,7 @@ namespace Application.Features.Case.Queries.GetById
                 {
                     Id = i.Id,
                     Name = i.Name,
-                    Birthday = i.Birthday,
+                    Birthday = i.Birthday.Value.ToString("dd/MM/yyyy"),
                     Gender = i.Gender,
                     PhoneNumber = i.PhoneNumber,
                     Address = i.Address
@@ -113,11 +113,12 @@ namespace Application.Features.Case.Queries.GetById
                {
                    Id = v.Id,
                    Name = v.Name,
-                   Birthday = v.Birthday,
+                   Birthday = v.Birthday.Value.ToString("dd/MM/yyyy"),
                    Gender = v.Gender,
                    PhoneNumber = v.PhoneNumber,
                    CitizenId = v.CitizenId,
-                   Address = v.Address
+                   Address = v.Address,
+                   Testimony = cV.Testimony
                }).ToListAsync();
             if (victimOfCase.Any()) response.Victims = victimOfCase;
             var criminalOfCase = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
@@ -128,10 +129,11 @@ namespace Application.Features.Case.Queries.GetById
                {
                    Id = c.Id,
                    Name = c.Name,
-                   Birthday = c.Birthday,
+                   Birthday = c.Birthday.ToString("dd/MM/yyyy"),
                    Gender = c.Gender,
                    PhoneNumber = c.PhoneNumber,
-                   Address = c.CurrentAccommodation
+                   Address = c.CurrentAccommodation,
+                   Testimony = cCr.Testimony
                }).ToListAsync();
             if (criminalOfCase.Any()) response.Criminals = criminalOfCase;
             var imageOfCase = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();

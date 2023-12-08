@@ -19,5 +19,6 @@ namespace Application.Dtos.Requests.Victim
         public string Address { get; set; } = null!;
         public bool? Gender { get; set; }
         public DateOnly? Birthday { get; set; }
+        public string Testimony { get; set; } = null!;
     }
 }

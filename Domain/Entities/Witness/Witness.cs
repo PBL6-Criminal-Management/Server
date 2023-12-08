@@ -14,8 +14,6 @@ namespace Domain.Entities.Witness
         public string PhoneNumber { get; set; } = null!;
         [Column("address", TypeName = "nvarchar(200)")]
         public string Address { get; set; } = null!;
-        [Column("testimony", TypeName = "text")]
-        public string Testimony { get; set; } = null!;
         [Column("date", TypeName = "datetime")]
         public DateTime Date { get; set; }
 

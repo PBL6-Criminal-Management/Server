@@ -1,5 +1,7 @@
+
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Application.Dtos.Requests.Criminal;
 using Application.Dtos.Requests.Evidence;
 using Application.Dtos.Requests.Image;
 using Application.Dtos.Requests.Victim;
@@ -45,10 +47,12 @@ namespace Application.Features.Case.Command.Edit
         public string Charge { get; set; } = null!;
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
         public string Area { get; set; } = null!;
+        public string? Description { get; set; }
+
         public List<EvidenceRequest>? Evidences { get; set; }
         public List<WitnessRequest> Witnesses { get; set; } = null!;
         public List<ImageRequest>? CaseImage { get; set; }
-        public List<long>? CriminalIds { get; set; }
+        public List<CriminalRequest>? Criminals { get; set; }
         public List<long>? InvestigatorIds { get; set; }
         public List<VictimRequest>? Victims { get; set; }
         public List<WantedCriminalRequest>? WantedCriminalRequest { get; set; }
@@ -104,11 +108,11 @@ namespace Application.Features.Case.Command.Edit
                 return await Result<EditCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
             List<Domain.Entities.CaseCriminal.CaseCriminal> newCaseCriminals = new List<Domain.Entities.CaseCriminal.CaseCriminal>();
-            if (request.CriminalIds != null && request.CriminalIds.Count > 0)
+            if (request.Criminals != null && request.Criminals.Count > 0)
             {
-                foreach (var criminalId in request.CriminalIds)
+                foreach (var criminal in request.Criminals)
                 {
-                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminalId);
+                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id);
                     if (isCriminalExists == null)
                     {
                         return await Result<EditCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_CRIMINAL);
@@ -116,7 +120,8 @@ namespace Application.Features.Case.Command.Edit
                     newCaseCriminals.Add(new Domain.Entities.CaseCriminal.CaseCriminal
                     {
                         CaseId = request.Id,
-                        CriminalId = criminalId
+                        CriminalId = criminal.Id,
+                        Testimony = criminal.Testimony
                     });
                 }
             }
@@ -186,7 +191,7 @@ namespace Application.Features.Case.Command.Edit
                         }
                     }
                     var caseCriminals = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                    if (request.CriminalIds != null && request.CriminalIds.Count > 0)
+                    if (request.Criminals != null && request.Criminals.Count > 0)
                     {
                         foreach (var caseCriminal in caseCriminals)
                         {
@@ -196,6 +201,8 @@ namespace Application.Features.Case.Command.Edit
                                 if (newCaseCriminal.CriminalId == caseCriminal.CriminalId)
                                 {
                                     check = true;
+                                    caseCriminal.Testimony = newCaseCriminal.Testimony;
+                                    await _caseCriminalRepository.UpdateAsync(caseCriminal);
                                     newCaseCriminals.Remove(newCaseCriminal);
                                     break;
                                 }
@@ -239,7 +246,7 @@ namespace Application.Features.Case.Command.Edit
                         }
                         if (newCaseInvestigators.Count > 0)
                         {
-                            await _caseInvestigatorRepository.AddRangeAsync(caseInvestigators);
+                            await _caseInvestigatorRepository.AddRangeAsync(newCaseInvestigators);
                         }
                     }
                     else
@@ -266,7 +273,8 @@ namespace Application.Features.Case.Command.Edit
                                     await _caseWitnessRepository.AddAsync(new Domain.Entities.CaseWitness.CaseWitness
                                     {
                                         CaseId = request.Id,
-                                        WitnessId = addWitness.Id
+                                        WitnessId = addWitness.Id,
+                                        Testimony = witness.Testimony
                                     });
                                 }
                                 else
@@ -274,7 +282,8 @@ namespace Application.Features.Case.Command.Edit
                                     await _caseWitnessRepository.AddAsync(new Domain.Entities.CaseWitness.CaseWitness
                                     {
                                         CaseId = request.Id,
-                                        WitnessId = checkCitizenIdExist.Id
+                                        WitnessId = checkCitizenIdExist.Id,
+                                        Testimony = witness.Testimony
                                     });
                                 }
                             }
@@ -286,6 +295,8 @@ namespace Application.Features.Case.Command.Edit
                                     if (caseWitness.WitnessId == checkWitnessExist.Id)
                                     {
                                         check = true;
+                                        caseWitness.Testimony = witness.Testimony;
+                                        await _caseWitnessRepository.UpdateAsync(caseWitness);
                                         _mapper.Map(witness, checkWitnessExist);
                                         await _witnessRepository.UpdateAsync(checkWitnessExist);
                                         caseWitnesses.Remove(caseWitness);
@@ -297,7 +308,8 @@ namespace Application.Features.Case.Command.Edit
                                     await _caseWitnessRepository.AddAsync(new Domain.Entities.CaseWitness.CaseWitness
                                     {
                                         CaseId = request.Id,
-                                        WitnessId = checkWitnessExist.Id
+                                        WitnessId = checkWitnessExist.Id,
+                                        Testimony = witness.Testimony
                                     });
                                 }
                             }
@@ -331,7 +343,8 @@ namespace Application.Features.Case.Command.Edit
                                     await _caseVictimRepository.AddAsync(new Domain.Entities.CaseVictim.CaseVictim
                                     {
                                         CaseId = request.Id,
-                                        VictimId = addVictim.Id
+                                        VictimId = addVictim.Id,
+                                        Testimony = victim.Testimony
                                     });
                                 }
                                 else
@@ -339,7 +352,8 @@ namespace Application.Features.Case.Command.Edit
                                     await _caseVictimRepository.AddAsync(new Domain.Entities.CaseVictim.CaseVictim
                                     {
                                         CaseId = request.Id,
-                                        VictimId = checkCitizenIdExist.Id
+                                        VictimId = checkCitizenIdExist.Id,
+                                        Testimony = victim.Testimony
                                     });
                                 }
                             }
@@ -351,6 +365,8 @@ namespace Application.Features.Case.Command.Edit
                                     if (caseVictim.VictimId == checkVictimExist.Id)
                                     {
                                         check = true;
+                                        caseVictim.Testimony = victim.Testimony;
+                                        await _caseVictimRepository.UpdateAsync(caseVictim);
                                         _mapper.Map(victim, checkVictimExist);
                                         await _victimRepository.UpdateAsync(checkVictimExist);
                                         caseVictims.Remove(caseVictim);
@@ -362,7 +378,8 @@ namespace Application.Features.Case.Command.Edit
                                     await _caseVictimRepository.AddAsync(new Domain.Entities.CaseVictim.CaseVictim
                                     {
                                         CaseId = request.Id,
-                                        VictimId = checkVictimExist.Id
+                                        VictimId = checkVictimExist.Id,
+                                        Testimony = victim.Testimony
                                     });
                                 }
                             }
@@ -381,7 +398,7 @@ namespace Application.Features.Case.Command.Edit
                     }
 
                     var listWantedCriminalOfCase = _wantedCriminalRepository.Entities.Where(w => w.CaseId == editCase.Id).ToList();
-                    if(listWantedCriminalOfCase != null && listWantedCriminalOfCase.Count() > 0)
+                    if (listWantedCriminalOfCase != null && listWantedCriminalOfCase.Count() > 0)
                         await _wantedCriminalRepository.RemoveRangeAsync(listWantedCriminalOfCase);
 
                     if (request.WantedCriminalRequest != null && request.WantedCriminalRequest.Count > 0)
@@ -435,7 +452,7 @@ namespace Application.Features.Case.Command.Edit
                 }
             });
 
-            return result;            
+            return result;
         }
     }
 }
