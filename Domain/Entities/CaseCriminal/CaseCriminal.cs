@@ -1,4 +1,5 @@
-﻿using Domain.Contracts;
+﻿using Domain.Constants.Enum;
+using Domain.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.CaseCriminal
@@ -12,7 +13,14 @@ namespace Domain.Entities.CaseCriminal
         public long CaseId { get; set; }
         [Column("testimony", TypeName = "text")]
         public string Testimony { get; set; } = null!;
-
+        [Column("charge", TypeName = "nvarchar(100)")]
+        public string Charge { get; set; } = null!;
+        [Column("reason", TypeName = "nvarchar(500)")]
+        public string? Reason { get; set; }
+        [Column("weapon", TypeName = "nvarchar(100)")]
+        public string? Weapon { get; set; }
+        [Column("type_of_violation", TypeName = "smallint")]
+        public TypeOfViolation TypeOfViolation { get; set; }
         //Relationship
         public virtual Domain.Entities.Case.Case Case { get; set; } = null!;
         public virtual Domain.Entities.Criminal.Criminal Criminal { get; set; } = null!;

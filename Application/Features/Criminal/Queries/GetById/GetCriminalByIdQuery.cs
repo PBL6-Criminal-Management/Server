@@ -119,26 +119,36 @@ namespace Application.Features.Criminal.Queries.GetById
 
             List<long> listCaseIds = new List<long>();
 
-            if(casesOfCriminal != null)
+            if (casesOfCriminal != null)
             {
                 foreach (var _case in casesOfCriminal)
                 {
                     listCaseIds.Add(_case.Id);
 
-                    query.WantedCriminals = query.WantedCriminals.Select(criminal =>
+                    foreach (var wantedCriminal in query.WantedCriminals)
                     {
-                        if (criminal.CaseId == _case.Id)
+                        if (wantedCriminal.CaseId == _case.Id)
                         {
-                            criminal.Charge = _case.Charge;
+                            var caseCriminal = await _caseCriminalRepository.FindAsync(_ => _.CaseId == _case.Id && _.CriminalId == request.Id && !_.IsDeleted);
+                            wantedCriminal.Weapon = caseCriminal == null || String.IsNullOrEmpty(caseCriminal.Weapon) ? "" : caseCriminal.Weapon;
+                            wantedCriminal.Charge = caseCriminal == null || String.IsNullOrEmpty(caseCriminal.Weapon) ? "" : caseCriminal.Weapon;
                         }
 
-                        return criminal;
-                    }).ToList();
+                    }
                 }
                 query.RelatedCases = string.Join(", ", listCaseIds);
-                query.Charge = casesOfCriminal.OrderByDescending(c => c.StartDate).FirstOrDefault()?.Charge;
+                // query.Charge
+                var caseIdLast = casesOfCriminal.OrderByDescending(c => c.StartDate).FirstOrDefault()?.Id;
+                if (caseIdLast == null)
+                {
+                    query.Charge = "";
+                }
+                else
+                {
+                    var chargeOfCase = await _caseCriminalRepository.FindAsync(_ => _.CaseId == caseIdLast && _.CriminalId == request.Id && !_.IsDeleted);
+                    query.Charge = chargeOfCase == null || String.IsNullOrEmpty(chargeOfCase.Charge) ? "" : chargeOfCase.Charge;
+                }
             }
-
             return await Result<GetCriminalByIdResponse>.SuccessAsync(query);
         }
     }

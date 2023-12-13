@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Application.Dtos.Requests.Image;
 using Domain.Constants;
 
 namespace Application.Dtos.Requests.Evidence
@@ -10,5 +11,7 @@ namespace Application.Dtos.Requests.Evidence
         public string Name { get; set; } = null!;
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_DESCRIPTION)]
         public string? Description { get; set; }
+        public List<ImageRequest>? EvidenceImages { get; set; }
+
     }
 }

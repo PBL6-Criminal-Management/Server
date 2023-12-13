@@ -76,6 +76,19 @@ namespace Application.Features.Case.Queries.GetById
             var response = _mapper.Map<GetCaseByIdResponse>(caseCheck);
             var evidenceOfCase = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
             if (evidenceOfCase.Any()) response.Evidences = _mapper.Map<List<Dtos.Responses.Evidence.EvidenceResponse>>(evidenceOfCase).ToList();
+            if (response.Evidences != null && response.Evidences.Count > 0)
+            {
+                foreach (var evidence in response.Evidences)
+                {
+                    var imageOfEvidence = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && _.EvidenceId == evidence.Id && !_.IsDeleted).ToListAsync();
+                    evidence.EvidenceImages = imageOfEvidence.Select(i => new FileResponse
+                    {
+                        FileName = i.FileName,
+                        FilePath = i.FilePath,
+                        FileUrl = _uploadService.GetFullUrl(i.FilePath)
+                    }).ToList();
+                }
+            }
             var witnessOfCase = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id)
             .Join(_witnessRepository.Entities,
                 cW => cW.WitnessId,
@@ -99,7 +112,7 @@ namespace Application.Features.Case.Queries.GetById
                 {
                     Id = i.Id,
                     Name = i.Name,
-                    Birthday = i.Birthday.Value.ToString("dd/MM/yyyy"),
+                    Birthday = i.Birthday,
                     Gender = i.Gender,
                     PhoneNumber = i.PhoneNumber,
                     Address = i.Address
@@ -113,7 +126,7 @@ namespace Application.Features.Case.Queries.GetById
                {
                    Id = v.Id,
                    Name = v.Name,
-                   Birthday = v.Birthday.Value.ToString("dd/MM/yyyy"),
+                   Birthday = v.Birthday,
                    Gender = v.Gender,
                    PhoneNumber = v.PhoneNumber,
                    CitizenId = v.CitizenId,
@@ -129,20 +142,32 @@ namespace Application.Features.Case.Queries.GetById
                {
                    Id = c.Id,
                    Name = c.Name,
-                   Birthday = c.Birthday.ToString("dd/MM/yyyy"),
+                   Birthday = c.Birthday,
                    Gender = c.Gender,
                    PhoneNumber = c.PhoneNumber,
                    Address = c.CurrentAccommodation,
-                   Testimony = cCr.Testimony
+                   Testimony = cCr.Testimony,
+                   Charge = cCr.Charge,
+                   Reason = cCr.Reason,
+                   Weapon = cCr.Weapon,
+                   TypeOfViolation = cCr.TypeOfViolation
                }).ToListAsync();
             if (criminalOfCase.Any()) response.Criminals = criminalOfCase;
             var imageOfCase = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-            response.CaseImages = imageOfCase.Select(i => new FileResponse
+            List<FileResponse> caseImages = new List<FileResponse>();
+            foreach (var image in imageOfCase)
             {
-                FileName = i.FileName,
-                FilePath = i.FilePath,
-                FileUrl = _uploadService.GetFullUrl(i.FilePath)
-            }).ToList();
+                if (image.EvidenceId != null)
+                {
+                    caseImages.Add(new FileResponse
+                    {
+                        FileName = image.FileName,
+                        FilePath = image.FilePath,
+                        FileUrl = _uploadService.GetFullUrl(image.FilePath)
+                    });
+                }
+            }
+            response.CaseImages = caseImages;
 
             var wantedCriminals = await _caseRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted)
            .Join(_wantedCriminalRepository.Entities,
@@ -156,7 +181,13 @@ namespace Application.Features.Case.Queries.GetById
                   WantedDecisionNo = w.WantedDecisionNo,
                   WantedDecisionDay = w.WantedDecisionDay,
                   DecisionMakingUnit = w.DecisionMakingUnit,
-              }).ToListAsync();
+              })
+            .ToListAsync();
+            foreach (var wantedCriminal in wantedCriminals)
+            {
+                var caseCriminal = await _caseCriminalRepository.FindAsync(_ => _.CaseId == request.Id && _.CriminalId == wantedCriminal.CriminalId && !_.IsDeleted);
+                wantedCriminal.Weapon = caseCriminal == null || String.IsNullOrEmpty(caseCriminal.Weapon) ? "" : caseCriminal.Weapon;
+            }
             if (wantedCriminals.Any()) response.WantedCriminalResponse = wantedCriminals;
 
             return await Result<GetCaseByIdResponse>.SuccessAsync(response);

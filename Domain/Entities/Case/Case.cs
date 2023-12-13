@@ -9,8 +9,6 @@ namespace Domain.Entities.Case
     {
         [Column("reason", TypeName = "nvarchar(500)")]
         public string? Reason { get; set; }
-        [Column("murder_weapon", TypeName = "nvarchar(100)")]
-        public string? MurderWeapon { get; set; }
         [Column("start_date", TypeName = "datetime")]
         public DateTime StartDate { get; set; }
         [Column("end_date", TypeName = "datetime")]

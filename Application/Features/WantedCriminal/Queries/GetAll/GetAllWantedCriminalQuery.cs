@@ -1,6 +1,7 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Case;
+using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.WantedCriminal;
 using Domain.Helpers;
@@ -26,18 +27,21 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
         private readonly IWantedCriminalRepository _wantedCriminalRepository;
         private readonly ICaseRepository _caseRepository;
         private readonly IUploadService _uploadService;
+        private readonly ICaseCriminalRepository _caseCriminalRepository;
 
         public GetAllWantedCriminalHandler(
-            ICriminalRepository criminalRepository, 
+            ICriminalRepository criminalRepository,
             IWantedCriminalRepository wantedCriminalRepository,
             ICaseRepository caseRepository,
-            IUploadService uploadService
+            IUploadService uploadService,
+            ICaseCriminalRepository caseCriminalRepository
         )
         {
             _criminalRepository = criminalRepository;
             _wantedCriminalRepository = wantedCriminalRepository;
             _caseRepository = caseRepository;
             _uploadService = uploadService;
+            _caseCriminalRepository = caseCriminalRepository;
         }
         public async Task<PaginatedResult<GetAllWantedCriminalResponse>> Handle(GetAllWantedCriminalQuery request, CancellationToken cancellationToken)
         {
@@ -45,32 +49,34 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                 request.Keyword = request.Keyword.Trim();
 
             var wantedOfCriminals = from wantedCriminal in _wantedCriminalRepository.Entities
-                                  where !wantedCriminal.IsDeleted
-                                  group wantedCriminal by wantedCriminal.CriminalId into g
-                                   select new
-                                  {
-                                      CriminalId = g.Key,
-                                      g.OrderByDescending(c => c.WantedDecisionDay).FirstOrDefault()!.WantedType,
-                                      g.OrderByDescending(c => c.WantedDecisionDay).FirstOrDefault()!.DecisionMakingUnit,
-                                      g.OrderByDescending(c => c.WantedDecisionDay).FirstOrDefault()!.CaseId,
-                                   };
+                                    where !wantedCriminal.IsDeleted
+                                    group wantedCriminal by wantedCriminal.CriminalId into g
+                                    select new
+                                    {
+                                        CriminalId = g.Key,
+                                        g.OrderByDescending(c => c.WantedDecisionDay).FirstOrDefault()!.WantedType,
+                                        g.OrderByDescending(c => c.WantedDecisionDay).FirstOrDefault()!.DecisionMakingUnit,
+                                        g.OrderByDescending(c => c.WantedDecisionDay).FirstOrDefault()!.CaseId,
+                                    };
 
             var wantedAndCaseOfCriminals = from wantedCriminal in wantedOfCriminals
-                                  join _case in _caseRepository.Entities on wantedCriminal.CaseId equals _case.Id
-                                  where !_case.IsDeleted
-                                  select new
-                                  {
-                                      wantedCriminal.CriminalId,
-                                      wantedCriminal.WantedType,
-                                      wantedCriminal.DecisionMakingUnit,
-                                      _case.Charge,
-                                      _case.MurderWeapon
-                                  };
+                                           join _case in _caseRepository.Entities on wantedCriminal.CaseId equals _case.Id
+                                           join caseCriminal in _caseCriminalRepository.Entities on new { wantedCriminal.CaseId, wantedCriminal.CriminalId } equals
+                                           new { caseCriminal.CaseId, caseCriminal.CriminalId }
+                                           where !_case.IsDeleted
+                                           select new
+                                           {
+                                               wantedCriminal.CriminalId,
+                                               wantedCriminal.WantedType,
+                                               wantedCriminal.DecisionMakingUnit,
+                                               _case.Charge,
+                                               caseCriminal.Weapon
+                                           };
 
             var query = _criminalRepository.Entities
                             .Include(c => c.CriminalImages)
                             .AsEnumerable()
-                            .Join(wantedAndCaseOfCriminals, 
+                            .Join(wantedAndCaseOfCriminals,
                                   criminal => criminal.Id,
                                   wantedAndCaseOfCriminal => wantedAndCaseOfCriminal.CriminalId,
                                   (criminal, wantedAndCaseOfCriminal) => new { criminal, wantedAndCaseOfCriminal })
@@ -80,7 +86,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                                                 || o.criminal.Birthday.Year.ToString().StartsWith(request.Keyword)
                                                                 || StringHelper.Contains(o.wantedAndCaseOfCriminal.Charge, request.Keyword)
                                                                 || StringHelper.Contains(o.criminal.Characteristics, request.Keyword)
-                                                                || StringHelper.Contains(o.wantedAndCaseOfCriminal.MurderWeapon, request.Keyword)
+                                                                || StringHelper.Contains(o.wantedAndCaseOfCriminal.Weapon, request.Keyword)
                                                                 || StringHelper.Contains(o.wantedAndCaseOfCriminal.WantedType.ToDescriptionString(), request.Keyword)
                                                                 )
                                     && (string.IsNullOrWhiteSpace(request.Name) || StringHelper.Contains(o.criminal.Name, request.Name))
@@ -88,7 +94,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                     && (string.IsNullOrWhiteSpace(request.Characteristics) || StringHelper.Contains(o.criminal.Characteristics, request.Characteristics))
                                     && (string.IsNullOrWhiteSpace(request.DecisionMakingUnit) || StringHelper.Contains(o.wantedAndCaseOfCriminal.DecisionMakingUnit, request.DecisionMakingUnit))
                                     && (string.IsNullOrWhiteSpace(request.PermanentResidence) || StringHelper.Contains(o.criminal.PermanentResidence, request.PermanentResidence))
-                                    && (string.IsNullOrWhiteSpace(request.MurderWeapon) || StringHelper.Contains(o.wantedAndCaseOfCriminal.MurderWeapon, request.MurderWeapon))
+                                    && (string.IsNullOrWhiteSpace(request.MurderWeapon) || StringHelper.Contains(o.wantedAndCaseOfCriminal.Weapon, request.MurderWeapon))
                                     && (!request.WantedType.HasValue || o.wantedAndCaseOfCriminal.WantedType == request.WantedType)
                                     && (!request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)
                             )
@@ -103,7 +109,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                 Charge = o.wantedAndCaseOfCriminal.Charge,
                                 WantedType = o.wantedAndCaseOfCriminal.WantedType,
                                 Avatar = _uploadService.GetFullUrl(_uploadService.IsFileExists(o.criminal.CriminalImages?.FirstOrDefault()?.FilePath) ? o.criminal.CriminalImages!.FirstOrDefault()!.FilePath : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
-                                MurderWeapon = o.wantedAndCaseOfCriminal.MurderWeapon,
+                                MurderWeapon = o.wantedAndCaseOfCriminal.Weapon,
                                 CreatedAt = o.criminal.CreatedAt,
                             });
 

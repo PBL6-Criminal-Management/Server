@@ -7,6 +7,7 @@ namespace Application.Dtos.Requests.WantedCriminal
 {
     public class WantedCriminalRequest
     {
+        public long Id { get; set; }
         public long CriminalId { get; set; }
         public WantedType WantedType { get; set; }
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CURRENT_ACTIVITY)]

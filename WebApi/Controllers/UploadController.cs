@@ -23,7 +23,6 @@ namespace WebApi.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize]
         [RequestSizeLimit(30 * 1024 * 1024)] //50MB Max upload request
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadFile([FromForm] UploadRequest request)
@@ -47,7 +46,6 @@ namespace WebApi.Controllers
         /// <param name="filePath"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Authorize]
         public async Task<IActionResult> DeleteFile([FromForm] string filePath)
         {
             var result = await _uploadService.DeleteAsync(filePath);

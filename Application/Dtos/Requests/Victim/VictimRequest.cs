@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Domain.Constants;
 
 namespace Application.Dtos.Requests.Victim
@@ -18,6 +19,7 @@ namespace Application.Dtos.Requests.Victim
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
         public string Address { get; set; } = null!;
         public bool? Gender { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         public string Testimony { get; set; } = null!;
     }
