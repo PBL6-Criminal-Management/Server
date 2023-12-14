@@ -19,7 +19,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
         public string? Characteristics { get; set; }
         public string? DecisionMakingUnit { get; set; }
         public string? PermanentResidence { get; set; }
-        public string? MurderWeapon { get; set; }
+        public string? Weapon { get; set; }
     }
     internal class GetAllWantedCriminalHandler : IRequestHandler<GetAllWantedCriminalQuery, PaginatedResult<GetAllWantedCriminalResponse>>
     {
@@ -60,16 +60,14 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                     };
 
             var wantedAndCaseOfCriminals = from wantedCriminal in wantedOfCriminals
-                                           join _case in _caseRepository.Entities on wantedCriminal.CaseId equals _case.Id
-                                           join caseCriminal in _caseCriminalRepository.Entities on new { wantedCriminal.CaseId, wantedCriminal.CriminalId } equals
-                                           new { caseCriminal.CaseId, caseCriminal.CriminalId }
-                                           where !_case.IsDeleted
+                                           join caseCriminal in _caseCriminalRepository.Entities on new { wantedCriminal.CriminalId, wantedCriminal.CaseId } equals new { caseCriminal.CriminalId, caseCriminal.CaseId }
+                                           where !caseCriminal.IsDeleted
                                            select new
                                            {
                                                wantedCriminal.CriminalId,
                                                wantedCriminal.WantedType,
                                                wantedCriminal.DecisionMakingUnit,
-                                               _case.Charge,
+                                               caseCriminal.Charge,
                                                caseCriminal.Weapon
                                            };
 
@@ -94,7 +92,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                     && (string.IsNullOrWhiteSpace(request.Characteristics) || StringHelper.Contains(o.criminal.Characteristics, request.Characteristics))
                                     && (string.IsNullOrWhiteSpace(request.DecisionMakingUnit) || StringHelper.Contains(o.wantedAndCaseOfCriminal.DecisionMakingUnit, request.DecisionMakingUnit))
                                     && (string.IsNullOrWhiteSpace(request.PermanentResidence) || StringHelper.Contains(o.criminal.PermanentResidence, request.PermanentResidence))
-                                    && (string.IsNullOrWhiteSpace(request.MurderWeapon) || StringHelper.Contains(o.wantedAndCaseOfCriminal.Weapon, request.MurderWeapon))
+                                    && (string.IsNullOrWhiteSpace(request.Weapon) || StringHelper.Contains(o.wantedAndCaseOfCriminal.Weapon, request.Weapon))
                                     && (!request.WantedType.HasValue || o.wantedAndCaseOfCriminal.WantedType == request.WantedType)
                                     && (!request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)
                             )
@@ -109,7 +107,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
                                 Charge = o.wantedAndCaseOfCriminal.Charge,
                                 WantedType = o.wantedAndCaseOfCriminal.WantedType,
                                 Avatar = _uploadService.GetFullUrl(_uploadService.IsFileExists(o.criminal.CriminalImages?.FirstOrDefault()?.FilePath) ? o.criminal.CriminalImages!.FirstOrDefault()!.FilePath : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
-                                MurderWeapon = o.wantedAndCaseOfCriminal.Weapon,
+                                Weapon = o.wantedAndCaseOfCriminal.Weapon,
                                 CreatedAt = o.criminal.CreatedAt,
                             });
 

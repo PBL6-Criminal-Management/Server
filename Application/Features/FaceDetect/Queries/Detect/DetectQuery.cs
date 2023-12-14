@@ -10,6 +10,7 @@ using Application.Interfaces.WantedCriminal;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Wrappers;
+using ImageMagick;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -57,7 +58,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
 
         public async Task<Result<DetectResponse>> Handle(DetectQuery request, CancellationToken cancellationToken)
         {
-            var isFileImage = _checkFileType.CheckFileIsImage(request.CriminalImage);
+            var isFileImage = _checkFileType.CheckFileIsImage(request.CriminalImage);                
 
             if (isFileImage != "")
                 return await Result<DetectResponse>.FailAsync(isFileImage);
@@ -66,6 +67,24 @@ namespace Application.Features.FaceDetect.Queries.Detect
 
             if (isValidFileSize != "")
                 return await Result<DetectResponse>.FailAsync(isValidFileSize);
+
+            var stream = request.CriminalImage.OpenReadStream();
+
+            //Compress image to not be overflow free server's memory
+            if (stream.Length >= StaticVariable.MAX_IMAGE_SIZE_FOR_FREE_AISERVER)
+            {
+                var magicImage = new MagickImage(stream);
+                var width = magicImage.Width;
+                do
+                {
+                    width -= 300;
+                    var byteArr = ResizeImage(magicImage, width);
+                    if (byteArr == null)
+                        break;
+
+                    stream = new MemoryStream(byteArr);
+                } while (stream.Length >= StaticVariable.MAX_IMAGE_SIZE_FOR_FREE_AISERVER);
+            }
 
             DetectResult? detectResult = null;
 
@@ -77,7 +96,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
                     using (MultipartFormDataContent content = new MultipartFormDataContent())
                     {
                         // Add the image file to the request
-                        content.Add(new StreamContent(request.CriminalImage.OpenReadStream()), "CriminalImage", "image.jpg");
+                        content.Add(new StreamContent(stream), "CriminalImage", "image.jpg");
                         HttpResponseMessage response = await client.PostAsync(StaticVariable.AI_SERVER_BASE_URL + "/detect", content);
 
                         // Read and deserialize the JSON content
@@ -123,6 +142,15 @@ namespace Application.Features.FaceDetect.Queries.Detect
                     FoundCriminal = null
                 });
 
+            var caseOfCriminal = (from caseCriminal in _caseCriminalRepository.Entities
+                                  join _case in _caseRepository.Entities on caseCriminal.CaseId equals _case.Id
+                                  where !_case.IsDeleted && !caseCriminal.IsDeleted && caseCriminal.CriminalId == criminal.Id
+                                  group _case by caseCriminal.CriminalId into g
+                                  select new
+                                  {
+                                      DateOfMostRecentCrime = DateOnly.FromDateTime(g.Max(c => c.StartDate))
+                                  }).FirstOrDefault();
+
             var query = new DetectResponse()
             {
                 CanPredict = true,
@@ -150,7 +178,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
                     Characteristics = criminal.Characteristics,
                     Status = criminal.Status,
                     DangerousLevel = criminal.DangerousLevel,
-                    DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
+                    DateOfMostRecentCrime = caseOfCriminal?.DateOfMostRecentCrime,
                     ReleaseDate = criminal.ReleaseDate,
                     EntryAndExitInformation = criminal.EntryAndExitInformation,
                     BankAccount = criminal.BankAccount,
@@ -216,5 +244,18 @@ namespace Application.Features.FaceDetect.Queries.Detect
 
             return await Result<DetectResponse>.SuccessAsync(query);
         }
+
+        byte[]? ResizeImage(MagickImage image, int width)
+        {
+            if (width > 0)
+            {
+                var size = new MagickGeometry(width, 0);
+                image.Resize(size);
+
+                return image.ToByteArray();
+            }
+            else
+                return null;
+        }     
     }
 }

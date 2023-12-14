@@ -89,7 +89,9 @@ namespace Application.Features.Account.Command.Add
 
             string[] wordsInName = StringHelper.ConvertFromVietnameseText(request.Name).Split(' ');
 
-            request.Username = wordsInName.Last() + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => char.ToUpper(w[0])));
+            var firstWord = char.ToUpper(wordsInName.Last()[0]) + wordsInName.Last().ToLower().Substring(1, wordsInName.Length-1);
+
+            request.Username = firstWord + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => char.ToUpper(w[0])));
             long count = 2; string name = request.Username;
             while (true)
             {

@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Application.Dtos.Requests.Criminal;
@@ -33,10 +32,6 @@ namespace Application.Features.Case.Command.Edit
     public class EditCaseCommand : IRequest<Result<EditCaseCommand>>
     {
         public long Id { get; set; }
-        [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_REASON)]
-        public string? Reason { get; set; }
-        [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_MURDER_WEAPON)]
-        public string? MurderWeapon { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]

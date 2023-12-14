@@ -71,8 +71,6 @@ namespace Domain.Entities.Criminal
         public string? ApproachArrange { get; set; }
         [Column("avatar", TypeName = "varchar(500)")]
         public string? Avatar { get; set; }
-        [Column("date_of_most_recent_crime", TypeName = "date")]
-        public DateOnly DateOfMostRecentCrime { get; set; }
         [Column("release_date", TypeName = "date")]
         public DateOnly? ReleaseDate { get; set; }
         [Column("status", TypeName = "smallint")]

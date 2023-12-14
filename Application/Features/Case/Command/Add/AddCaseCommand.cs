@@ -31,17 +31,17 @@ namespace Application.Features.Case.Command.Add
 {
     public class AddCaseCommand : IRequest<Result<AddCaseCommand>>
     {
-        [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_REASON)]
-        public string? Reason { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime? EndDate { get; set; }
+        public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
-        [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
-        public string Area { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
         public string Charge { get; set; } = null!;
+        [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
+        public string Area { get; set; } = null!;
+        public string? Description { get; set; }
         public List<EvidenceRequest>? Evidences { get; set; }
         public List<WitnessRequest> Witnesses { get; set; } = null!;
         public List<ImageRequest>? CaseImage { get; set; }
@@ -49,7 +49,6 @@ namespace Application.Features.Case.Command.Add
         public List<long>? InvestigatorIds { get; set; }
         public List<VictimRequest>? Victims { get; set; }
         public List<WantedCriminalRequest>? WantedCriminalRequest { get; set; }
-        public string? Description { get; set; }
     }
     internal class AddCaseCommandHandler : IRequestHandler<AddCaseCommand, Result<AddCaseCommand>>
     {

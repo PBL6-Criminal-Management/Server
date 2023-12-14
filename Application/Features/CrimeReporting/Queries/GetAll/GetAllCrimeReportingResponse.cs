@@ -5,6 +5,7 @@ namespace Application.Features.CrimeReporting.Queries.GetAll
     public class GetAllCrimeReportingResponse
     {
         public long Id { get; set; }
+        public string Code { get; set; } = null!;
         public string ReporterName { get; set; } = null!;
         public string? ReporterEmail { get; set; }
         public string ReporterPhone { get; set; } = null!;

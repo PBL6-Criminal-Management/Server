@@ -1,8 +1,8 @@
 using Application.Interfaces.CrimeReporting;
+using Domain.Constants;
 using Domain.Helpers;
 using Domain.Wrappers;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 
 namespace Application.Features.CrimeReporting.Queries.GetAll
@@ -28,6 +28,7 @@ namespace Application.Features.CrimeReporting.Queries.GetAll
                         .Select(cR => new GetAllCrimeReportingResponse
                         {
                             Id = cR.Id,
+                            Code = StaticVariable.REPORTING + cR.Id.ToString().PadLeft(5, '0'),
                             ReporterName = cR.ReporterName,
                             ReporterPhone = cR.ReporterPhone,
                             ReporterAddress = cR.ReporterAddress,

@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
+using Domain.Constants;
 using Domain.Helpers;
 using Domain.Wrappers;
 using MediatR;
@@ -37,7 +38,6 @@ namespace Application.Features.Case.Queries.GetAll
                         (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(c.Charge, request.Keyword)
                                                                 || StringHelper.Contains(c.CrimeScene, request.Keyword)
                                                                 || StringHelper.Contains(c.TypeOfViolation.ToDescriptionString(), request.Keyword)
-                                                                || StringHelper.Contains(c.Reason, request.Keyword)
                                                                 || (_dateTimeService.ConvertToUtc(c.StartDate) + " - " + (c.EndDate.HasValue ? _dateTimeService.ConvertToUtc(c.EndDate.Value) : "")).Contains(request.Keyword)
                                                                 ) &&
                         (!request.Status.HasValue || c.Status == request.Status) &&
@@ -47,9 +47,9 @@ namespace Application.Features.Case.Queries.GetAll
                         .Select(c => new GetAllCaseResponse
                         {
                             Id = c.Id,
+                            Code = StaticVariable.CASE + c.Id.ToString().PadLeft(5, '0'),
                             Charge = c.Charge,
                             TimeTakesPlace = _dateTimeService.ConvertToUtc(c.StartDate) + " - " + (c.EndDate.HasValue ? _dateTimeService.ConvertToUtc(c.EndDate.Value) : ""),
-                            Reason = c.Reason,
                             TypeOfViolation = c.TypeOfViolation,
                             Status = c.Status,
                             Area = c.CrimeScene,
@@ -59,7 +59,7 @@ namespace Application.Features.Case.Queries.GetAll
                                                     cr => cr.Id,
                                                     (cCr, cr) => new GetAllCaseResponse.CriminalId
                                                     {
-                                                        Id = cCr.Id,
+                                                        Id = cCr.CriminalId,
                                                         Name = cr.Name
                                                     })
                                                 .ToList(),
@@ -69,7 +69,7 @@ namespace Application.Features.Case.Queries.GetAll
             if (request.TimeTakesPlace.HasValue)
             {
                 var dateCheck = request.TimeTakesPlace.Value.ToString("dd/MM/yyyy HH:mm:ss");
-                for (int i = 0; i < query.Count; i++)
+                for (int i = 0; i < query.Count(); i++)
                 {
                     var c = query[i];
 
