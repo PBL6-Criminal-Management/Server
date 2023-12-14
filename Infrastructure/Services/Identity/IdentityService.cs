@@ -6,6 +6,7 @@ using Application.Dtos.Requests.Identity;
 using Application.Dtos.Responses.Identity;
 using Application.Interfaces;
 using Application.Interfaces.Services.Identity;
+using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Entities;
 using Domain.Wrappers;
@@ -36,13 +37,20 @@ namespace Infrastructure.Services.Identity
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
-                return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_CORRECT);
             }
+
             var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!passwordValid)
             {
-                return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_CORRECT);
             }
+
+            if(user.IsDeleted)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_EXIST);
+
+            if (!user.IsActive)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_ACTIVE);
 
             var token = await GenerateJwtAsync(user);
 
@@ -74,16 +82,23 @@ namespace Infrastructure.Services.Identity
         public async Task<Result<TokenResponse>> GetRefreshTokenAsync(RefreshTokenRequest model)
         {
             if (model is null)
-            {
-                return await Result<TokenResponse>.FailAsync("Token không hợp lệ");
-            }
+                return await Result<TokenResponse>.FailAsync(StaticVariable.INVALID_TOKEN);
+
             var userPrincipal = GetPrincipalFromExpiredToken(model.Token);
             var userEmail = userPrincipal.FindFirstValue(ClaimTypes.Email);
+            if(userEmail == null)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.INVALID_TOKEN);
+
             var user = await _userManager.FindByEmailAsync(userEmail);
-            if (user == null)
-                return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
+            if (user == null || user.IsDeleted)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_EXIST);
+
+            if (!user.IsActive)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_ACTIVE);
+
             if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                return await Result<TokenResponse>.FailAsync("RefreshToken không hợp lệ hoặc đã hết hạn");
+                return await Result<TokenResponse>.FailAsync(StaticVariable.INVALID_REFRESH_TOKEN);
+
             var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
             user.RefreshToken = GenerateRefreshToken();
             user.TokenExpiryTime = tokenExpireTime;
@@ -174,7 +189,7 @@ namespace Infrastructure.Services.Identity
             if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
                     StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new SecurityTokenException("Invalid token");
+                throw new SecurityTokenException(StaticVariable.INVALID_TOKEN);
             }
 
             return principal;

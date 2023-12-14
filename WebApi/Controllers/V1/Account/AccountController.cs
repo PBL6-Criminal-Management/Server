@@ -7,6 +7,8 @@ using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Features.Account.Command.Edit;
+using Application.Dtos.Requests.Identity;
+using Application.Features.Account.Command.ResetPassword;
 
 namespace WebApi.Controllers.V1.Account
 {
@@ -87,6 +89,19 @@ namespace WebApi.Controllers.V1.Account
         public async Task<IActionResult> EditAcount(EditAccountCommand command)
         {
             var result = await Mediator.Send(command);
+            return (result.Succeeded) ? Ok(result) : BadRequest(result);
+        }
+
+
+        /// <summary>
+        /// Reset password by Admin
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordCommand request)
+        {
+            var result = await Mediator.Send(request);
             return (result.Succeeded) ? Ok(result) : BadRequest(result);
         }
     }

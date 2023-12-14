@@ -14,7 +14,7 @@ namespace Application.Features.WantedCriminal.Queries.GetAll
         public string Charge { get; set; } = null!;
         public WantedType WantedType { get; set; }
         public string Avatar { get; set; } = null!;
-        public string? MurderWeapon { get; set; }
+        public string? Weapon { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime CreatedAt { get; set; }
     }

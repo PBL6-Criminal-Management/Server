@@ -82,8 +82,6 @@ namespace Application.Features.Criminal.Command.Edit
         public string? DangerousLevel { get; set; }
         public string? ApproachArrange { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
-        public DateOnly DateOfMostRecentCrime { get; set; }
-        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? ReleaseDate { get; set; }
         public CriminalStatus Status { get; set; }
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_OTHER_INFORMATION)]

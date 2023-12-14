@@ -37,11 +37,6 @@ namespace Application.Features.Account.Command.Add
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_USERNAME)]
         public string? Username { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PASSWORD)]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = StaticVariable.LIMIT_PASSWORD)]
-        [DefaultValue("stringst")]
-        public string Password { get; set; } = null!;
-
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
         public string Address { get; set; } = null!;
 
@@ -89,7 +84,9 @@ namespace Application.Features.Account.Command.Add
 
             string[] wordsInName = StringHelper.ConvertFromVietnameseText(request.Name).Split(' ');
 
-            request.Username = wordsInName.Last() + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => char.ToUpper(w[0])));
+            var firstWord = char.ToUpper(wordsInName.Last()[0]) + wordsInName.Last().ToLower().Substring(1, wordsInName.Length-1);
+
+            request.Username = firstWord + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => char.ToUpper(w[0])));
             long count = 2; string name = request.Username;
             while (true)
             {
@@ -141,7 +138,8 @@ namespace Application.Features.Account.Command.Add
 
                     var user = _mapper.Map<AppUser>(request);
 
-                    bool result = await _userService.AddUser(user, request.Password, request.Role.ToDescriptionString());
+                    var randomPwd = _userService.GenerateRandomPassword();
+                    bool result = await _userService.AddUser(user, randomPwd, request.Role.ToDescriptionString());
                     if (result == false)
                     {
                         return await Result<AddAccountCommand>.FailAsync(StaticVariable.UNKNOWN_ERROR);
@@ -150,7 +148,7 @@ namespace Application.Features.Account.Command.Add
                     {
                         Body = $"Tài khoản của bạn đã được tạo trên hệ thống:<br>" +
                         $"Tên đăng nhập: {request.Username}<br>" +
-                        $"Mật khẩu: {request.Password}<br>" +
+                        $"Mật khẩu: {randomPwd}<br>" +
                         $"Hãy đăng nhập vào hệ thống và đổi mật khẩu ngay để tránh bị lộ thông tin cá nhân.<br>" +
                         $"Liên hệ với người quản trị nếu bạn gặp bất kì vấn đề gì khi đăng nhập vào hệ thống!<br>",
                         Subject = "Tài khoản được cấp",

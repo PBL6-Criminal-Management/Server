@@ -44,7 +44,7 @@ namespace Application.Features.FaceDetect.Queries.Detect
         public string? DangerousLevel { get; set; }
         public string? Charge { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
-        public DateOnly DateOfMostRecentCrime { get; set; }
+        public DateOnly? DateOfMostRecentCrime { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? ReleaseDate { get; set; }
         public string? EntryAndExitInformation { get; set; }

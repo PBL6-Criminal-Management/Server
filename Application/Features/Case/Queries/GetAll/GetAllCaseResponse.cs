@@ -6,9 +6,9 @@ namespace Application.Features.Case.Queries.GetAll
     public class GetAllCaseResponse
     {
         public long Id { get; set; }
+        public string Code { get; set; } = null!;
         public string Charge { get; set; } = null!;
         public string? TimeTakesPlace { get; set; }
-        public string? Reason { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
         public string Area { get; set; } = null!;

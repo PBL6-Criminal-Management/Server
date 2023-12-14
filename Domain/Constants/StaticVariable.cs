@@ -18,6 +18,13 @@ namespace Domain.Constants
         public const string NOT_VIEW_ACCOUNT_INFOR_PERMISSION = "Bạn không có quyền xem thông tin tài khoản này!";
 
         //Messages
+        public const string ACCOUNT_IS_NOT_CORRECT = "Tên người dùng hoặc mật khẩu không đúng.";
+        public const string ACCOUNT_IS_NOT_EXIST = "Tài khoản không tồn tại hoặc đã bị xoá.";
+        public const string ACCOUNT_IS_NOT_ACTIVE = "Tài khoản chưa được kích hoạt để đăng nhập vào hệ thống.";
+
+        public const string INVALID_TOKEN = "Token không hợp lệ";
+        public const string INVALID_REFRESH_TOKEN = "RefreshToken không hợp lệ hoặc đã hết hạn! Vui lòng đăng nhập lại!";
+
         public const string NOT_FOUND_MSG = "Không thể tìm thấy dữ liệu phù hợp!";
         public const string DELETE_USER = "Xóa người dùng thành công!";
         public const string DELETE_SUCCESS = "Xóa thành công!";
@@ -53,7 +60,14 @@ namespace Domain.Constants
         public const string CHANGE_PASSWORD_SUCCESSFULLY = "Thay đổi mật khẩu thành công!";
         public const string SEND_EMAIL_SUCCESSFULLY = "Đã gửi thông tin thay đổi mật khẩu qua email của bạn!";
 
+        public const string RESET_PASSWORD_SUCCESSFULLY = "Thiết lập lại mật khẩu thành công!";
+
+        public const string YEAR_MUST_NOT_BE_NEGATIVE = "Năm không thể là số âm!";
+        public const string INVALID_MONTH = "Tháng chỉ có giá trị từ 1 - 12!";
+
         public const string USER_HAVE_NOT_ROLE = "Người dùng này chưa có chức vụ nên tự động bỏ qua cập nhật trường chức vụ và trường kích hoạt!";
+
+        public const string USER_HAVE_NOT_EMAIL = "Người dùng này không có email để thông báo mật khẩu sau khi thiết lập lại!";
 
         //File message
         public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";
@@ -67,10 +81,12 @@ namespace Domain.Constants
         public const string AI_MODEL_HAS_NOT_TRAINED_YET = "Mô hình AI chưa được huấn luyện!";
         public const string NOT_FOUND_IMAGE_TO_TRAIN = "Không tìm thấy ảnh nào để huấn luyện!";
         public const string AI_MODEL_HAS_TRAINED_SUCCESSFULLY = "Mô hình AI được huấn luyện thành công!";
-        public const string AI_SERVER_BASE_URL = "https://face-recognition-z0vz.onrender.com";
+        //public const string AI_SERVER_BASE_URL = "https://face-recognition-z0vz.onrender.com";
+        public const string AI_SERVER_BASE_URL = "https://face-recognition-sv2p.onrender.com";
         //public const string AI_SERVER_BASE_URL = "http://localhost:8000";
         public const string TRAINED_IMAGES_FOLDER_ID = "1FcPN4UNVUZHO7JL5MPSfCgIxmhmY9LC5";
         public const string TRAINED_IMAGES_FOLDER_NAME = "TrainedImages";
+        public const int MAX_IMAGE_SIZE_FOR_FREE_AISERVER = 2300000;
 
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";
@@ -121,5 +137,10 @@ namespace Domain.Constants
         //Error message
         public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";
         public const string INTERNAL_SERVER_ERROR = "Lỗi server";
+
+        //Prefix format
+        public const string CASE = "VA";
+        public const string CRIMINAL = "TP";
+        public const string REPORTING = "BC";
     }
 }

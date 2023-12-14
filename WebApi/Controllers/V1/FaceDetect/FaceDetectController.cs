@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers.V1.FaceDetect
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/facedetect")]
+    [Route("api/v{version:apiVersion}/face-detect")]
     public class FaceDetectController : BaseApiController<FaceDetectController>
     {
         /// <summary>

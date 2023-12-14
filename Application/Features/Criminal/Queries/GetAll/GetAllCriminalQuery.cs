@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
+using Domain.Constants;
 using Domain.Helpers;
 using Domain.Wrappers;
 using MediatR;
@@ -31,15 +32,13 @@ namespace Application.Features.Criminal.Queries.GetAll
             var caseOfCriminals = from caseCriminal in _caseCriminalRepository.Entities
                                   join _case in _caseRepository.Entities on caseCriminal.CaseId equals _case.Id
                                   where !_case.IsDeleted && !caseCriminal.IsDeleted
-                                  group _case by caseCriminal.CriminalId into g
+                                  group new { caseCriminal, _case } by caseCriminal.CriminalId into g
                                   select new
                                   {
                                       CriminalId = g.Key,
-                                      //g.MaxBy(c => c.StartDate)!.Charge,
-                                      //g.MaxBy(c => c.StartDate)!.TypeOfViolation,
-                                      g.OrderByDescending(c => c.StartDate).FirstOrDefault()!.Charge,
-                                      g.OrderByDescending(c => c.StartDate).FirstOrDefault()!.TypeOfViolation,
-                                      DateOfMostRecentCrime = DateOnly.FromDateTime(g.Max(c => c.StartDate))
+                                      g.OrderByDescending(c => c._case.StartDate).FirstOrDefault()!.caseCriminal.Charge,
+                                      g.OrderByDescending(c => c._case.StartDate).FirstOrDefault()!.caseCriminal.TypeOfViolation,
+                                      DateOfMostRecentCrime = DateOnly.FromDateTime(g.Max(c => c._case.StartDate))
                                   };
 
             var query = _criminalRepository.Entities.AsEnumerable()
@@ -68,6 +67,7 @@ namespace Application.Features.Criminal.Queries.GetAll
                             .Select(o => new GetAllCriminalResponse
                             {
                                 Id = o.criminal.Id,
+                                Code = StaticVariable.CRIMINAL + o.criminal.Id.ToString().PadLeft(5, '0'),
                                 Name = o.criminal.Name,
                                 YearOfBirth = o.criminal.Birthday.Year,
                                 PermanentResidence = o.criminal.PermanentResidence,

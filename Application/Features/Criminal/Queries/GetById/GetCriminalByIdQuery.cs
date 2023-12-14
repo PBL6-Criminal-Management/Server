@@ -55,6 +55,15 @@ namespace Application.Features.Criminal.Queries.GetById
                     return await Result<GetCriminalByIdResponse>.FailAsync(StaticVariable.NOT_VIEW_CRIMINAL_INFOR_PERMISSION);
             }
 
+            var caseOfCriminal = (from caseCriminal in _caseCriminalRepository.Entities
+                                  join _case in _caseRepository.Entities on caseCriminal.CaseId equals _case.Id
+                                  where !_case.IsDeleted && !caseCriminal.IsDeleted && caseCriminal.CriminalId == criminal.Id
+                                  group _case by caseCriminal.CriminalId into g
+                                  select new
+                                  {
+                                      DateOfMostRecentCrime = DateOnly.FromDateTime(g.Max(c => c.StartDate))
+                                  }).FirstOrDefault();
+
             var query = new GetCriminalByIdResponse()
             {
                 Name = criminal.Name,
@@ -79,7 +88,7 @@ namespace Application.Features.Criminal.Queries.GetById
                 Characteristics = criminal.Characteristics,
                 Status = criminal.Status,
                 DangerousLevel = criminal.DangerousLevel,
-                DateOfMostRecentCrime = criminal.DateOfMostRecentCrime,
+                DateOfMostRecentCrime = caseOfCriminal?.DateOfMostRecentCrime,
                 ReleaseDate = criminal.ReleaseDate,
                 EntryAndExitInformation = criminal.EntryAndExitInformation,
                 BankAccount = criminal.BankAccount,

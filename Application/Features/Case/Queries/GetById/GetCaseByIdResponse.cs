@@ -13,7 +13,6 @@ namespace Application.Features.Case.Queries.GetById
     public class GetCaseByIdResponse
     {
         public long Id { get; set; }
-        public string? Reason { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
@@ -22,6 +21,7 @@ namespace Application.Features.Case.Queries.GetById
         public CaseStatus Status { get; set; }
         public string Charge { get; set; } = null!;
         public string Area { get; set; } = null!;
+        public string? Description { get; set; }
         public List<EvidenceResponse>? Evidences { get; set; }
         public List<WitnessResponse>? Witnesses { get; set; }
         public List<FileResponse>? CaseImages { get; set; }
@@ -29,7 +29,6 @@ namespace Application.Features.Case.Queries.GetById
         public List<UserResponse>? Investigators { get; set; }
         public List<VictimResponse>? Victims { get; set; }
         public List<WantedCriminalOfCaseResponse>? WantedCriminalResponse { get; set; }
-        public string? Description { get; set; }
 
     }
 }
