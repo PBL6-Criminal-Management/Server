@@ -48,7 +48,6 @@ namespace Application.Features.Case.Command.Edit
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
         public string Area { get; set; } = null!;
         public string? Description { get; set; }
-
         public List<EvidenceRequest>? Evidences { get; set; }
         public List<WitnessRequest> Witnesses { get; set; } = null!;
         public List<ImageRequest>? CaseImage { get; set; }
@@ -121,7 +120,11 @@ namespace Application.Features.Case.Command.Edit
                     {
                         CaseId = request.Id,
                         CriminalId = criminal.Id,
-                        Testimony = criminal.Testimony
+                        Testimony = criminal.Testimony,
+                        Charge = criminal.Charge,
+                        Reason = criminal.Reason,
+                        Weapon = criminal.Weapon,
+                        TypeOfViolation = criminal.TypeOfViolation
                     });
                 }
             }
@@ -163,6 +166,17 @@ namespace Application.Features.Case.Command.Edit
                                 var addEvidence = _mapper.Map<Domain.Entities.Evidence.Evidence>(evidence);
                                 addEvidence.CaseId = request.Id;
                                 await _evidenceRepository.AddAsync(addEvidence);
+                                await _unitOfWork.Commit(cancellationToken);
+                                if (evidence.EvidenceImages != null && evidence.EvidenceImages.Count > 0)
+                                {
+                                    var addEvidenceImage = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(evidence.EvidenceImages);
+                                    addEvidenceImage.ForEach(x =>
+                                    {
+                                        x.CaseId = request.Id;
+                                        x.EvidenceId = addEvidence.Id;
+                                    });
+                                    await _caseImageRepository.AddRangeAsync(addEvidenceImage);
+                                }
                             }
                             else
                             {
@@ -170,6 +184,37 @@ namespace Application.Features.Case.Command.Edit
                                 {
                                     if (caseEvidence.Id == evidence.Id)
                                     {
+                                        var evidenceImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && _.EvidenceId == evidence.Id && !_.IsDeleted).ToListAsync();
+
+                                        if (evidence.EvidenceImages != null && evidence.EvidenceImages.Count > 0)
+                                        {
+                                            var images = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(evidence.EvidenceImages);
+                                            var requestImage = images.Select(_ =>
+                                            {
+                                                _.Id = 0;
+                                                _.CaseId = request.Id;
+                                                _.EvidenceId = evidence.Id;
+                                                return _;
+                                            }).ToList();
+                                            await _caseImageRepository.RemoveRangeAsync(evidenceImagesInDb);
+                                            await _caseImageRepository.AddRangeAsync(requestImage);
+                                            await _unitOfWork.Commit(cancellationToken);
+
+                                            List<string> listNewFile = evidence.EvidenceImages.Select(_ => _.FilePath).ToList();
+
+                                            if (evidenceImagesInDb.Any() && listNewFile.Any())
+                                            {
+                                                foreach (var image in evidenceImagesInDb)
+                                                {
+                                                    if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            await _uploadService.DeleteRangeAsync(evidenceImagesInDb.Select(c => c.FilePath).ToList());
+                                        }
+
                                         caseEvidences.Remove(caseEvidence);
                                         _mapper.Map(evidence, caseEvidence);
                                         await _evidenceRepository.UpdateAsync(caseEvidence);
@@ -202,6 +247,10 @@ namespace Application.Features.Case.Command.Edit
                                 {
                                     check = true;
                                     caseCriminal.Testimony = newCaseCriminal.Testimony;
+                                    caseCriminal.Charge = newCaseCriminal.Charge;
+                                    caseCriminal.Reason = newCaseCriminal.Reason;
+                                    caseCriminal.Weapon = newCaseCriminal.Weapon;
+                                    caseCriminal.TypeOfViolation = newCaseCriminal.TypeOfViolation;
                                     await _caseCriminalRepository.UpdateAsync(caseCriminal);
                                     newCaseCriminals.Remove(newCaseCriminal);
                                     break;
@@ -408,8 +457,7 @@ namespace Application.Features.Case.Command.Edit
                         await _wantedCriminalRepository.AddRangeAsync(wantedCriminalRequest);
                     }
 
-                    var caseImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-
+                    var caseImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && _.EvidenceId == null && !_.IsDeleted).ToListAsync();
                     if (request.CaseImage != null && request.CaseImage.Count > 0)
                     {
                         var images = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImage);

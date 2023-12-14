@@ -109,8 +109,9 @@ namespace Domain.Constants
         public const string LIMIT_VEHICLES = "Phương tiện không được vượt quá 100 ký tự!";
         public const string LIMIT_DANGEROUS_LEVEL = "Mức độ nguy hiểm không được vượt quá 200 ký tự!";
         public const string LIMIT_OTHER_INFORMATION = "Thông tin khác không được vượt quá 500 ký tự!";
-        public const string LIMIT_REASON = "Lí do không được vượt quá 600 ký tự";
+        public const string LIMIT_REASON = "Lí do không được vượt quá 500 ký tự";
         public const string LIMIT_MURDER_WEAPON = "Hung khí không được vượt quá 100 ký tự";
+        public const string LIMIT_WEAPON = "Vũ khí không được vượt quá 100 ký tự";
         public const string LIMIT_CHARGE = "Tội danh không được vượt quá 100 ký tự";
         public const string LIMIT_CRIME_SCENE = "Địa điểm xảy ra vụ án không được vượt quá 200 ký tự";
         public const string LIMIT_REPORTER_NAME = "Họ và tên của người tố giác tội phạm không được vượt quá 100 ký tự";

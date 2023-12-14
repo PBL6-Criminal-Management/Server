@@ -14,7 +14,6 @@ namespace Application.Features.Case.Queries.GetById
     {
         public long Id { get; set; }
         public string? Reason { get; set; }
-        public string? MurderWeapon { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]

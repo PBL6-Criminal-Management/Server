@@ -34,7 +34,7 @@ namespace Application.Features.Case.Queries.GetAll
 
             var query = _caseRepository.Entities.AsEnumerable()
                         .Where(c => !c.IsDeleted &&
-                        (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(c.Charge, request.Keyword) 
+                        (string.IsNullOrEmpty(request.Keyword) || StringHelper.Contains(c.Charge, request.Keyword)
                                                                 || StringHelper.Contains(c.CrimeScene, request.Keyword)
                                                                 || StringHelper.Contains(c.TypeOfViolation.ToDescriptionString(), request.Keyword)
                                                                 || StringHelper.Contains(c.Reason, request.Keyword)

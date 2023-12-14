@@ -11,7 +11,8 @@ namespace Application.Mappings.Case
         {
             CreateMap<Domain.Entities.Case.Case, AddCaseCommand>()
                 .ForMember(dest => dest.Area, otp => otp.MapFrom(c => c.CrimeScene))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Evidences, otp => otp.Ignore());
             CreateMap<Domain.Entities.Case.Case, GetCaseByIdResponse>()
                 .ForMember(dest => dest.Area, otp => otp.MapFrom(c => c.CrimeScene))
                 .ForMember(dest => dest.Evidences, otp => otp.Ignore())
