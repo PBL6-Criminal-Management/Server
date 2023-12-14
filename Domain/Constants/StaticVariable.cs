@@ -67,6 +67,8 @@ namespace Domain.Constants
 
         public const string USER_HAVE_NOT_ROLE = "Người dùng này chưa có chức vụ nên tự động bỏ qua cập nhật trường chức vụ và trường kích hoạt!";
 
+        public const string USER_HAVE_NOT_EMAIL = "Người dùng này không có email để thông báo mật khẩu sau khi thiết lập lại!";
+
         //File message
         public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";
         public const string FILE_IS_NOT_VIDEO = "Tệp cung cấp không phải là video hoặc có phần đuôi mở rộng không hợp lệ!";

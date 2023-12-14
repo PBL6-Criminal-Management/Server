@@ -7,17 +7,12 @@ using Domain.Wrappers;
 using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Account.Command.ResetPassword
 {
     public class ResetPasswordCommand : IRequest<Result<bool>>
     {
-        public long? Id { get; set; }        
-
-        [EmailAddress(ErrorMessage = StaticVariable.INVALID_EMAIL)]
-        [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_EMAIL)]
-        public string Email { get; set; } = null!;
+        public long? Id { get; set; }
     }
 
     internal class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<bool>>
@@ -41,11 +36,14 @@ namespace Application.Features.Account.Command.ResetPassword
 
         public async Task<Result<bool>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {
-            var user = _userManager.Users.Where(e => e.UserId == request.Id && e.Email != null && e.Email.Equals(request.Email) && !e.IsDeleted).FirstOrDefault();
+            var user = _userManager.Users.Where(e => e.UserId == request.Id && !e.IsDeleted).FirstOrDefault();
             if (user == null)
             {
                 return await Result<bool>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
+
+            if(user.Email == null)
+                return await Result<bool>.FailAsync(StaticVariable.USER_HAVE_NOT_EMAIL);
 
             try
             {
@@ -62,7 +60,7 @@ namespace Application.Features.Account.Command.ResetPassword
                     $"Hãy đăng nhập vào hệ thống và đổi mật khẩu ngay để tránh bị lộ thông tin cá nhân.<br>" +
                     $"Liên hệ với người quản trị nếu bạn gặp bất kì vấn đề gì khi đăng nhập vào hệ thống!<br>",
                     Subject = "Thiết lập lại mật khẩu",
-                    To = request.Email
+                    To = user.Email
                 };
                 _backgroundJobClient.Enqueue(() => _mailService.SendAsync(mailRequest));
 
