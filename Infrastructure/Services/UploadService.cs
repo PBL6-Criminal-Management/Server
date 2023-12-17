@@ -7,7 +7,7 @@ using Domain.Wrappers;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
-using Microsoft.AspNetCore.Http;
+using Google.Apis.Upload;
 using System.Text;
 
 namespace Infrastructure.Services
@@ -25,10 +25,68 @@ namespace Infrastructure.Services
             _checkFileSize = checkFileSize;
         }
 
+        public async Task<Result<List<UploadResponse>>> SplitVideoAsync(SplitRequest request)
+        {
+            if(request.NumberImagesEachSecond <= 0)
+                return await Result<List<UploadResponse>>.FailAsync(StaticVariable.NUMBER_IMAGES_EACH_SECOND_MUST_BE_POSITIVE);
+
+            List<UploadResponse> listImages = new();
+            StringBuilder listMessages = new StringBuilder();
+
+            if (request.FilePath != null)
+                request.FilePath = TrimNonUrlCharacters(request.FilePath);
+
+            var folderName = (request.FilePath != null) ? Path.Combine("Files", request.FilePath) : "Files";  //'Files/' + folder name
+            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);                       //Current path + '/Files/' + folder name
+
+            foreach (var video in request.Files)
+            {
+                var checkFileIsVideo = _checkFileType.CheckFileIsVideo(video);
+                var checkVideoSize = _checkFileSize.CheckVideoSize(video);
+                if (checkFileIsVideo == "")
+                {
+                    if (checkVideoSize != "")
+                    {
+                        listMessages.Append(Environment.NewLine + checkVideoSize);
+                        continue;
+                    }
+                }
+                else
+                {
+                    listMessages.Append(Environment.NewLine + $"File {video.FileName} không phải là video hợp lệ!");
+                    continue;
+                }
+
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+
+                var videoName = TrimNonUrlCharacters(video.FileName);           //File name
+                var path = Path.Combine(pathToSave, videoName);                 //File absolute path: Current path + '/Files/' + folder name + File name
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await video.CopyToAsync(stream);
+                }
+
+                var listImagesResult = new VideoSplitServiceUsingCommand().ExtractImagesFromVideoAndSave(path, folderName, Path.GetFileNameWithoutExtension(videoName), request.NumberImagesEachSecond);
+
+                listImagesResult.ForEach(i => i.FileUrl = Path.Combine(_currentUserService.HostServerName, i.FilePath).Replace("\\", "/"));
+
+                listImages.AddRange(listImagesResult);
+
+                await DeleteAsync(path);
+            }
+
+            if (listMessages.Length > 0)
+                return await Result<List<UploadResponse>>.SuccessAsync(listImages, listMessages.Remove(0, Environment.NewLine.Length).ToString().Split(Environment.NewLine).ToList());
+            else
+                return await Result<List<UploadResponse>>.SuccessAsync(listImages);
+        }
+
         public async Task<Result<List<UploadResponse>>> UploadAsync(UploadRequest request)
         {
             List<UploadResponse> responses = new List<UploadResponse>();
-            List<UploadFile> listFiles = new List<UploadFile>();
             StringBuilder listMessages = new StringBuilder();
 
             if (request.FilePath != null)
@@ -83,18 +141,6 @@ namespace Infrastructure.Services
                     FilePath = dbPath.Replace("\\", "/"),
                     FileUrl = Path.Combine(_currentUserService.HostServerName, dbPath).Replace("\\", "/")
                 });
-
-                listFiles.Add(new UploadFile { File = file, FileName = fileName });
-            }
-
-            //Only upload criminal images to gg drive
-            if (request.FilePath != null && request.FilePath.Split("/").Count() == 2)
-            {
-                string rootFolder = request.FilePath.Split("/")[0];
-                if (rootFolder.Equals(StaticVariable.TRAINED_IMAGES_FOLDER_NAME) && int.TryParse(request.FilePath.Split("/")[1], out int criminalId))
-                {
-                    UploadToGGDrive(listFiles, criminalId.ToString());
-                }
             }
 
             if (listMessages.Length > 0)
@@ -127,13 +173,13 @@ namespace Infrastructure.Services
 
             string filePath = Directory.GetCurrentDirectory().Split("\\WebApi")[0] + "/Infrastructure/Services/exalted-pattern-400909-3eaa10f4b2b4.json";
             if (!Path.Exists(filePath))
-                filePath = Directory.GetCurrentDirectory() + "/exalted-pattern-400909-3eaa10f4b2b4.json";
+                filePath = Directory.GetCurrentDirectory() + "/Services/exalted-pattern-400909-3eaa10f4b2b4.json";
 
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 credential = GoogleCredential.FromStream(stream).CreateScoped(new[]
                 {
-                    DriveService.Scope.DriveFile,
+                    DriveService.Scope.Drive,
                 });
             }
 
@@ -146,29 +192,36 @@ namespace Infrastructure.Services
             return service;
         }
 
-        void UploadToGGDrive(List<UploadFile> files, string criminalId)
+        public bool UploadToGGDrive(long criminalId, List<string> filePaths)
         {
             var service = CreateDriveService();
 
-            string? folderXId = FindFolderByName(service, criminalId, StaticVariable.TRAINED_IMAGES_FOLDER_ID);
+            string? folderXId = FindFolderByName(service, criminalId.ToString(), StaticVariable.TRAINED_IMAGES_FOLDER_ID);
             if (folderXId == null)
-                folderXId = CreateFolder(service, criminalId, StaticVariable.TRAINED_IMAGES_FOLDER_ID);
+                folderXId = CreateFolder(service, criminalId.ToString(), StaticVariable.TRAINED_IMAGES_FOLDER_ID);
 
-            foreach (UploadFile file in files)
+            foreach (var filePath in filePaths)
             {
+                if (!IsFileExists(filePath))
+                    continue;
+
                 var fileMetadata = new Google.Apis.Drive.v3.Data.File()
                 {
-                    Name = file.FileName, // The desired name for the file on Google Drive
-                    Parents = new List<string> { folderXId }, // The ID of the target folder
+                    Name = Path.GetFileNameWithoutExtension(filePath),                              // The desired name for the file on Google Drive
+                    Parents = new List<string> { folderXId },          // The ID of the target folder
                 };
 
-                using (var stream = file.File.OpenReadStream())
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    var request = service.Files.Create(fileMetadata, stream, "image/png");
+                    var request = service.Files.Create(fileMetadata, fileStream, "image/png");
                     request.Fields = "id";
-                    request.Upload();
+                    IUploadProgress progress = request.Upload();
+                    if (UploadStatus.Failed.Equals(progress.Status))
+                        return false;
                 }
             }
+
+            return true;
         }
 
         string? FindFolderByName(DriveService service, string folderName, string parentFolderId)
@@ -234,17 +287,6 @@ namespace Infrastructure.Services
                 File.Delete(fileToDelete);
             }
 
-            //Remove image on gg drive if it belongs to Criminal
-            //Files/StaticVariable.TRAINED_IMAGES_FOLDER_NAME/<CriminalId>/<File_name.png>
-            if (filePath != null && filePath.Split("/").Count() == 4)
-            {
-                string rootFolder = filePath.Split("/")[1];
-                if (rootFolder.Equals(StaticVariable.TRAINED_IMAGES_FOLDER_NAME) && int.TryParse(filePath.Split("/")[2], out _))
-                {
-                    RemoveImageFromGGDrive(CreateDriveService(), string.Join("/", filePath.Split("/").TakeLast(2)));
-                }
-            }
-
             return Result<bool>.SuccessAsync(true, ApplicationConstants.SuccessMessage.DeletedSuccess);
         }
 
@@ -256,44 +298,68 @@ namespace Infrastructure.Services
             return Result<bool>.SuccessAsync(true, ApplicationConstants.SuccessMessage.DeletedSuccess);
         }
 
-        void RemoveImageFromGGDrive(DriveService service, string filePath)
+        public void RemoveImageFromGGDrive(long criminalId, List<string> filePaths, bool removeParentFolder = false)
         {
-            var fileId = GetFileIdByPath(service, filePath);
-            if (fileId != null)
+            var service = CreateDriveService();
+
+            if (removeParentFolder)
             {
-                service.Files.Delete(fileId).Execute();
+                var folderId = GetFolderIdByPath(service, criminalId.ToString(), StaticVariable.TRAINED_IMAGES_FOLDER_ID);
+                if (folderId != null)
+                {
+                    service.Files.Delete(folderId).Execute();
+                }
+            }
+            else
+            {
+                foreach (var filePath in filePaths)
+                {
+                    var path = Path.Combine(criminalId.ToString(), Path.GetFileNameWithoutExtension(filePath));
+                    var fileId = GetFileIdByPath(service, path, StaticVariable.TRAINED_IMAGES_FOLDER_ID);
+                    if (fileId != null)
+                    {
+                        service.Files.Delete(fileId).Execute();
+                    }
+                }
             }
         }
 
-        string? GetFileIdByPath(DriveService service, string filePath)
+        string? GetFileIdByPath(DriveService service, string filePath, string rootFolder)
         {
-            string fileName = Path.GetFileName(filePath)!;
-            string folderPath = Path.GetDirectoryName(filePath)!;
+            string fileName = Path.GetFileName(filePath);
+            string? folderPath = Path.GetDirectoryName(filePath);
 
-            // Get the ID of the parent folder
-            string? folderId = GetFolderIdByPath(service, folderPath);
+            var request = service.Files.List();
 
-            if (folderId != null)
+            if (folderPath != null)
             {
-                // Perform a file search by name and parent folder
-                var request = service.Files.List();
-                request.Q = $"name = '{fileName}' and '{folderId}' in parents";
-                var result = request.Execute();
-                var file = result.Files.FirstOrDefault();
+                // Get the ID of the parent folder
+                string? folderId = GetFolderIdByPath(service, folderPath, rootFolder);
 
-                return file?.Id;
+                if (folderId != null)
+                {
+                    // Perform a file search by name and parent folder
+                    request.Q = $"name = '{fileName}' and '{folderId}' in parents";
+                }
+                else
+                    return null;
             }
+            else
+                request.Q = $"name = '{fileName}' and '{rootFolder}' in parents";
 
-            return null;
+            var result = request.Execute();
+            var file = result.Files.FirstOrDefault();
+
+            return file?.Id;
         }
 
-        string? GetFolderIdByPath(DriveService service, string folderPath)
+        string? GetFolderIdByPath(DriveService service, string folderPath, string rootFolder)
         {
             // Split the path into individual folder names
             string[] folderNames = folderPath.Split('/');
 
             // Iterate through each folder in the path and find its ID
-            string currentFolderId = StaticVariable.TRAINED_IMAGES_FOLDER_ID;
+            string currentFolderId = rootFolder;
             foreach (string folderName in folderNames)
             {
                 var request = service.Files.List();
@@ -314,11 +380,5 @@ namespace Infrastructure.Services
 
             return currentFolderId;
         }
-    }
-
-    class UploadFile
-    {
-        public string FileName { get; set; }
-        public IFormFile File { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Requests.Image;
+using Application.Interfaces;
 using Application.Interfaces.Criminal;
 using Application.Interfaces.CriminalImage;
 using Application.Interfaces.Repositories;
@@ -7,6 +8,7 @@ using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Entities.CriminalImage;
 using Domain.Wrappers;
+using Hangfire;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
@@ -22,7 +24,7 @@ namespace Application.Features.Criminal.Command.Add
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_ANOTHER_NAME)]
         public string AnotherName { get; set; } = null!;
         public string? Avatar { get; set; }
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         public string CitizenId { get; set; } = null!;
         public bool? Gender { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
@@ -92,17 +94,24 @@ namespace Application.Features.Criminal.Command.Add
         private readonly IUnitOfWork<long> _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICriminalImageRepository _criminalImageRepository;
+        private readonly IUploadService _uploadService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
         public AddCriminalCommandHandler(
             ICriminalRepository criminalRepository,
             IUnitOfWork<long> unitOfWork,
             IMapper mapper, 
-            ICriminalImageRepository criminalImageRepository)
+            ICriminalImageRepository criminalImageRepository,
+            IUploadService uploadService,
+            IBackgroundJobClient backgroundJobClient
+        )
         {
             _criminalRepository = criminalRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _criminalImageRepository = criminalImageRepository;
+            _uploadService = uploadService;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<Result<AddCriminalCommand>> Handle(AddCriminalCommand request, CancellationToken cancellationToken)
@@ -129,6 +138,11 @@ namespace Application.Features.Criminal.Command.Add
                         var addImage = _mapper.Map<List<CriminalImage>>(request.CriminalImages);
                         addImage.ForEach(x => x.CriminalId = addCriminal.Id);
                         await _criminalImageRepository.AddRangeAsync(addImage);
+                        await _unitOfWork.Commit(cancellationToken);
+
+                        var uploadList = request.CriminalImages.Select(image => image.FilePath).ToList();
+                        if(request.Avatar != null) uploadList.Add(request.Avatar);
+                        _backgroundJobClient.Enqueue(() => _uploadService.UploadToGGDrive(addCriminal.Id, uploadList));                        
                     }
 
                     await transaction.CommitAsync(cancellationToken);

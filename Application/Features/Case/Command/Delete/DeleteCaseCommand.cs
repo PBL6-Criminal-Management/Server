@@ -65,7 +65,7 @@ namespace Application.Features.Case.Command.Delete
                     var caseCriminal = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                     await _caseCriminalRepository.DeleteRange(caseCriminal);
                     var caseImage = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
-                    await _caseImageRepository.DeleteRange(caseImage);
+                    await _caseImageRepository.RemoveRangeAsync(caseImage);
                     var evidence = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
                     await _evidenceRepository.DeleteRange(evidence);
                     var caseWitness = await _caseWitnessRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();

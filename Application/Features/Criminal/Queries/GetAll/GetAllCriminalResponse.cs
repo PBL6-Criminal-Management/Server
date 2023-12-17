@@ -14,6 +14,7 @@ namespace Application.Features.Criminal.Queries.GetAll
         public string? Charge { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? DateOfMostRecentCrime { get; set; }
+        public string AvatarLink { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime CreatedAt { get; set; }
     }

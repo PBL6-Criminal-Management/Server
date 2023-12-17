@@ -13,6 +13,7 @@ using Domain.Constants.Enum;
 using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
 using Domain.Entities.CriminalImage;
+using Hangfire;
 
 namespace Application.Features.Criminal.Command.Edit
 {
@@ -95,13 +96,22 @@ namespace Application.Features.Criminal.Command.Edit
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
-        public EditCriminalCommandHandler(IUnitOfWork<long> unitOfWork, ICriminalRepository criminalRepository,
-        ICriminalImageRepository criminalImageRepository, IMapper mapper, IUploadService uploadService) {
+        private readonly IBackgroundJobClient _backgroundJobClient;
+
+        public EditCriminalCommandHandler(
+            IUnitOfWork<long> unitOfWork, 
+            ICriminalRepository criminalRepository,
+            ICriminalImageRepository criminalImageRepository, 
+            IMapper mapper, 
+            IUploadService uploadService,
+            IBackgroundJobClient backgroundJobClient
+        ) {
             _criminalImageRepository = criminalImageRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _criminalRepository = criminalRepository;
             _uploadService = uploadService;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<Result<EditCriminalCommand>> Handle(EditCriminalCommand request, CancellationToken cancellationToken)
@@ -142,18 +152,26 @@ namespace Application.Features.Criminal.Command.Edit
                         await _criminalImageRepository.AddRangeAsync(requestImage);
                         await _unitOfWork.Commit(cancellationToken);
 
-                        List<string> listNewFile = request.CriminalImages.Select(_ => _.FilePath).ToList();
+                        var listA = request.CriminalImages.Select(_ => _.FilePath);
+                        var listB = imagesInDB.Select(_ => _.FilePath);
 
-                        if (imagesInDB.Any() && listNewFile.Any())
+                        if (imagesInDB.Any())
                         {
                             await _criminalImageRepository.RemoveRangeAsync(imagesInDB);  //remove all images in db
                             await _unitOfWork.Commit(cancellationToken);
-                            foreach (var image in imagesInDB)
+
+                            var listRemoveImages = listB.Except(listA).ToList();
+
+                            //Remove images in server not exist in request
+                            if (listRemoveImages.Any())
                             {
-                                //if image in database not exist in request
-                                if (!listNewFile.Contains(image.FilePath)) await _uploadService.DeleteAsync(image.FilePath);  //remove that image in server
+                                await _uploadService.DeleteRangeAsync(listRemoveImages);
+                                _backgroundJobClient.Enqueue(() => _uploadService.RemoveImageFromGGDrive(editCriminal.Id, listRemoveImages, false));
                             }
                         }
+
+                        var listUploadImagesToDrive = listA.Except(listB).ToList();
+                        _backgroundJobClient.Enqueue(() => _uploadService.UploadToGGDrive(editCriminal.Id, listUploadImagesToDrive));
                     }
                     else
                     {
@@ -162,20 +180,30 @@ namespace Application.Features.Criminal.Command.Edit
                             await _criminalImageRepository.RemoveRangeAsync(imagesInDB);
                             await _unitOfWork.Commit(cancellationToken);
                             await _uploadService.DeleteRangeAsync(imagesInDB.Select(i => i.FilePath).ToList());
+                            _backgroundJobClient.Enqueue(() => _uploadService.RemoveImageFromGGDrive(editCriminal.Id, imagesInDB.Select(i => i.FilePath).ToList(), false));
                         }
                     }
 
-                    if(oldAvatar != null)
+                    if (oldAvatar != null)
                     {
                         if (editCriminal.Avatar != null)
                         {
                             if (!editCriminal.Avatar.Equals(oldAvatar))
+                            {
                                 await _uploadService.DeleteAsync(oldAvatar);
+                                _backgroundJobClient.Enqueue(() => _uploadService.RemoveImageFromGGDrive(editCriminal.Id, new List<string> { oldAvatar }, false));
+                                _backgroundJobClient.Enqueue(() => _uploadService.UploadToGGDrive(editCriminal.Id, new List<string> { editCriminal.Avatar }));
+                            }
                         }
                         else
+                        {
                             await _uploadService.DeleteAsync(oldAvatar);
+                            _backgroundJobClient.Enqueue(() => _uploadService.RemoveImageFromGGDrive(editCriminal.Id, new List<string> { oldAvatar }, false));
+                        }
                     }
-
+                    else
+                        if (editCriminal.Avatar != null)
+                            _backgroundJobClient.Enqueue(() => _uploadService.UploadToGGDrive(editCriminal.Id, new List<string> { editCriminal.Avatar }));
 
                     await transaction.CommitAsync(cancellationToken);
                     return await Result<EditCriminalCommand>.SuccessAsync(request);

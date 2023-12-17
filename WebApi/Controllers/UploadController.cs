@@ -2,6 +2,7 @@
 using Application.Exceptions;
 using Application.Interfaces;
 using Application.Shared;
+using Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,17 +24,33 @@ namespace WebApi.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [RequestSizeLimit(30 * 1024 * 1024)] //50MB Max upload request
+        [RequestSizeLimit(2147483648)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadFile([FromForm] UploadRequest request)
         {
             if (request.Files.Count != 0)
             {
-                var result = await _uploadService.UploadAsync(new UploadRequest
-                {
-                    FilePath = request.FilePath,
-                    Files = request.Files
-                });
+                var result = await _uploadService.UploadAsync(request);
+                return result.Succeeded ? Ok(result) : BadRequest(result);
+            }
+
+            throw new ApiException(ApplicationConstants.ErrorMessage.InvalidFile);
+        }
+
+        /// <summary>
+        /// Split Video
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [HttpPost("split-video")]
+        [RequestSizeLimit(2147483648)]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> SplitVideo([FromForm] SplitRequest request)
+        {
+            if (request.Files.Count != 0)
+            {
+                var result = await _uploadService.SplitVideoAsync(request);
                 return result.Succeeded ? Ok(result) : BadRequest(result);
             }
 

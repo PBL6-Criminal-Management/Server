@@ -6,9 +6,13 @@ namespace Application.Mappings.Criminal
 {
     public class CriminalMappings : Profile
     {
-        public CriminalMappings() { 
-            CreateMap<AddCriminalCommand, Domain.Entities.Criminal.Criminal>().ReverseMap();
-            CreateMap<EditCriminalCommand, Domain.Entities.Criminal.Criminal>().ReverseMap();
+        public CriminalMappings() {
+            CreateMap<AddCriminalCommand, Domain.Entities.Criminal.Criminal>()
+                .ForMember(dest => dest.CriminalImages, otp => otp.Ignore())
+                .ReverseMap();
+            CreateMap<EditCriminalCommand, Domain.Entities.Criminal.Criminal>()
+                .ForMember(dest => dest.CriminalImages, otp => otp.Ignore())
+                .ReverseMap();
         }
     }
 }

@@ -20,7 +20,8 @@ namespace Application.Mappings.Case
             CreateMap<Domain.Entities.Case.Case, EditCaseCommand>()
                 .ForMember(dest => dest.Area, otp => otp.MapFrom(c => c.CrimeScene))
                 .ForMember(dest => dest.Evidences, otp => otp.Ignore())
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Evidences, otp => otp.Ignore());
         }
     }
 }
