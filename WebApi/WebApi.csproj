@@ -18,6 +18,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="ffmpeg\x86_64\avcodec-60.dll" />
+	  <None Remove="ffmpeg\x86_64\avdevice-60.dll" />
+	  <None Remove="ffmpeg\x86_64\avfilter-9.dll" />
+	  <None Remove="ffmpeg\x86_64\avformat-60.dll" />
+	  <None Remove="ffmpeg\x86_64\avutil-58.dll" />
+	  <None Remove="ffmpeg\x86_64\ffmpeg" />
+	  <None Remove="ffmpeg\x86_64\ffmpeg.exe" />
+	  <None Remove="ffmpeg\x86_64\postproc-57.dll" />
+	  <None Remove="ffmpeg\x86_64\swresample-4.dll" />
+	  <None Remove="ffmpeg\x86_64\swscale-7.dll" />
 	  <None Remove="Files\Avatar\NotFound\notFoundAvatar.jpg" />
 	  <None Remove="Files\WantedCriminal\27602b9f-c559-4a75-a5c7-500c35588b47_100e0939-dfe5-4275-8b41-1d6451b2343e_Hoan2_102.png" />
 	  <None Remove="Files\WantedCriminal\959e00b2-cf24-41f0-b705-4229451aee43_d39bcbc6-27ea-4b8c-b262-031f92b0ce02_Hoan_082.png" />
@@ -25,6 +35,36 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="ffmpeg\x86_64\avcodec-60.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\avdevice-60.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\avfilter-9.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\avformat-60.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\avutil-58.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\ffmpeg">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\ffmpeg.exe">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\postproc-57.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\swresample-4.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="ffmpeg\x86_64\swscale-7.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="Files\Avatar\NotFound\notFoundAvatar.jpg" />
 	  <Content Include="Files\WantedCriminal\27602b9f-c559-4a75-a5c7-500c35588b47_100e0939-dfe5-4275-8b41-1d6451b2343e_Hoan2_102.png" />
 	  <Content Include="Files\WantedCriminal\959e00b2-cf24-41f0-b705-4229451aee43_d39bcbc6-27ea-4b8c-b262-031f92b0ce02_Hoan_082.png" />

@@ -68,7 +68,7 @@ namespace Application.Features.Case.Queries.GetAll
                         .ToList();
             if (request.TimeTakesPlace.HasValue)
             {
-                var dateCheck = request.TimeTakesPlace.Value.ToString("dd/MM/yyyy HH:mm:ss");
+                var dateCheck = request.TimeTakesPlace.Value.ToString("HH:mm dd/MM/yyyy");
                 for (int i = 0; i < query.Count(); i++)
                 {
                     var c = query[i];

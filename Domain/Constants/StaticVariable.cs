@@ -69,6 +69,8 @@ namespace Domain.Constants
 
         public const string USER_HAVE_NOT_EMAIL = "Người dùng này không có email để thông báo mật khẩu sau khi thiết lập lại!";
 
+        public const string NUMBER_IMAGES_EACH_SECOND_MUST_BE_POSITIVE = "Số ảnh mỗi giây phải là 1 số dương!";
+
         //File message
         public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";
         public const string FILE_IS_NOT_VIDEO = "Tệp cung cấp không phải là video hoặc có phần đuôi mở rộng không hợp lệ!";
@@ -87,10 +89,11 @@ namespace Domain.Constants
         public const string TRAINED_IMAGES_FOLDER_ID = "1FcPN4UNVUZHO7JL5MPSfCgIxmhmY9LC5";
         public const string TRAINED_IMAGES_FOLDER_NAME = "TrainedImages";
         public const int MAX_IMAGE_SIZE_FOR_FREE_AISERVER = 2300000;
+        public const int DEFAULT_FRAMES_NUMBER_EACH_SECOND = 3;
 
         //Limit length
         public const string LIMIT_NAME = "Tên không được vượt quá 100 ký tự!";
-        public const string LIMIT_CITIZEN_ID = "CitizenId không được vượt quá 15 ký tự!";
+        public const string LIMIT_CITIZEN_ID = "Chứng minh nhân dân không được vượt quá 12 ký tự!";
         public const string LIMIT_ADDRESS = "Địa chỉ không được vượt quá 200 ký tự!";
         public const string LIMIT_PHONENUMBER = "Số điện thoại không được vượt quá 15 ký tự!";
         public const string LIMIT_EMAIL = "Email không được vượt quá 100 ký tự!";

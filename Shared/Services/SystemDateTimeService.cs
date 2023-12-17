@@ -25,15 +25,15 @@ namespace Shared.Services
             CultureInfo cultureInfo = new CultureInfo("vi-VN");
             DateTime startDate;
             DateTime endDate;
-            DateTime Date = DateTime.ParseExact(datetime, "dd/MM/yyyy HH:mm:ss", cultureInfo);
+            DateTime Date = DateTime.ParseExact(datetime, "HH:mm dd/MM/yyyy", cultureInfo);
             if (dates.Length == 2)
             {
-                startDate = DateTime.ParseExact(dates[0], "dd/MM/yyyy HH:mm:ss", cultureInfo);
-                endDate = DateTime.ParseExact(dates[1], "dd/MM/yyyy HH:mm:ss", cultureInfo);
+                startDate = DateTime.ParseExact(dates[0], "HH:mm dd/MM/yyyy", cultureInfo);
+                endDate = DateTime.ParseExact(dates[1], "HH:mm dd/MM/yyyy", cultureInfo);
             }
             else
             {
-                startDate = DateTime.ParseExact(dates[0], "dd/MM/yyyy HH:mm:ss", cultureInfo);
+                startDate = DateTime.ParseExact(dates[0], "HH:mm dd/MM/yyyy", cultureInfo);
                 endDate = DateTime.MaxValue;
             }
 
@@ -42,7 +42,7 @@ namespace Shared.Services
         public string ConvertToUtc(DateTime timeLocal)
         {
             DateTimeOffset dateTimeOffset = timeLocal.ToUniversalTime();
-            string utcTime = dateTimeOffset.ToString("dd/MM/yyyy HH:mm:ss");
+            string utcTime = dateTimeOffset.ToString("HH:mm dd/MM/yyyy");
             return utcTime;
         }
     }

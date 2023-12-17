@@ -8,7 +8,7 @@ namespace Application.CustomConverter
 {
     public class DateTimeConverter : JsonConverter<DateTime>
     {
-        private string formatDate = "dd/MM/yyyy HH:mm:ss";
+        private string formatDate = "HH:mm dd/MM/yyyy";
         private string timeZoneId = "SE Asia Standard Time";
         public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

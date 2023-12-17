@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Case;
+﻿using Application.Interfaces;
+using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
 using Domain.Constants;
@@ -17,12 +18,19 @@ namespace Application.Features.Criminal.Queries.GetAll
         private readonly ICriminalRepository _criminalRepository;
         private readonly ICaseRepository _caseRepository;
         private readonly ICaseCriminalRepository _caseCriminalRepository;
+        private readonly IUploadService _uploadService;
 
-        public GetAllCriminalQueryHandler(ICriminalRepository criminalRepository, ICaseRepository caseRepository, ICaseCriminalRepository caseCriminalRepository)
+        public GetAllCriminalQueryHandler(
+            ICriminalRepository criminalRepository, 
+            ICaseRepository caseRepository, 
+            ICaseCriminalRepository caseCriminalRepository,
+            IUploadService uploadService
+            )
         {
             _criminalRepository = criminalRepository;
             _caseRepository = caseRepository;
             _caseCriminalRepository = caseCriminalRepository;
+            _uploadService = uploadService;
         }
         public async Task<PaginatedResult<GetAllCriminalResponse>> Handle(GetAllCriminalQuery request, CancellationToken cancellationToken)
         {
@@ -74,6 +82,7 @@ namespace Application.Features.Criminal.Queries.GetAll
                                 Status = o.criminal.Status,
                                 Charge = o.caseOfCriminal?.Charge,
                                 DateOfMostRecentCrime = o.caseOfCriminal?.DateOfMostRecentCrime,
+                                AvatarLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(o.criminal.Avatar) ? o.criminal.Avatar : "Files/Avatar/NotFound/notFoundAvatar.jpg"),
                                 CreatedAt = o.criminal.CreatedAt
                             });
 

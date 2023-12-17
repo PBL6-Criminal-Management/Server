@@ -142,15 +142,20 @@ namespace Application.Features.Case.Queries.GetById
                {
                    Id = c.Id,
                    Name = c.Name,
+                   AnotherName = c.AnotherName,
                    Birthday = c.Birthday,
                    Gender = c.Gender,
-                   PhoneNumber = c.PhoneNumber,
-                   Address = c.CurrentAccommodation,
-                   Testimony = cCr.Testimony,
+                   CitizenId = c.CitizenId,
+                   HomeTown = c.HomeTown,
+                   PermanentResidence = c.PermanentResidence,
+                   CurrentAccommodation = c.CurrentAccommodation,
+                   Nationality = c.Nationality,
+                   Ethnicity = c.Ethnicity,
                    Charge = cCr.Charge,
                    Reason = cCr.Reason,
-                   Weapon = cCr.Weapon,
-                   TypeOfViolation = cCr.TypeOfViolation
+                   Testimony = cCr.Testimony,
+                   TypeOfViolation = cCr.TypeOfViolation,
+                   Weapon = cCr.Weapon
                }).ToListAsync();
             if (criminalOfCase.Any()) response.Criminals = criminalOfCase;
             var imageOfCase = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();

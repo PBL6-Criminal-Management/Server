@@ -6,6 +6,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.WantedCriminal;
 using Domain.Constants;
 using Domain.Wrappers;
+using Hangfire;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,7 @@ namespace Application.Features.Criminal.Command.Delete
         private readonly ICriminalImageRepository _criminalImageRepository;
         private readonly IUploadService _uploadService;
         private readonly IUnitOfWork<long> _unitOfWork;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
         public DeleteCriminalCommandHandler(
             ICriminalRepository criminalRepository,
@@ -30,7 +32,8 @@ namespace Application.Features.Criminal.Command.Delete
             IWantedCriminalRepository wantedCriminalRepository,
             ICriminalImageRepository criminalImageRepository,
             IUploadService uploadService,
-            IUnitOfWork<long> unitOfWork
+            IUnitOfWork<long> unitOfWork,
+            IBackgroundJobClient backgroundJobClient
         )
         {
             _criminalRepository = criminalRepository;
@@ -39,6 +42,7 @@ namespace Application.Features.Criminal.Command.Delete
             _criminalImageRepository = criminalImageRepository;
             _uploadService = uploadService;
             _unitOfWork = unitOfWork;
+            _backgroundJobClient = backgroundJobClient;
         }
         public async Task<Result<long>> Handle(DeleteCriminalCommand request, CancellationToken cancellationToken)
         {
@@ -65,11 +69,13 @@ namespace Application.Features.Criminal.Command.Delete
                     var criminalImages = _criminalImageRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted);
                     if (criminalImages != null)
                     {
-                        await _criminalImageRepository.DeleteRange(criminalImages.ToList());
+                        await _criminalImageRepository.RemoveRangeAsync(criminalImages.ToList());
                         await _uploadService.DeleteRangeAsync(criminalImages.Select(i => i.FilePath).ToList());
                     }
                     if(criminal.Avatar != null)
                         await _uploadService.DeleteAsync(criminal.Avatar);
+
+                    _backgroundJobClient.Enqueue(() => _uploadService.RemoveImageFromGGDrive(request.Id, new List<string>(), true));
 
                     await _unitOfWork.Commit(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

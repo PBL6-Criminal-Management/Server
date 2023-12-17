@@ -41,7 +41,7 @@ namespace Application.Features.CrimeReporting.Command.Delete
                 {
                     await _crimeReportingRepository.DeleteAsync(reportDelete);
                     var reportImage = await _reportingImageRepository.Entities.Where(_ => _.ReportingId == request.Id && !_.IsDeleted).ToListAsync();
-                    await _reportingImageRepository.DeleteRange(reportImage);
+                    await _reportingImageRepository.RemoveRangeAsync(reportImage);
                     foreach (var image in reportImage)
                     {
                         var check = await _uploadService.DeleteAsync(image.FilePath);
