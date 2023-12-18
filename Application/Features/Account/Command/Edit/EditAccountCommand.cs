@@ -20,12 +20,15 @@ namespace Application.Features.Account.Command.Edit
     {
         public long Id { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string Name { get; set; } = null!;
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string CitizenId { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string Address { get; set; } = null!;
 
         [EmailAddress(ErrorMessage = StaticVariable.INVALID_EMAIL)]
@@ -42,6 +45,7 @@ namespace Application.Features.Account.Command.Edit
 
         public bool IsActive { get; set; }
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_IMAGE)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string? Image { get; set; }
 
     }
@@ -80,7 +84,7 @@ namespace Application.Features.Account.Command.Edit
             var roleId = await _userService.GetRoleIdAsync(account.Id);
             if (!_currentUserService.RoleName.Equals(RoleConstants.AdministratorRole))
             {
-                if(user == null || !_currentUserService.Username.Equals(user.UserName))
+                if (user == null || !_currentUserService.Username.Equals(user.UserName))
                     return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_EDIT_ACCOUNT_PERMISSION);
 
                 if (roleId != request.Role)
@@ -130,7 +134,7 @@ namespace Application.Features.Account.Command.Edit
 
                     if (user != null)
                     {
-                        var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role == null? Role.None : (Role)request.Role);
+                        var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role == null ? Role.None : (Role)request.Role);
                         if (!checkChangeRole)
                         {
                             return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
@@ -156,8 +160,8 @@ namespace Application.Features.Account.Command.Edit
                     {
                         await _uploadService.DeleteAsync(deleleImagePath);
                     }
-                    
-                    if(message != null)
+
+                    if (message != null)
                     {
                         request.IsActive = false;
                         request.Role = null;

@@ -41,11 +41,14 @@ namespace Domain.Constants
         public const string INVALID_USER_NAME = "Tên người dùng không hợp lệ!";
         public const string INVALID_PASSWORD = "Mật khẩu không hợp lệ!";
         public const string NOT_MATCH_PASSWORD = "Mật khẩu xác nhận không khớp với mật khẩu mới!";
-
         public const string PHONE_NUMBER_EXISTS_MSG = "Số điện thoại đã tồn tại trong cơ sở dữ liệu!";
+        public const string FACEBOOK_EXISTS_MSG = "Facebook đã tồn tại trong cơ sở dữ liệu";
+        public const string PHONE_NUMBER_WITNESS_EXISTS_MSG = "Số điện thoại của nhân chứng đã tồn tại trong cơ sở dữ liệu!";
+        public const string PHONE_NUMBER_VICTIM_EXISTS_MSG = "Số điện thoại của nạn nhân đã tồn tại trong cơ sở dữ liệu!";
         public const string EMAIL_EXISTS_MSG = "Email đã tồn tại trong cơ sở dữ liệu!";
         public const string USERNAME_EXISTS_MSG = "Tên người dùng đã tồn tại trong cơ sở dữ liệu!";
         public const string CITIZEN_ID_EXISTS_MSG = "CMND hoặc CCCD đã tồn tại trong cơ sở dữ liệu!";
+        public const string CITIZEN_ID_REPEAT = "CMMD hoặc CCCD bị trùng";
         public const string CHANGE_ROLE_FAIL = "Thay đổi role không thành công";
         public const string NOT_FOUND_CRIMINAL = "Không tìm thấy tội phạm phù hợp!";
 
@@ -105,7 +108,7 @@ namespace Domain.Constants
         public const string LIMIT_ANOTHER_NAME = "Tên khác không được vượt quá 100 ký tự!";
         public const string LIMIT_PHONE_MODEL = "Model điện thoại không được vượt quá 100 ký tự!";
         public const string LIMIT_CAREER_AND_WORKPLACE = "Nghề nghiệp và nơi làm việc không được vượt quá 300 ký tự!";
-        public const string LIMIT_CHRACTERISTICS = "Tính cách không được vượt quá 500 ký tự!";
+        public const string LIMIT_CHARACTERISTICS = "Tính cách không được vượt quá 500 ký tự!";
         public const string LIMIT_HOME_TOWN = "Quê quán không được vượt quá 200 ký tự!";
         public const string LIMIT_ETHNICITY = "Dân tộc không được vượt quá 50 ký tự!";
         public const string LIMIT_RELIGION = "Tôn giáo không được vượt quá 50 ký tự!";
@@ -119,7 +122,7 @@ namespace Domain.Constants
         public const string LIMIT_CURRENT_ACTIVITY = "Hoạt động hiện hành không được vượt quá 200 ký tự!";
         public const string LIMIT_WANTED_DECISION_NO = "Số ra quyết định không được vượt quá 50 ký tự!";
         public const string LIMIT_DECISION_MAKING_UNIT = "Đơn vị ra quyết định không được vượt quá 100 ký tự!";
-        public const string LIMIT_ENTRY_AND_EXITINFORMATION = "Thông tin xuất nhập cảnh không được vượt quá 500 ký tự!";
+        public const string LIMIT_ENTRY_AND_EXIT_INFORMATION = "Thông tin xuất nhập cảnh không được vượt quá 500 ký tự!";
         public const string LIMIT_FACEBOOK = "Facebook không được vượt quá 100 ký tự!";
         public const string LIMIT_ZALO = "Zalo không được vượt quá 100 ký tự!";
         public const string LIMIT_OTHER_SOCIAL_NETWORKS = "Mạng xã hội khác không được vượt quá 300 ký tự!";
@@ -145,5 +148,6 @@ namespace Domain.Constants
         public const string CASE = "VA";
         public const string CRIMINAL = "TP";
         public const string REPORTING = "BC";
+        public const string TITLE_CONTAINS_SPECIAL_CHARACTERS = "Nội dung chứa ký tự đặc biệt";
     }
 }
