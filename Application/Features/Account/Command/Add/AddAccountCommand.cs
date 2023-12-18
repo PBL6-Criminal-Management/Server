@@ -24,9 +24,11 @@ namespace Application.Features.Account.Command.Add
         public long? Id { get; set; }
 
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string Name { get; set; } = null!;
 
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string CitizenId { get; set; } = null!;
 
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
@@ -35,9 +37,11 @@ namespace Application.Features.Account.Command.Add
         //[RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = StaticVariable.INVALID_USER_NAME)]
         [DefaultValue(null)]
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_USERNAME)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string? Username { get; set; }
 
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string Address { get; set; } = null!;
 
         [EmailAddress(ErrorMessage = StaticVariable.INVALID_EMAIL)]
@@ -118,7 +122,7 @@ namespace Application.Features.Account.Command.Add
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.PHONE_NUMBER_EXISTS_MSG);
             }
 
-            if(!Enum.IsDefined(typeof(Role), request.Role))
+            if (!Enum.IsDefined(typeof(Role), request.Role))
             {
                 return await Result<AddAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_ROLE);
             }

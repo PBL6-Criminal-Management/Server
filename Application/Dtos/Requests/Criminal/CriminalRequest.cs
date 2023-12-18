@@ -7,6 +7,7 @@ namespace Application.Dtos.Requests.Criminal
     public class CriminalRequest
     {
         public long Id { get; set; }
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string Testimony { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
         public string Charge { get; set; } = null!;
