@@ -7,7 +7,6 @@ using Domain.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Features.Account.Command.Edit;
-using Application.Dtos.Requests.Identity;
 using Application.Features.Account.Command.ResetPassword;
 
 namespace WebApi.Controllers.V1.Account

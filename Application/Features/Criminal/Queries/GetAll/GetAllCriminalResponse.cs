@@ -8,6 +8,15 @@ namespace Application.Features.Criminal.Queries.GetAll
         public long Id { get; set; }
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
+        public string? AnotherName { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
+        public DateOnly Birthday { get; set; }
+        public bool? Gender { get; set; }
+        public string CitizenId { get; set; } = null!;
+        public string HomeTown { get; set; } = null!;
+        public string CurrentAccommodation { get; set; } = null!;
+        public string Nationality { get; set; } = null!;
+        public string Ethnicity { get; set; } = null!;
         public int YearOfBirth { get; set; }
         public string PermanentResidence { get; set; } = null!;
         public CriminalStatus Status { get; set; }

@@ -45,7 +45,7 @@ namespace WebApi.Controllers.V1.Case
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<GetCaseByIdResponse>>> GetCaseById(long id)
         {
@@ -73,7 +73,7 @@ namespace WebApi.Controllers.V1.Case
         /// <returns></returns>
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<PaginatedResult<GetAllCaseResponse>>> GetAllCriminal([FromQuery] GetAllCaseParameter parameter)
+        public async Task<ActionResult<PaginatedResult<GetAllCaseResponse>>> GetAllCases([FromQuery] GetAllCaseParameter parameter)
         {
             return Ok(await Mediator.Send(new GetAllCaseQuery()
             {
