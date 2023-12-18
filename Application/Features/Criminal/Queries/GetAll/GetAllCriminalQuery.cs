@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Exceptions;
+using Application.Interfaces;
 using Application.Interfaces.Case;
 using Application.Interfaces.CaseCriminal;
 using Application.Interfaces.Criminal;
@@ -63,7 +64,9 @@ namespace Application.Features.Criminal.Queries.GetAll
                                                                 || StringHelper.Contains(o.criminal.HomeTown, request.Keyword)
                                                                 || StringHelper.Contains(o.criminal.PermanentResidence, request.Keyword)
                                                                 || StringHelper.Contains(o.caseOfCriminal?.Charge, request.Keyword)
-                                                                || o.criminal.Birthday.Year.ToString().StartsWith(request.Keyword))
+                                                                || o.criminal.Birthday.Year.ToString().StartsWith(request.Keyword)
+                                                                || StringHelper.Contains(o.criminal.Status.ToDescriptionString(), request.Keyword)
+                                        )
                                     && (!request.Status.HasValue || o.criminal.Status == request.Status)
                                     && (!request.YearOfBirth.HasValue || o.criminal.Birthday.Year == request.YearOfBirth)
                                     && (!request.Gender.HasValue || o.criminal.Gender == request.Gender)
@@ -77,6 +80,14 @@ namespace Application.Features.Criminal.Queries.GetAll
                                 Id = o.criminal.Id,
                                 Code = StaticVariable.CRIMINAL + o.criminal.Id.ToString().PadLeft(5, '0'),
                                 Name = o.criminal.Name,
+                                AnotherName = o.criminal.AnotherName,
+                                Birthday = o.criminal.Birthday,
+                                Gender = o.criminal.Gender,
+                                CitizenId = o.criminal.CitizenId,
+                                HomeTown = o.criminal.HomeTown,
+                                CurrentAccommodation = o.criminal.CurrentAccommodation,
+                                Nationality = o.criminal.Nationality,
+                                Ethnicity = o.criminal.Ethnicity,
                                 YearOfBirth = o.criminal.Birthday.Year,
                                 PermanentResidence = o.criminal.PermanentResidence,
                                 Status = o.criminal.Status,

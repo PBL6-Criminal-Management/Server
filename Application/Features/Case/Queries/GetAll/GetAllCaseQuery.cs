@@ -39,6 +39,7 @@ namespace Application.Features.Case.Queries.GetAll
                                                                 || StringHelper.Contains(c.CrimeScene, request.Keyword)
                                                                 || StringHelper.Contains(c.TypeOfViolation.ToDescriptionString(), request.Keyword)
                                                                 || (_dateTimeService.ConvertToUtc(c.StartDate) + " - " + (c.EndDate.HasValue ? _dateTimeService.ConvertToUtc(c.EndDate.Value) : "")).Contains(request.Keyword)
+                                                                || StringHelper.Contains(c.Status.ToDescriptionString(), request.Keyword)
                                                                 ) &&
                         (!request.Status.HasValue || c.Status == request.Status) &&
                         (!request.TypeOfViolation.HasValue || c.TypeOfViolation == request.TypeOfViolation) &&
