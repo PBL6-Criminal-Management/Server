@@ -17,6 +17,7 @@ namespace Application.Features.CrimeReporting.Command.Edit
     {
         public long Id { get; set; }
         public ReportStatus Status { get; set; }
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string? Note { get; set; }
     }
     internal class EditCrimeReportingCommandHandler : IRequestHandler<EditCrimeReportingCommand, Result<Domain.Entities.CrimeReporting.CrimeReporting>>

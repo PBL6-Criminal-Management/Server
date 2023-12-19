@@ -38,8 +38,10 @@ namespace Application.Features.Case.Command.Add
         public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
+        [RegularExpression(@"^[\p{L} ,]+$", ErrorMessage = StaticVariable.CHARGE_VALID_CHARACTER)]
         public string Charge { get; set; } = null!;
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
+        [RegularExpression(@"^[\p{L}0-9,. ]+$", ErrorMessage = StaticVariable.ADDRESS_VALID_CHARACTER)]
         public string Area { get; set; } = null!;
         public string? Description { get; set; }
         public List<EvidenceRequest>? Evidences { get; set; }
@@ -156,6 +158,11 @@ namespace Application.Features.Case.Command.Add
                             var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
                             if (checkWitnessExist == null)
                             {
+                                if (!string.IsNullOrEmpty(witness.PhoneNumber))
+                                {
+                                    var checkPhoneWitnessExist = await _witnessRepository.FindAsync(_ => _.PhoneNumber.Equals(witness.PhoneNumber) && !_.IsDeleted);
+                                    if (checkPhoneWitnessExist != null) return await Result<AddCaseCommand>.FailAsync(StaticVariable.PHONE_NUMBER_WITNESS_EXISTS_MSG);
+                                }
                                 var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
 
                                 await _witnessRepository.AddAsync(addWitness);
@@ -195,6 +202,11 @@ namespace Application.Features.Case.Command.Add
                             var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted);
                             if (checkVictimExist == null)
                             {
+                                if (!string.IsNullOrEmpty(victim.PhoneNumber))
+                                {
+                                    var checkPhoneVictimExist = await _victimRepository.FindAsync(_ => _.PhoneNumber.Equals(victim.PhoneNumber) && !_.IsDeleted);
+                                    if (checkPhoneVictimExist != null) return await Result<AddCaseCommand>.FailAsync(StaticVariable.PHONE_NUMBER_VICTIM_EXISTS_MSG);
+                                }
                                 var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);
                                 await _victimRepository.AddAsync(addVictim);
                                 await _unitOfWork.Commit(cancellationToken);

@@ -18,16 +18,21 @@ namespace Application.Features.CrimeReporting.Command.Add
     public class AddCrimeReportingCommand : IRequest<Result<AddCrimeReportingCommand>>
     {
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_REPORTER_NAME)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string ReporterName { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_REPORTER_EMAIL)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string? ReporterEmail { get; set; }
         [RegularExpression(@"(\+84|84|0)+(3|5|7|8|9|1[2|6|8|9])+([0-9]{8,10})\b", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_REPORTER_PHONE)]
         public string ReporterPhone { get; set; } = null!;
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_REPORTER_ADDRESS)]
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string ReporterAddress { get; set; } = null!;
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string Content { get; set; } = null!;
         public ReportStatus Status { get; set; }
+        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string? Note { get; set; }
         public List<ImageRequest>? ReportingImages { get; set; }
     }
