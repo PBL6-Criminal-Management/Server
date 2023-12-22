@@ -111,7 +111,7 @@ namespace Application.Features.Case.Command.Add
             {
                 foreach (var criminal in request.Criminals)
                 {
-                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id);
+                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id && !_.IsDeleted);
                     if (isCriminalExists == null)
                     {
                         return await Result<AddCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_CRIMINAL);

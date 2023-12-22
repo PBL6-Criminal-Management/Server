@@ -1,5 +1,6 @@
 ﻿using Application.Features.Account.Command.Add;
 using Application.Features.Account.Command.Edit;
+using Application.Features.Profile.Command.Edit;
 using AutoMapper;
 using Domain.Entities;
 
@@ -22,6 +23,7 @@ namespace Application.Mappings.User
                     .ForMember(dest => dest.Id, opt => opt.Ignore())
                     .ReverseMap();
             CreateMap<EditAccountCommand, Domain.Entities.User.User>().ReverseMap();
+            CreateMap<EditProfileCommand, Domain.Entities.User.User>().ReverseMap();
         }
     }
 }

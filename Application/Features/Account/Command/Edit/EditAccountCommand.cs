@@ -72,7 +72,7 @@ namespace Application.Features.Account.Command.Edit
 
         public async Task<Result<EditAccountCommand>> Handle(EditAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = await _accountRepository.FindAsync(a => a.Id == request.Id);
+            var account = await _accountRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
             if (account == null)
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
@@ -115,10 +115,10 @@ namespace Application.Features.Account.Command.Edit
             //{
             //    return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_ROLE);
             //}
-            string deleleImagePath = "";
+            string deleteImagePath = "";
             if (account.Image != null && account.Image != request.Image)
             {
-                deleleImagePath = account.Image;
+                deleteImagePath = account.Image;
             }
             _mapper.Map(request, account);
 
@@ -155,9 +155,9 @@ namespace Application.Features.Account.Command.Edit
                     });
 
                     await transaction.CommitAsync(cancellationToken);
-                    if (!deleleImagePath.Equals(""))
+                    if (!deleteImagePath.Equals(""))
                     {
-                        await _uploadService.DeleteAsync(deleleImagePath);
+                        await _uploadService.DeleteAsync(deleteImagePath);
                     }
 
                     if (message != null)

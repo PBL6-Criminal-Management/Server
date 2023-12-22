@@ -108,7 +108,7 @@ namespace Application.Features.Case.Command.Edit
             {
                 foreach (var criminal in request.Criminals)
                 {
-                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id);
+                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id && !_.IsDeleted);
                     if (isCriminalExists == null)
                     {
                         return await Result<EditCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_CRIMINAL);
@@ -181,7 +181,8 @@ namespace Application.Features.Case.Command.Edit
                                 {
                                     if (caseEvidence.Id == evidence.Id)
                                     {
-                                        var evidenceImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && _.EvidenceId == evidence.Id && !_.IsDeleted).ToListAsync();
+                                        var evidenceImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && _.EvidenceId == evidence.Id
+                                                                            && !_.IsDeleted).ToListAsync();
 
                                         if (evidence.EvidenceImages != null && evidence.EvidenceImages.Count > 0)
                                         {

@@ -142,12 +142,12 @@ namespace Application.Features.Criminal.Command.Edit
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
-            var isCitizenIdExists = await _criminalRepository.FindAsync(_ => _.CitizenId.Equals(request.CitizenId));
+            var isCitizenIdExists = await _criminalRepository.FindAsync(_ => _.CitizenId.Equals(request.CitizenId) && !_.IsDeleted && _.Id != request.Id);
             if (isCitizenIdExists != null)
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }
-            var isPhoneNumberExists = await _criminalRepository.FindAsync(_ => _.PhoneNumber.Equals(request.PhoneNumber) && !_.IsDeleted);
+            var isPhoneNumberExists = await _criminalRepository.FindAsync(_ => _.PhoneNumber.Equals(request.PhoneNumber) && !_.IsDeleted && _.Id != request.Id);
             if (isPhoneNumberExists != null)
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.PHONE_NUMBER_EXISTS_MSG);
@@ -168,7 +168,7 @@ namespace Application.Features.Criminal.Command.Edit
             }
             if (!string.IsNullOrEmpty(request.Facebook))
             {
-                var isFacebookExists = await _criminalRepository.FindAsync(_ => !string.IsNullOrEmpty(_.Facebook) && _.Facebook.Equals(request.Facebook) && !_.IsDeleted);
+                var isFacebookExists = await _criminalRepository.FindAsync(_ => !string.IsNullOrEmpty(_.Facebook) && _.Facebook.Equals(request.Facebook) && !_.IsDeleted && _.Id != request.Id);
                 if (isFacebookExists != null)
                 {
                     return await Result<EditCriminalCommand>.FailAsync(StaticVariable.FACEBOOK_EXISTS_MSG);

@@ -1,10 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Application.Dtos.Requests.Image;
-using Application.Interfaces;
 using Application.Interfaces.CrimeReporting;
-using Application.Interfaces.ReportingImage;
 using Application.Interfaces.Repositories;
-using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Wrappers;
@@ -23,17 +19,11 @@ namespace Application.Features.CrimeReporting.Command.Edit
     internal class EditCrimeReportingCommandHandler : IRequestHandler<EditCrimeReportingCommand, Result<Domain.Entities.CrimeReporting.CrimeReporting>>
     {
         private readonly ICrimeReportingRepository _crimeReportingRepository;
-        private readonly IReportingImageRepository _reportingImageRepository;
-        private readonly IUploadService _uploadService;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork<long> _unitOfWork;
-        public EditCrimeReportingCommandHandler(ICrimeReportingRepository crimeReportingRepository, IReportingImageRepository reportingImageRepository,
-            IUploadService uploadService, IMapper mapper, IUnitOfWork<long> unitOfWork)
+        public EditCrimeReportingCommandHandler(ICrimeReportingRepository crimeReportingRepository,
+           IUnitOfWork<long> unitOfWork)
         {
             _crimeReportingRepository = crimeReportingRepository;
-            _reportingImageRepository = reportingImageRepository;
-            _uploadService = uploadService;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
         public async Task<Result<Domain.Entities.CrimeReporting.CrimeReporting>> Handle(EditCrimeReportingCommand request, CancellationToken cancellationToken)
