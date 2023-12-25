@@ -20,12 +20,15 @@ namespace Application.Features.Account.Command.Edit
     {
         public long Id { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
+        [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.NAME_CONTAINS_VALID_CHARACTER)]
         public string Name { get; set; } = null!;
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string CitizenId { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]
+        [RegularExpression(@"^[\p{L}0-9,. ]+$", ErrorMessage = StaticVariable.ADDRESS_VALID_CHARACTER)]
         public string Address { get; set; } = null!;
 
         [EmailAddress(ErrorMessage = StaticVariable.INVALID_EMAIL)]
@@ -69,7 +72,7 @@ namespace Application.Features.Account.Command.Edit
 
         public async Task<Result<EditAccountCommand>> Handle(EditAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = await _accountRepository.FindAsync(a => a.Id == request.Id);
+            var account = await _accountRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
             if (account == null)
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
@@ -80,7 +83,7 @@ namespace Application.Features.Account.Command.Edit
             var roleId = await _userService.GetRoleIdAsync(account.Id);
             if (!_currentUserService.RoleName.Equals(RoleConstants.AdministratorRole))
             {
-                if(user == null || !_currentUserService.Username.Equals(user.UserName))
+                if (user == null || !_currentUserService.Username.Equals(user.UserName))
                     return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_EDIT_ACCOUNT_PERMISSION);
 
                 if (roleId != request.Role)
@@ -112,10 +115,10 @@ namespace Application.Features.Account.Command.Edit
             //{
             //    return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_ROLE);
             //}
-            string deleleImagePath = "";
+            string deleteImagePath = "";
             if (account.Image != null && account.Image != request.Image)
             {
-                deleleImagePath = account.Image;
+                deleteImagePath = account.Image;
             }
             _mapper.Map(request, account);
 
@@ -130,7 +133,7 @@ namespace Application.Features.Account.Command.Edit
 
                     if (user != null)
                     {
-                        var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role == null? Role.None : (Role)request.Role);
+                        var checkChangeRole = await _userService.ChangeRole(request.Id, request.Role == null ? Role.None : (Role)request.Role);
                         if (!checkChangeRole)
                         {
                             return await Result<EditAccountCommand>.FailAsync(StaticVariable.CHANGE_ROLE_FAIL);
@@ -152,12 +155,12 @@ namespace Application.Features.Account.Command.Edit
                     });
 
                     await transaction.CommitAsync(cancellationToken);
-                    if (!deleleImagePath.Equals(""))
+                    if (!deleteImagePath.Equals(""))
                     {
-                        await _uploadService.DeleteAsync(deleleImagePath);
+                        await _uploadService.DeleteAsync(deleteImagePath);
                     }
-                    
-                    if(message != null)
+
+                    if (message != null)
                     {
                         request.IsActive = false;
                         request.Role = null;

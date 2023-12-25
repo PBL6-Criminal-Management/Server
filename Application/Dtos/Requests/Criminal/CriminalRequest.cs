@@ -9,10 +9,12 @@ namespace Application.Dtos.Requests.Criminal
         public long Id { get; set; }
         public string Testimony { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
+        [RegularExpression(@"^[\p{L} ,]+$", ErrorMessage = StaticVariable.CHARGE_VALID_CHARACTER)]
         public string Charge { get; set; } = null!;
         [MaxLength(500, ErrorMessage = StaticVariable.LIMIT_REASON)]
         public string? Reason { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_WEAPON)]
+        [RegularExpression(@"^[\p{L}0-9, ]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public string? Weapon { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
     }
