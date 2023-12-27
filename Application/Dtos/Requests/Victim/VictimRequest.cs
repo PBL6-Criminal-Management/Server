@@ -25,5 +25,7 @@ namespace Application.Dtos.Requests.Victim
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         public string Testimony { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
+        public DateTime Date { get; set; }
     }
 }

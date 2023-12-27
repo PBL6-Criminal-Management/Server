@@ -74,6 +74,8 @@ namespace Application.Features.Case.Queries.GetById
                 return await Result<GetCaseByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
             var response = _mapper.Map<GetCaseByIdResponse>(caseCheck);
+            response.Code = StaticVariable.CASE + response.Id.ToString().PadLeft(5, '0');
+
             var evidenceOfCase = await _evidenceRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
             if (evidenceOfCase.Any()) response.Evidences = _mapper.Map<List<Dtos.Responses.Evidence.EvidenceResponse>>(evidenceOfCase).ToList();
             if (response.Evidences != null && response.Evidences.Count > 0)
@@ -98,9 +100,11 @@ namespace Application.Features.Case.Queries.GetById
                     Id = c.Id,
                     Name = c.Name,
                     CitizenId = c.CitizenId,
+                    Gender = c.Gender,
+                    Birthday = c.Birthday,
                     PhoneNumber = c.PhoneNumber,
                     Address = c.Address,
-                    Date = c.Date,
+                    Date = cw.Date,
                     Testimony = cw.Testimony
                 }).ToListAsync();
             if (witnessOfCase.Any()) response.Witnesses = witnessOfCase;
@@ -131,7 +135,8 @@ namespace Application.Features.Case.Queries.GetById
                    PhoneNumber = v.PhoneNumber,
                    CitizenId = v.CitizenId,
                    Address = v.Address,
-                   Testimony = cV.Testimony
+                   Testimony = cV.Testimony,
+                   Date = cV.Date,
                }).ToListAsync();
             if (victimOfCase.Any()) response.Victims = victimOfCase;
             var criminalOfCase = await _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted)
@@ -154,6 +159,7 @@ namespace Application.Features.Case.Queries.GetById
                    Charge = cCr.Charge,
                    Reason = cCr.Reason,
                    Testimony = cCr.Testimony,
+                   Date = cCr.Date,
                    TypeOfViolation = cCr.TypeOfViolation,
                    Weapon = cCr.Weapon
                }).ToListAsync();

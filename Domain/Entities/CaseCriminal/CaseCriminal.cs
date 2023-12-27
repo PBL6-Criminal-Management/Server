@@ -13,6 +13,8 @@ namespace Domain.Entities.CaseCriminal
         public long CaseId { get; set; }
         [Column("testimony", TypeName = "text")]
         public string Testimony { get; set; } = null!;
+        [Column("date", TypeName = "datetime")]
+        public DateTime Date { get; set; }
         [Column("charge", TypeName = "nvarchar(100)")]
         public string Charge { get; set; } = null!;
         [Column("reason", TypeName = "nvarchar(500)")]

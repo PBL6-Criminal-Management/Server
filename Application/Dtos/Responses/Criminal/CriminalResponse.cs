@@ -20,6 +20,8 @@ namespace Application.Dtos.Responses.Criminal
         public string Charge { get; set; } = null!;
         public string? Reason { get; set; }
         public string Testimony { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
+        public DateTime Date { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
         public string? Weapon { get; set; }
     }

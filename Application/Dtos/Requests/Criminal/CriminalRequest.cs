@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Domain.Constants;
 using Domain.Constants.Enum;
 
@@ -8,6 +9,8 @@ namespace Application.Dtos.Requests.Criminal
     {
         public long Id { get; set; }
         public string Testimony { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
+        public DateTime Date { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
         [RegularExpression(@"^[\p{L} ,]+$", ErrorMessage = StaticVariable.CHARGE_VALID_CHARACTER)]
         public string Charge { get; set; } = null!;

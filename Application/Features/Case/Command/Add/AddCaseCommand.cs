@@ -21,6 +21,8 @@ using Application.Interfaces.Witness;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
+using Domain.Entities.Criminal;
+using Domain.Entities.Witness;
 using Domain.Wrappers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -121,6 +123,7 @@ namespace Application.Features.Case.Command.Add
                         CaseId = 0,
                         CriminalId = criminal.Id,
                         Testimony = criminal.Testimony,
+                        Date = criminal.Date, 
                         Charge = criminal.Charge,
                         Reason = criminal.Reason,
                         Weapon = criminal.Weapon,
@@ -170,7 +173,8 @@ namespace Application.Features.Case.Command.Add
                                 witnessTestimonies.Add(new TestimonyRequest
                                 {
                                     Id = addWitness.Id,
-                                    Testimony = witness.Testimony
+                                    Testimony = witness.Testimony,
+                                    Date = witness.Date
                                 });
                             }
                             else
@@ -178,7 +182,8 @@ namespace Application.Features.Case.Command.Add
                                 witnessTestimonies.Add(new TestimonyRequest
                                 {
                                     Id = checkWitnessExist.Id,
-                                    Testimony = witness.Testimony
+                                    Testimony = witness.Testimony,
+                                    Date = witness.Date
                                 });
                             }
                         }
@@ -189,7 +194,8 @@ namespace Application.Features.Case.Command.Add
                             {
                                 CaseId = addCase.Id,
                                 WitnessId = witnessTestimony.Id,
-                                Testimony = witnessTestimony.Testimony
+                                Testimony = witnessTestimony.Testimony,
+                                Date = witnessTestimony.Date
                             });
                         }
                         await _caseWitnessRepository.AddRangeAsync(caseWitnesses);
@@ -213,7 +219,8 @@ namespace Application.Features.Case.Command.Add
                                 victimTestimonies.Add(new TestimonyRequest
                                 {
                                     Id = addVictim.Id,
-                                    Testimony = victim.Testimony
+                                    Testimony = victim.Testimony,
+                                    Date = victim.Date
                                 });
                             }
                             else
@@ -221,7 +228,8 @@ namespace Application.Features.Case.Command.Add
                                 victimTestimonies.Add(new TestimonyRequest
                                 {
                                     Id = checkVictimExist.Id,
-                                    Testimony = victim.Testimony
+                                    Testimony = victim.Testimony,
+                                    Date = victim.Date
                                 });
                             }
                         }
@@ -232,7 +240,8 @@ namespace Application.Features.Case.Command.Add
                             {
                                 CaseId = addCase.Id,
                                 VictimId = victimTestimony.Id,
-                                Testimony = victimTestimony.Testimony
+                                Testimony = victimTestimony.Testimony,
+                                Date = victimTestimony.Date
                             });
                         }
                         await _caseVictimRepository.AddRangeAsync(caseVictims);

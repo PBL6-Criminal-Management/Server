@@ -63,7 +63,7 @@ namespace WebApi.Controllers
         /// <param name="filePath"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<IActionResult> DeleteFile([FromForm] string filePath)
+        public async Task<IActionResult> DeleteFile(string filePath)
         {
             var result = await _uploadService.DeleteAsync(filePath);
             return result.Succeeded ? Ok(result) : BadRequest(result);
