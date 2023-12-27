@@ -12,6 +12,8 @@ namespace Domain.Entities.CaseVictim
         public long VictimId { get; set; }
         [Column("testimony", TypeName = "text")]
         public string Testimony { get; set; } = null!;
+        [Column("date", TypeName = "datetime")]
+        public DateTime Date { get; set; }
 
         //Relationship
         public virtual Domain.Entities.Case.Case Case { get; set; } = null!;

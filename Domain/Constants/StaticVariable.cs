@@ -86,8 +86,7 @@ namespace Domain.Constants
         public const string AI_MODEL_HAS_NOT_TRAINED_YET = "Mô hình AI chưa được huấn luyện!";
         public const string NOT_FOUND_IMAGE_TO_TRAIN = "Không tìm thấy ảnh nào để huấn luyện!";
         public const string AI_MODEL_HAS_TRAINED_SUCCESSFULLY = "Mô hình AI được huấn luyện thành công!";
-        //public const string AI_SERVER_BASE_URL = "https://face-recognition-z0vz.onrender.com";
-        public const string AI_SERVER_BASE_URL = "https://face-recognition-sv2p.onrender.com";
+        public const string AI_SERVER_BASE_URL = "https://face-recognition-juu8.onrender.com";
         //public const string AI_SERVER_BASE_URL = "http://localhost:8000";
         public const string TRAINED_IMAGES_FOLDER_ID = "1FcPN4UNVUZHO7JL5MPSfCgIxmhmY9LC5";
         public const string TRAINED_IMAGES_FOLDER_NAME = "TrainedImages";

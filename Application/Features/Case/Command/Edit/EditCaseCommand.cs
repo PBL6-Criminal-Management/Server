@@ -118,6 +118,7 @@ namespace Application.Features.Case.Command.Edit
                         CaseId = request.Id,
                         CriminalId = criminal.Id,
                         Testimony = criminal.Testimony,
+                        Date = criminal.Date,
                         Charge = criminal.Charge,
                         Reason = criminal.Reason,
                         Weapon = criminal.Weapon,
@@ -245,6 +246,7 @@ namespace Application.Features.Case.Command.Edit
                                 {
                                     check = true;
                                     caseCriminal.Testimony = newCaseCriminal.Testimony;
+                                    caseCriminal.Date = newCaseCriminal.Date;
                                     caseCriminal.Charge = newCaseCriminal.Charge;
                                     caseCriminal.Reason = newCaseCriminal.Reason;
                                     caseCriminal.Weapon = newCaseCriminal.Weapon;
@@ -326,7 +328,8 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         CaseId = request.Id,
                                         WitnessId = addWitness.Id,
-                                        Testimony = witness.Testimony
+                                        Testimony = witness.Testimony,
+                                        Date = witness.Date
                                     });
                                 }
                                 else
@@ -335,7 +338,8 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         CaseId = request.Id,
                                         WitnessId = checkCitizenIdExist.Id,
-                                        Testimony = witness.Testimony
+                                        Testimony = witness.Testimony,
+                                        Date = witness.Date
                                     });
                                 }
                             }
@@ -348,6 +352,7 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         check = true;
                                         caseWitness.Testimony = witness.Testimony;
+                                        caseWitness.Date = witness.Date;
                                         await _caseWitnessRepository.UpdateAsync(caseWitness);
                                         _mapper.Map(witness, checkWitnessExist);
                                         await _witnessRepository.UpdateAsync(checkWitnessExist);
@@ -361,7 +366,8 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         CaseId = request.Id,
                                         WitnessId = checkWitnessExist.Id,
-                                        Testimony = witness.Testimony
+                                        Testimony = witness.Testimony,
+                                        Date = witness.Date
                                     });
                                 }
                             }
@@ -401,7 +407,8 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         CaseId = request.Id,
                                         VictimId = addVictim.Id,
-                                        Testimony = victim.Testimony
+                                        Testimony = victim.Testimony,
+                                        Date = victim.Date
                                     });
                                 }
                                 else
@@ -410,7 +417,8 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         CaseId = request.Id,
                                         VictimId = checkCitizenIdExist.Id,
-                                        Testimony = victim.Testimony
+                                        Testimony = victim.Testimony,
+                                        Date = victim.Date
                                     });
                                 }
                             }
@@ -423,6 +431,7 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         check = true;
                                         caseVictim.Testimony = victim.Testimony;
+                                        caseVictim.Date = victim.Date;
                                         await _caseVictimRepository.UpdateAsync(caseVictim);
                                         _mapper.Map(victim, checkVictimExist);
                                         await _victimRepository.UpdateAsync(checkVictimExist);
@@ -436,7 +445,8 @@ namespace Application.Features.Case.Command.Edit
                                     {
                                         CaseId = request.Id,
                                         VictimId = checkVictimExist.Id,
-                                        Testimony = victim.Testimony
+                                        Testimony = victim.Testimony,
+                                        Date = victim.Date
                                     });
                                 }
                             }

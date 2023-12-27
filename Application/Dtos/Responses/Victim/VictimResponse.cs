@@ -13,5 +13,7 @@ namespace Application.Dtos.Responses.Victim
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;
         public string Testimony { get; set; } = null!;
+        [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
+        public DateTime Date { get; set; }
     }
 }

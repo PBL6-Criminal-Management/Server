@@ -13,6 +13,7 @@ namespace Application.Features.Case.Queries.GetById
     public class GetCaseByIdResponse
     {
         public long Id { get; set; }
+        public string Code { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]
         public DateTime StartDate { get; set; }
         [JsonConverter(typeof(CustomConverter.DateTimeConverter))]

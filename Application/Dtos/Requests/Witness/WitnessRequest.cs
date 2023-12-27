@@ -14,6 +14,9 @@ namespace Application.Dtos.Requests.Witness
         [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string CitizenId { get; set; } = null!;
+        public bool? Gender { get; set; }
+        [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
+        public DateOnly? Birthday { get; set; }
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_PHONENUMBER)]
         [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
         [DefaultValue("stringst")]
