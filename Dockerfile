@@ -29,11 +29,11 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 COPY Infrastructure/Services/exalted-pattern-400909-3eaa10f4b2b4.json /app/Infrastructure/Services/
-COPY Application/Services/Magick.Native-Q16-arm64.dll /app/Magick.Native-Q16-arm64.dll
-COPY Application/Services/Magick.Native-Q16-x64.dll /app/Magick.Native-Q16-x64.dll
-COPY Application/Services/Magick.Native-Q16-x86.dll /app/Magick.Native-Q16-x86.dll
+# COPY Application/Services/Magick.Native-Q16-arm64.dll /app/Magick.Native-Q16-arm64.dll
+# COPY Application/Services/Magick.Native-Q16-x64.dll /app/Magick.Native-Q16-x64.dll
+# COPY Application/Services/Magick.Native-Q16-x86.dll /app/Magick.Native-Q16-x86.dll
 COPY WebApi/DigiCertGlobalRootCA.crt.pem /app/DigiCertGlobalRootCA.crt.pem
-COPY WebApi/ffmpeg/x86_64 /app/ffmpeg/x86_64
+# COPY WebApi/ffmpeg/x86_64 /app/ffmpeg/x86_64
 COPY WebApi/Files/Avatar /app/Files/Avatar
 
 ENTRYPOINT ["dotnet", "WebApi.dll"]
