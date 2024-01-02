@@ -27,7 +27,7 @@ namespace Application.Features.Account.Command.Add
         [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.NAME_CONTAINS_VALID_CHARACTER)]
         public string Name { get; set; } = null!;
 
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string CitizenId { get; set; } = null!;
 

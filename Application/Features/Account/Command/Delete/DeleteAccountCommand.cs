@@ -27,7 +27,7 @@ namespace Application.Features.Account.Command.Delete
         }
         public async Task<Result<long>> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = await _accountRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
+            var account = _accountRepository.Entities.Where(a => a.Id == request.Id && !a.IsDeleted).FirstOrDefault();
             if (account == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();

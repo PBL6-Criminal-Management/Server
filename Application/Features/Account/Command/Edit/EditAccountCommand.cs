@@ -22,7 +22,7 @@ namespace Application.Features.Account.Command.Edit
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_NAME)]
         [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.NAME_CONTAINS_VALID_CHARACTER)]
         public string Name { get; set; } = null!;
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string CitizenId { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
@@ -72,7 +72,7 @@ namespace Application.Features.Account.Command.Edit
 
         public async Task<Result<EditAccountCommand>> Handle(EditAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = await _accountRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
+            var account = _accountRepository.Entities.Where(a => a.Id == request.Id && !a.IsDeleted).FirstOrDefault();
             if (account == null)
             {
                 return await Result<EditAccountCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);

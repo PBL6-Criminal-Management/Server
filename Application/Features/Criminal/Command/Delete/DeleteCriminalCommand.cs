@@ -46,7 +46,7 @@ namespace Application.Features.Criminal.Command.Delete
         }
         public async Task<Result<long>> Handle(DeleteCriminalCommand request, CancellationToken cancellationToken)
         {
-            var criminal = await _criminalRepository.FindAsync(a => a.Id == request.Id && !a.IsDeleted);
+            var criminal = _criminalRepository.Entities.Where(a => a.Id == request.Id && !a.IsDeleted).FirstOrDefault();
             if (criminal == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();
@@ -62,7 +62,7 @@ namespace Application.Features.Criminal.Command.Delete
                     if (caseCriminal != null)
                         await _caseCriminalRepository.DeleteRange(caseCriminal.ToList());
 
-                    var wantedCriminal = await _wantedCriminalRepository.FindAsync(a => a.CriminalId == request.Id && !a.IsDeleted);
+                    var wantedCriminal = _wantedCriminalRepository.Entities.Where(a => a.CriminalId == request.Id && !a.IsDeleted).FirstOrDefault();
                     if (wantedCriminal != null)
                         await _wantedCriminalRepository.DeleteAsync(wantedCriminal);
 

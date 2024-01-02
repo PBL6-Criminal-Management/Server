@@ -101,7 +101,7 @@ namespace Application.Features.Case.Command.Add
             {
                 foreach (var id in request.InvestigatorIds)
                 {
-                    var checkInvestigatorExist = await _accountRepository.FindAsync(_ => _.Id == id && !_.IsDeleted);
+                    var checkInvestigatorExist = _accountRepository.Entities.Where(_ => _.Id == id && !_.IsDeleted).FirstOrDefault();
                     if (checkInvestigatorExist == null)
                     {
                         return await Result<AddCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_INVESTIGATOR);
@@ -113,7 +113,7 @@ namespace Application.Features.Case.Command.Add
             {
                 foreach (var criminal in request.Criminals)
                 {
-                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id && !_.IsDeleted);
+                    var isCriminalExists = _criminalRepository.Entities.Where(_ => _.Id == criminal.Id && !_.IsDeleted).FirstOrDefault();
                     if (isCriminalExists == null)
                     {
                         return await Result<AddCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_CRIMINAL);
@@ -158,12 +158,12 @@ namespace Application.Features.Case.Command.Add
                         List<TestimonyRequest> witnessTestimonies = new List<TestimonyRequest>();
                         foreach (var witness in request.Witnesses)
                         {
-                            var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
+                            var checkWitnessExist = _witnessRepository.Entities.Where(_ => _.CitizenId.Equals(witness.CitizenId)).FirstOrDefault();
                             if (checkWitnessExist == null)
                             {
                                 if (!string.IsNullOrEmpty(witness.PhoneNumber))
                                 {
-                                    var checkPhoneWitnessExist = await _witnessRepository.FindAsync(_ => _.PhoneNumber.Equals(witness.PhoneNumber) && !_.IsDeleted);
+                                    var checkPhoneWitnessExist = _witnessRepository.Entities.Where(_ => _.PhoneNumber.Equals(witness.PhoneNumber) && !_.IsDeleted).FirstOrDefault();
                                     if (checkPhoneWitnessExist != null) return await Result<AddCaseCommand>.FailAsync(StaticVariable.PHONE_NUMBER_WITNESS_EXISTS_MSG);
                                 }
                                 var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
@@ -205,12 +205,12 @@ namespace Application.Features.Case.Command.Add
                         List<TestimonyRequest> victimTestimonies = new List<TestimonyRequest>();
                         foreach (var victim in request.Victims)
                         {
-                            var checkVictimExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted);
+                            var checkVictimExist = _victimRepository.Entities.Where(_ => _.CitizenId.Equals(victim.CitizenId) && !_.IsDeleted).FirstOrDefault();
                             if (checkVictimExist == null)
                             {
                                 if (!string.IsNullOrEmpty(victim.PhoneNumber))
                                 {
-                                    var checkPhoneVictimExist = await _victimRepository.FindAsync(_ => _.PhoneNumber.Equals(victim.PhoneNumber) && !_.IsDeleted);
+                                    var checkPhoneVictimExist = _victimRepository.Entities.Where(_ => _.PhoneNumber.Equals(victim.PhoneNumber) && !_.IsDeleted).FirstOrDefault();
                                     if (checkPhoneVictimExist != null) return await Result<AddCaseCommand>.FailAsync(StaticVariable.PHONE_NUMBER_VICTIM_EXISTS_MSG);
                                 }
                                 var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);

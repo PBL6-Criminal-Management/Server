@@ -32,7 +32,7 @@ namespace Application.Features.CrimeReporting.Command.Edit
             {
                 return await Result<Domain.Entities.CrimeReporting.CrimeReporting>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
-            var editReport = await _crimeReportingRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            var editReport = _crimeReportingRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted).FirstOrDefault();
             if (editReport == null) return await Result<Domain.Entities.CrimeReporting.CrimeReporting>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();
             var result = await executionStrategy.ExecuteAsync(async () =>
