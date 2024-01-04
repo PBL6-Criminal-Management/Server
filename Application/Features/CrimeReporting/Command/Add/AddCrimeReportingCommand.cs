@@ -4,13 +4,11 @@ using Application.Hubs.Notification;
 using Application.Interfaces.CrimeReporting;
 using Application.Interfaces.ReportingImage;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.Services.Notification;
 using AutoMapper;
 using Domain.Constants;
 using Domain.Constants.Enum;
 using Domain.Wrappers;
 using MediatR;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.CrimeReporting.Command.Add
@@ -40,15 +38,13 @@ namespace Application.Features.CrimeReporting.Command.Add
         private readonly ICrimeReportingRepository _crimeReportingRepository;
         private readonly IReportingImageRepository _reportingImageRepository;
         private readonly IMapper _mapper;
-        private readonly IHubContext<NotificationService> _hubContext;
         public AddCrimeReportingCommandHandler(IUnitOfWork<long> unitOfWork, ICrimeReportingRepository crimeReportingRepository,
-            IReportingImageRepository reportingImageRepository, IHubContext<NotificationService> hubContext,
+            IReportingImageRepository reportingImageRepository,
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _crimeReportingRepository = crimeReportingRepository;
             _reportingImageRepository = reportingImageRepository;
-            _hubContext = hubContext;
             _mapper = mapper;
         }
         public async Task<Result<AddCrimeReportingCommand>> Handle(AddCrimeReportingCommand request, CancellationToken cancellationToken)
@@ -69,7 +65,6 @@ namespace Application.Features.CrimeReporting.Command.Add
                         await _reportingImageRepository.AddRangeAsync(addImage);
                     }
                     await transaction.CommitAsync(cancellationToken);
-                    await _hubContext.Clients.All.SendAsync("Thông báo : ", addReport);
                     return await Result<AddCrimeReportingCommand>.SuccessAsync(request);
                 }
                 catch (Exception ex)

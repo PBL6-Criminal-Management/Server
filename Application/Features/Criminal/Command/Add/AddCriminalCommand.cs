@@ -64,7 +64,6 @@ namespace Application.Features.Criminal.Command.Add
         [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string FatherCitizenId { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
-        [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.TITLE_CONTAINS_SPECIAL_CHARACTERS)]
         public DateOnly FatherBirthday { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_MOTHER_NAME)]
         [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.NAME_CONTAINS_VALID_CHARACTER)]
