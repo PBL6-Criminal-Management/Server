@@ -29,7 +29,7 @@ namespace Application.Features.CrimeReporting.Command.Delete
         }
         public async Task<Result<long>> Handle(DeleteCrimeReportingCommand request, CancellationToken cancellationToken)
         {
-            var reportDelete = await _crimeReportingRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            var reportDelete = _crimeReportingRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted).FirstOrDefault();
             if (reportDelete == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();

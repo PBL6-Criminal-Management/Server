@@ -5,7 +5,8 @@ namespace Application.Dtos.Responses.Criminal
 {
     public class CriminalResponse
     {
-        public long Id { get; set; }        
+        public long Id { get; set; }
+        public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string? AnotherName { get; set; } = null!;
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
@@ -24,5 +25,6 @@ namespace Application.Dtos.Responses.Criminal
         public DateTime Date { get; set; }
         public TypeOfViolation TypeOfViolation { get; set; }
         public string? Weapon { get; set; }
+        public string AvatarLink { get; set; } = null!;
     }
 }

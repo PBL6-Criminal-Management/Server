@@ -16,27 +16,27 @@ Log.Information($"Start {builder.Environment.ApplicationName} up");
 
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
 {
-    string wifiAddress = "localhost";
+   string wifiAddress = "localhost";
 
-    // Get all available network interfaces
-    NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+   // Get all available network interfaces
+   NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 
-    foreach (NetworkInterface networkInterface in interfaces)
-    {
-        if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && networkInterface.OperationalStatus == OperationalStatus.Up)
-        {
-            IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
-            foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
-            {
-                if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    wifiAddress = ip.Address.ToString();
-                }
-            }
-        }
-    }
-    builder.WebHost.UseUrls($"https://{wifiAddress}:1234", $"http://{wifiAddress}:5678"); //set server listen on wifi address
-    Console.WriteLine("SWAGGER PATH: " + $"https://{wifiAddress}:1234/swagger/index.html" + " OR " + $"http://{wifiAddress}:5678/swagger/index.html");
+   foreach (NetworkInterface networkInterface in interfaces)
+   {
+       if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && networkInterface.OperationalStatus == OperationalStatus.Up)
+       {
+           IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+           foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
+           {
+               if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+               {
+                   wifiAddress = ip.Address.ToString();
+               }
+           }
+       }
+   }
+   builder.WebHost.UseUrls($"https://{wifiAddress}:1234", $"http://{wifiAddress}:5678"); //set server listen on wifi address
+   Console.WriteLine("SWAGGER PATH: " + $"https://{wifiAddress}:1234/swagger/index.html" + " OR " + $"http://{wifiAddress}:5678/swagger/index.html");
 }
 
 // Add services to the container.

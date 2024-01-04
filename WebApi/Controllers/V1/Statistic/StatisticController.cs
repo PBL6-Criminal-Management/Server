@@ -13,12 +13,13 @@ namespace WebApi.Controllers.V1.Statistic
         /// <summary>
         /// Get Criminal Structure Statistic
         /// </summary>
+        /// <param name="Year"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.InvestigatorRole)]
+        [Authorize]
         [HttpGet("criminal-structure")]
-        public async Task<ActionResult<Result<GetCriminalStructureResponse>>> GetCriminalStructureStatistic()
+        public async Task<ActionResult<Result<GetCriminalStructureResponse>>> GetCriminalStructureStatistic(int Year)
         {
-            return Ok(await Mediator.Send(new GetCriminalStructureQuery()));
+            return Ok(await Mediator.Send(new GetCriminalStructureQuery { Year = Year}));
         }
 
         /// <summary>
@@ -26,7 +27,7 @@ namespace WebApi.Controllers.V1.Statistic
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.InvestigatorRole)]
+        [Authorize]
         [HttpGet("criminal-situation-developments")]
         public async Task<ActionResult<Result<CriminalSituationDevelopmentsResponse>>> GetCriminalSituationDevelopmentsStatistic([FromQuery] CriminalSituationDevelopmentsQuery query)
         {
@@ -38,7 +39,7 @@ namespace WebApi.Controllers.V1.Statistic
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.InvestigatorRole)]
+        [Authorize]
         [HttpGet("social-order-situation")]
         public async Task<ActionResult<Result<SocialOrderSituationResponse>>> GetSocialOrderSituationStatistic([FromQuery] SocialOrderSituationQuery query)
         {

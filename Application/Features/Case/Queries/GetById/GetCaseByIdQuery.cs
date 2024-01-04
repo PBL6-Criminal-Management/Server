@@ -68,7 +68,7 @@ namespace Application.Features.Case.Queries.GetById
         }
         public async Task<Result<GetCaseByIdResponse>> Handle(GetCaseByIdQuery request, CancellationToken cancellationToken)
         {
-            var caseCheck = await _caseRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            var caseCheck = _caseRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted).FirstOrDefault();
             if (caseCheck == null)
             {
                 return await Result<GetCaseByIdResponse>.FailAsync(StaticVariable.NOT_FOUND_MSG);
@@ -146,6 +146,7 @@ namespace Application.Features.Case.Queries.GetById
                (cCr, c) => new Dtos.Responses.Criminal.CriminalResponse
                {
                    Id = c.Id,
+                   Code = StaticVariable.CRIMINAL + c.Id.ToString().PadLeft(5, '0'),
                    Name = c.Name,
                    AnotherName = c.AnotherName,
                    Birthday = c.Birthday,
@@ -161,14 +162,15 @@ namespace Application.Features.Case.Queries.GetById
                    Testimony = cCr.Testimony,
                    Date = cCr.Date,
                    TypeOfViolation = cCr.TypeOfViolation,
-                   Weapon = cCr.Weapon
+                   Weapon = cCr.Weapon,
+                   AvatarLink = _uploadService.GetFullUrl(_uploadService.IsFileExists(c.Avatar) ? c.Avatar : "Files/Avatar/NotFound/notFoundAvatar.jpg")
                }).ToListAsync();
             if (criminalOfCase.Any()) response.Criminals = criminalOfCase;
             var imageOfCase = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && !_.IsDeleted).ToListAsync();
             List<FileResponse> caseImages = new List<FileResponse>();
             foreach (var image in imageOfCase)
             {
-                if (image.EvidenceId != null)
+                if (image.EvidenceId == null)
                 {
                     caseImages.Add(new FileResponse
                     {
@@ -196,7 +198,7 @@ namespace Application.Features.Case.Queries.GetById
             .ToListAsync();
             foreach (var wantedCriminal in wantedCriminals)
             {
-                var caseCriminal = await _caseCriminalRepository.FindAsync(_ => _.CaseId == request.Id && _.CriminalId == wantedCriminal.CriminalId && !_.IsDeleted);
+                var caseCriminal = _caseCriminalRepository.Entities.Where(_ => _.CaseId == request.Id && _.CriminalId == wantedCriminal.CriminalId && !_.IsDeleted).FirstOrDefault();
                 wantedCriminal.Weapon = caseCriminal == null || String.IsNullOrEmpty(caseCriminal.Weapon) ? "" : caseCriminal.Weapon;
             }
             if (wantedCriminals.Any()) response.WantedCriminalResponse = wantedCriminals;

@@ -39,15 +39,15 @@ namespace Application.Features.Case.Command.Edit
         public TypeOfViolation TypeOfViolation { get; set; }
         public CaseStatus Status { get; set; }
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_CHARGE)]
-        [RegularExpression(@"^[\p{L}]+$", ErrorMessage = StaticVariable.CHARGE_VALID_CHARACTER)]
+        [RegularExpression(@"^[\p{L} ]+$", ErrorMessage = StaticVariable.CHARGE_VALID_CHARACTER)]
         public string Charge { get; set; } = null!;
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_CRIME_SCENE)]
-        [RegularExpression(@"^[\p{L}0-9,. ]+$", ErrorMessage = StaticVariable.ADDRESS_VALID_CHARACTER)]
+        [RegularExpression(@"^[\p{L}0-9,. ]+$", ErrorMessage = StaticVariable.CRIME_SCENE_VALID_CHARACTER)]
         public string Area { get; set; } = null!;
         public string? Description { get; set; }
         public List<EvidenceRequest>? Evidences { get; set; }
-        public List<WitnessRequest> Witnesses { get; set; } = null!;
-        public List<ImageRequest>? CaseImage { get; set; }
+        public List<WitnessRequest>? Witnesses { get; set; }
+        public List<ImageRequest>? CaseImages { get; set; }
         public List<CriminalRequest>? Criminals { get; set; }
         public List<long>? InvestigatorIds { get; set; }
         public List<VictimRequest>? Victims { get; set; }
@@ -98,7 +98,7 @@ namespace Application.Features.Case.Command.Edit
         }
         public async Task<Result<EditCaseCommand>> Handle(EditCaseCommand request, CancellationToken cancellationToken)
         {
-            var editCase = await _caseRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            var editCase = _caseRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted).FirstOrDefault();
             if (editCase == null)
             {
                 return await Result<EditCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
@@ -108,7 +108,7 @@ namespace Application.Features.Case.Command.Edit
             {
                 foreach (var criminal in request.Criminals)
                 {
-                    var isCriminalExists = await _criminalRepository.FindAsync(_ => _.Id == criminal.Id && !_.IsDeleted);
+                    var isCriminalExists = _criminalRepository.Entities.Where(_ => _.Id == criminal.Id && !_.IsDeleted).FirstOrDefault();
                     if (isCriminalExists == null)
                     {
                         return await Result<EditCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_CRIMINAL);
@@ -131,7 +131,7 @@ namespace Application.Features.Case.Command.Edit
             {
                 foreach (var investigatorId in request.InvestigatorIds)
                 {
-                    var checkInvestigatorExist = await _accountRepository.FindAsync(_ => _.Id == investigatorId && !_.IsDeleted);
+                    var checkInvestigatorExist = _accountRepository.Entities.Where(_ => _.Id == investigatorId && !_.IsDeleted).FirstOrDefault();
                     if (checkInvestigatorExist == null)
                     {
                         return await Result<EditCaseCommand>.FailAsync(StaticVariable.NOT_FOUND_INVESTIGATOR);
@@ -310,15 +310,15 @@ namespace Application.Features.Case.Command.Edit
                     {
                         foreach (var witness in request.Witnesses)
                         {
-                            var checkWitnessExist = await _witnessRepository.FindAsync(_ => _.Id == witness.Id && !_.IsDeleted);
+                            var checkWitnessExist = _witnessRepository.Entities.Where(_ => _.Id == witness.Id && !_.IsDeleted).FirstOrDefault();
                             if (checkWitnessExist == null || witness.Id == 0)
                             {
-                                var checkCitizenIdExist = await _witnessRepository.FindAsync(_ => _.CitizenId.Equals(witness.CitizenId));
+                                var checkCitizenIdExist = _witnessRepository.Entities.Where(_ => _.CitizenId.Equals(witness.CitizenId)).FirstOrDefault();
                                 if (checkCitizenIdExist == null)
                                 {
                                     if (!string.IsNullOrEmpty(witness.PhoneNumber))
                                     {
-                                        var checkPhoneWitnessExist = await _witnessRepository.FindAsync(_ => _.PhoneNumber.Equals(witness.PhoneNumber) && !_.IsDeleted);
+                                        var checkPhoneWitnessExist = _witnessRepository.Entities.Where(_ => _.PhoneNumber.Equals(witness.PhoneNumber) && !_.IsDeleted).FirstOrDefault();
                                         if (checkPhoneWitnessExist != null) return await Result<EditCaseCommand>.FailAsync(StaticVariable.PHONE_NUMBER_WITNESS_EXISTS_MSG);
                                     }
                                     var addWitness = _mapper.Map<Domain.Entities.Witness.Witness>(witness);
@@ -389,15 +389,15 @@ namespace Application.Features.Case.Command.Edit
                     {
                         foreach (var victim in request.Victims)
                         {
-                            var checkVictimExist = await _victimRepository.FindAsync(_ => _.Id == victim.Id && !_.IsDeleted);
+                            var checkVictimExist = _victimRepository.Entities.Where(_ => _.Id == victim.Id && !_.IsDeleted).FirstOrDefault();
                             if (checkVictimExist == null || victim.Id == 0)
                             {
-                                var checkCitizenIdExist = await _victimRepository.FindAsync(_ => _.CitizenId.Equals(victim.CitizenId));
+                                var checkCitizenIdExist = _victimRepository.Entities.Where(_ => _.CitizenId.Equals(victim.CitizenId)).FirstOrDefault();
                                 if (checkCitizenIdExist == null)
                                 {
                                     if (!string.IsNullOrEmpty(victim.PhoneNumber))
                                     {
-                                        var checkPhoneVictimExist = await _victimRepository.FindAsync(_ => _.PhoneNumber.Equals(victim.PhoneNumber) && !_.IsDeleted);
+                                        var checkPhoneVictimExist = _victimRepository.Entities.Where(_ => _.PhoneNumber.Equals(victim.PhoneNumber) && !_.IsDeleted).FirstOrDefault();
                                         if (checkPhoneVictimExist != null) return await Result<EditCaseCommand>.FailAsync(StaticVariable.PHONE_NUMBER_VICTIM_EXISTS_MSG);
                                     }
                                     var addVictim = _mapper.Map<Domain.Entities.Victim.Victim>(victim);
@@ -476,9 +476,9 @@ namespace Application.Features.Case.Command.Edit
                     }
 
                     var caseImagesInDb = await _caseImageRepository.Entities.Where(_ => _.CaseId == request.Id && _.EvidenceId == null && !_.IsDeleted).ToListAsync();
-                    if (request.CaseImage != null && request.CaseImage.Count > 0)
+                    if (request.CaseImages != null && request.CaseImages.Count > 0)
                     {
-                        var images = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImage);
+                        var images = _mapper.Map<List<Domain.Entities.CaseImage.CaseImage>>(request.CaseImages);
                         var requestImage = images.Select(_ =>
                         {
                             _.Id = 0;
@@ -489,7 +489,7 @@ namespace Application.Features.Case.Command.Edit
                         await _caseImageRepository.RemoveRangeAsync(caseImagesInDb);
                         await _unitOfWork.Commit(cancellationToken);
 
-                        List<string> listNewFile = request.CaseImage.Select(_ => _.FilePath).ToList();
+                        List<string> listNewFile = request.CaseImages.Select(_ => _.FilePath).ToList();
 
                         if (caseImagesInDb.Any() && listNewFile.Any())
                         {
