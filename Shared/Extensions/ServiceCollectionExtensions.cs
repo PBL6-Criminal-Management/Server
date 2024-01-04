@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Hubs.Notification;
+using Application.Interfaces;
 using Application.Interfaces.Services;
 using ERP.Shared.Configurations;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,7 @@ namespace Shared.Extensions
             services.Configure<MailConfiguration>(configuration.GetSection(nameof(MailConfiguration)));
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IDateTimeService, SystemDateTimeService>();
+            // services.AddScoped<INotificationService, NotificationService>();
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
     }

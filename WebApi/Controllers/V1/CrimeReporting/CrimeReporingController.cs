@@ -3,10 +3,12 @@ using Application.Features.CrimeReporting.Command.Delete;
 using Application.Features.CrimeReporting.Command.Edit;
 using Application.Features.CrimeReporting.Queries.GetAll;
 using Application.Features.CrimeReporting.Queries.GetById;
+using Application.Hubs.Notification;
 using Domain.Constants;
 using Domain.Wrappers;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace WebApi.Controllers.V1.CrimeReporting
 {
@@ -14,12 +16,18 @@ namespace WebApi.Controllers.V1.CrimeReporting
     [Route("api/v{version:apiVersion}/report")]
     public class CrimeReportingController : BaseApiController<CrimeReportingController>
     {
+        private readonly IHubContext<NotificationService> _hubContext;
+
+        public CrimeReportingController(IHubContext<NotificationService> hubContext)
+        {
+            _hubContext = hubContext;
+        }
         /// <summary>
         /// Get All Report 
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpGet]
         public async Task<ActionResult<PaginatedResult<GetAllCrimeReportingResponse>>> GetAllReport([FromQuery] GetAllCrimeReportingParameter parameter)
         {
@@ -41,14 +49,16 @@ namespace WebApi.Controllers.V1.CrimeReporting
         public async Task<IActionResult> AddReport(AddCrimeReportingCommand command)
         {
             var result = await Mediator.Send(command);
-            return (result.Succeeded) ? Ok(result) : BadRequest(result);
+            // await _hubContext.Clients.All.SendNotification(command);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", command);
+            return result.Succeeded ? Ok(result) : BadRequest(result);
         }
         /// <summary>
         /// Delete Report
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteReport(long id)
         {
@@ -62,7 +72,7 @@ namespace WebApi.Controllers.V1.CrimeReporting
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<GetCrimeReportingByIdResponse>>> GetReportById(long id)
         {
@@ -76,12 +86,12 @@ namespace WebApi.Controllers.V1.CrimeReporting
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
         [HttpPut]
         public async Task<IActionResult> EditReport(EditCrimeReportingCommand command)
         {
             var result = await Mediator.Send(command);
-            return (result.Succeeded) ? Ok(result) : BadRequest(result);
+            return result.Succeeded ? Ok(result) : BadRequest(result);
         }
     }
 }

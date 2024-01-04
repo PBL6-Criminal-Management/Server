@@ -111,11 +111,12 @@ try
     app.UseAuthorization();
 
     //app.UseHealthChecks("/health");
-    app.MapHub<NotificationService>("/notification");
+    // app.MapHub<NotificationService>("/api/notification");
 
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapControllers();
+        endpoints.MapHub<NotificationService>("/api/notification");
     });
 
     // Seeding data
