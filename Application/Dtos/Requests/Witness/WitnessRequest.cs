@@ -18,7 +18,7 @@ namespace Application.Dtos.Requests.Witness
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? Birthday { get; set; }
         [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_PHONENUMBER)]
-        [RegularExpression(@"^[a-zA-Z0-9!@#$%^&*()-_=+[\]{}|;:',.<>\/?~]{8,}$", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
+        [RegularExpression(@"^(?:\+84|84|0)(3|5|7|8|9|1[2689])([0-9]{8,10})\b$", ErrorMessage = StaticVariable.INVALID_PHONE_NUMBER)]
         [DefaultValue("stringst")]
         public string PhoneNumber { get; set; } = null!;
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_ADDRESS)]

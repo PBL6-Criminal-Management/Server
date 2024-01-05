@@ -74,6 +74,8 @@ namespace Domain.Constants
 
         public const string NUMBER_IMAGES_EACH_SECOND_MUST_BE_POSITIVE = "Số ảnh mỗi giây phải là 1 số dương!";
 
+        public const string CRIME_SCENE_VALID_CHARACTER = "Địa điểm xảy ra vụ án không được chứa ký tự đặc biệt";
+
         //File message
         public const string FILE_IS_NOT_IMAGE = "Tệp cung cấp không phải là ảnh hoặc có phần đuôi mở rộng không hợp lệ!";
         public const string FILE_IS_NOT_VIDEO = "Tệp cung cấp không phải là video hoặc có phần đuôi mở rộng không hợp lệ!";
@@ -139,6 +141,7 @@ namespace Domain.Constants
         public const string LIMIT_REPORTER_EMAIL = "Email của người tố giác tội phạm không được vượt quá 100 ký tự";
         public const string LIMIT_REPORTER_PHONE = "Số điện thoại của người tố giác tội phạm không được vượt quá 15 ký tự";
         public const string LIMIT_REPORTER_ADDRESS = "Địa chỉ của người tố giác tội phạm không được vượt quá 200 ký tự";
+        public const string LIMIT_TESTIMONY = "Lời khai không được vượt quá 65535 ký tự";
         //Error message
         public const string ERROR_DELETE_IMAGE = "Xóa ảnh không thành công!!!";
         public const string INTERNAL_SERVER_ERROR = "Lỗi server";

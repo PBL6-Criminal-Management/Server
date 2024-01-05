@@ -138,7 +138,7 @@ namespace Application.Features.Criminal.Queries.GetById
                     {
                         if (wantedCriminal.CaseId == _case.Id)
                         {
-                            var caseCriminal = await _caseCriminalRepository.FindAsync(_ => _.CaseId == _case.Id && _.CriminalId == request.Id && !_.IsDeleted);
+                            var caseCriminal = _caseCriminalRepository.Entities.Where(_ => _.CaseId == _case.Id && _.CriminalId == request.Id && !_.IsDeleted).FirstOrDefault();
                             wantedCriminal.Weapon = caseCriminal == null || String.IsNullOrEmpty(caseCriminal.Weapon) ? "" : caseCriminal.Weapon;
                             wantedCriminal.Charge = caseCriminal == null || String.IsNullOrEmpty(caseCriminal.Weapon) ? "" : caseCriminal.Weapon;
                         }
@@ -154,7 +154,7 @@ namespace Application.Features.Criminal.Queries.GetById
                 }
                 else
                 {
-                    var chargeOfCase = await _caseCriminalRepository.FindAsync(_ => _.CaseId == caseIdLast && _.CriminalId == request.Id && !_.IsDeleted);
+                    var chargeOfCase = _caseCriminalRepository.Entities.Where(_ => _.CaseId == caseIdLast && _.CriminalId == request.Id && !_.IsDeleted).FirstOrDefault();
                     query.Charge = chargeOfCase == null || String.IsNullOrEmpty(chargeOfCase.Charge) ? "" : chargeOfCase.Charge;
                 }
             }

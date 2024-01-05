@@ -27,7 +27,7 @@ namespace Application.Features.Account.Command.Add
         [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.NAME_CONTAINS_VALID_CHARACTER)]
         public string Name { get; set; } = null!;
 
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string CitizenId { get; set; } = null!;
 
@@ -88,21 +88,28 @@ namespace Application.Features.Account.Command.Add
 
             string[] wordsInName = StringHelper.ConvertFromVietnameseText(request.Name).Split(' ');
 
-            var firstWord = char.ToUpper(wordsInName.Last()[0]) + wordsInName.Last().ToLower().Substring(1, wordsInName.Length - 1);
-
-            request.Username = firstWord + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => char.ToUpper(w[0])));
-            long count = 2; string name = request.Username;
-            while (true)
+            if(wordsInName.Length > 0)
             {
-                var isUsernameExists = await _userService.IsExistUsername(request.Username);
-                if (isUsernameExists)
-                {
-                    request.Username = name + count;
-                    count++;
-                }
+                string firstWord;
+                if (wordsInName.Last().Length > 1)
+                    firstWord = char.ToUpper(wordsInName.Last()[0]) + wordsInName.Last().ToLower().Substring(1, wordsInName.Length - 1);
                 else
-                    break;
-            }
+                    firstWord = char.ToUpper(wordsInName.Last()[0]) + "";
+
+                request.Username = firstWord + string.Join(string.Empty, wordsInName.Take(wordsInName.Length - 1).Select(w => char.ToUpper(w[0])));
+                long count = 2; string name = request.Username;
+                while (true)
+                {
+                    var isUsernameExists = await _userService.IsExistUsername(request.Username);
+                    if (isUsernameExists)
+                    {
+                        request.Username = name + count;
+                        count++;
+                    }
+                    else
+                        break;
+                }
+            }           
 
             var isCitizenIdExists = _accountRepository.Entities.FirstOrDefault(x => x.CitizenId == request.CitizenId && !x.IsDeleted);
             if (isCitizenIdExists != null)

@@ -27,7 +27,7 @@ namespace Application.Features.Criminal.Command.Edit
         [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.ANOTHER_NAME_CONTAINS_VALID_CHARACTER)]
         public string AnotherName { get; set; } = null!;
         public string? Avatar { get; set; }
-        [MaxLength(15, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
+        [MaxLength(12, ErrorMessage = StaticVariable.LIMIT_CITIZEN_ID)]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = StaticVariable.CITIZEN_ID_VALID_CHARACTER)]
         public string CitizenId { get; set; } = null!;
         public bool? Gender { get; set; }
@@ -50,13 +50,13 @@ namespace Application.Features.Criminal.Command.Edit
         [RegularExpression(@"^[\p{L}0-9,. ]+$", ErrorMessage = StaticVariable.HOME_TOWN_VALID_CHARACTER)]
         public string HomeTown { get; set; } = null!;
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_ETHNICITY)]
-        [RegularExpression(@"^[\p{L}]+$", ErrorMessage = StaticVariable.ETHNICITY_VALID_CHARACTER)]
+        [RegularExpression(@"^[\p{L} ]+$", ErrorMessage = StaticVariable.ETHNICITY_VALID_CHARACTER)]
         public string Ethnicity { get; set; } = null!;
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_RELIGION)]
-        [RegularExpression(@"^[\p{L}]+$", ErrorMessage = StaticVariable.RELIGION_VALID_CHARACTER)]
+        [RegularExpression(@"^[\p{L} ]+$", ErrorMessage = StaticVariable.RELIGION_VALID_CHARACTER)]
         public string? Religion { get; set; }
         [MaxLength(50, ErrorMessage = StaticVariable.LIMIT_NATIONALITY)]
-        [RegularExpression(@"^[\p{L}]+$", ErrorMessage = StaticVariable.NATIONALITY_VALID_CHARACTER)]
+        [RegularExpression(@"^[\p{L} ]+$", ErrorMessage = StaticVariable.NATIONALITY_VALID_CHARACTER)]
         public string Nationality { get; set; } = null!;
         [MaxLength(100, ErrorMessage = StaticVariable.LIMIT_FATHER_NAME)]
         [RegularExpression(@"^[\p{L} ']+$", ErrorMessage = StaticVariable.NAME_CONTAINS_VALID_CHARACTER)]
@@ -103,6 +103,7 @@ namespace Application.Features.Criminal.Command.Edit
         [MaxLength(200, ErrorMessage = StaticVariable.LIMIT_DANGEROUS_LEVEL)]
         [RegularExpression(@"^[\p{L}0-9,.: -]+$", ErrorMessage = StaticVariable.DANGEROUS_LEVEL_VALID_CHARACTER)]
         public string? DangerousLevel { get; set; }
+        public string? ApproachArrange { get; set; }
         [JsonConverter(typeof(CustomConverter.DateOnlyConverter))]
         public DateOnly? ReleaseDate { get; set; }
         public CriminalStatus Status { get; set; }
@@ -142,12 +143,13 @@ namespace Application.Features.Criminal.Command.Edit
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
             }
-            var isCitizenIdExists = await _criminalRepository.FindAsync(_ => _.CitizenId.Equals(request.CitizenId) && !_.IsDeleted && _.Id != request.Id);
+            var isCitizenIdExists = _criminalRepository.Entities.Where(_ => _.CitizenId.Equals(request.CitizenId) && !_.IsDeleted && _.Id != request.Id).FirstOrDefault();
             if (isCitizenIdExists != null)
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.CITIZEN_ID_EXISTS_MSG);
             }
-            var isPhoneNumberExists = await _criminalRepository.FindAsync(_ => _.PhoneNumber.Equals(request.PhoneNumber) && !_.IsDeleted && _.Id != request.Id);
+
+            var isPhoneNumberExists = _criminalRepository.Entities.Where(_ => _.PhoneNumber.Equals(request.PhoneNumber) && !_.IsDeleted && _.Id != request.Id).FirstOrDefault();
             if (isPhoneNumberExists != null)
             {
                 return await Result<EditCriminalCommand>.FailAsync(StaticVariable.PHONE_NUMBER_EXISTS_MSG);
@@ -168,13 +170,13 @@ namespace Application.Features.Criminal.Command.Edit
             }
             if (!string.IsNullOrEmpty(request.Facebook))
             {
-                var isFacebookExists = await _criminalRepository.FindAsync(_ => !string.IsNullOrEmpty(_.Facebook) && _.Facebook.Equals(request.Facebook) && !_.IsDeleted && _.Id != request.Id);
+                var isFacebookExists = _criminalRepository.Entities.Where(_ => !string.IsNullOrEmpty(_.Facebook) && _.Facebook.Equals(request.Facebook) && !_.IsDeleted && _.Id != request.Id).FirstOrDefault();
                 if (isFacebookExists != null)
                 {
                     return await Result<EditCriminalCommand>.FailAsync(StaticVariable.FACEBOOK_EXISTS_MSG);
                 }
             }
-            var editCriminal = await _criminalRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            var editCriminal = _criminalRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted).FirstOrDefault();
             if (editCriminal == null) return await Result<EditCriminalCommand>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
             var oldAvatar = editCriminal.Avatar;

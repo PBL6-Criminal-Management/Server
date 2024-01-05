@@ -27,7 +27,7 @@ namespace WebApi.Controllers.V1.CrimeReporting
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        [Microsoft.AspNetCore.Authorization.Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpGet]
         public async Task<ActionResult<PaginatedResult<GetAllCrimeReportingResponse>>> GetAllReport([FromQuery] GetAllCrimeReportingParameter parameter)
         {
@@ -72,7 +72,7 @@ namespace WebApi.Controllers.V1.CrimeReporting
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Microsoft.AspNetCore.Authorization.Authorize(Roles = RoleConstants.AdministratorRole + "," + RoleConstants.OfficerRole)]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<GetCrimeReportingByIdResponse>>> GetReportById(long id)
         {

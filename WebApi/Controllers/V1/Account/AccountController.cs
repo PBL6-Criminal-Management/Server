@@ -35,7 +35,7 @@ namespace WebApi.Controllers.V1.Account
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        [Authorize(Roles = RoleConstants.AdministratorRole)]
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<PaginatedResult<GetAllUserResponse>>> GetAllAccount([FromQuery] GetAllUserQuery parameter)
         {

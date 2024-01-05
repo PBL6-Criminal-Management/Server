@@ -51,7 +51,7 @@ namespace Application.Features.Case.Command.Delete
         }
         public async Task<Result<long>> Handle(DeleteCaseCommand request, CancellationToken cancellationToken)
         {
-            var caseDelete = await _caseRepository.FindAsync(_ => _.Id == request.Id && !_.IsDeleted);
+            var caseDelete = _caseRepository.Entities.Where(_ => _.Id == request.Id && !_.IsDeleted).FirstOrDefault();
             if (caseDelete == null) return await Result<long>.FailAsync(StaticVariable.NOT_FOUND_MSG);
 
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();

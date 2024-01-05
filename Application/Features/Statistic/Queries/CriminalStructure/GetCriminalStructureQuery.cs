@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.CaseCriminal;
+﻿using Application.Interfaces.Case;
+using Application.Interfaces.CaseCriminal;
 using Domain.Wrappers;
 using MediatR;
 using System.Linq.Dynamic.Core;
@@ -7,15 +8,18 @@ namespace Application.Features.Statistic.Queries.CriminalStructure
 {
     public class GetCriminalStructureQuery : IRequest<Result<List<GetCriminalStructureResponse>>>
     {
+        public int Year { get; set; }
     }
     internal class GetCriminalStructureQueryHandler : IRequestHandler<GetCriminalStructureQuery, Result<List<GetCriminalStructureResponse>>>
     {
         private readonly ICaseCriminalRepository _caseCriminalRepository;
+        private readonly ICaseRepository _caseRepository;
         List<string> commonCharge = new List<string>() { "Trộm cắp tài sản", "Ẩu đả, xô xát", "Giết người", "Đánh bạc", "Lừa đảo", "Tội khác" };
 
-        public GetCriminalStructureQueryHandler(ICaseCriminalRepository caseCriminalRepository)
+        public GetCriminalStructureQueryHandler(ICaseCriminalRepository caseCriminalRepository, ICaseRepository caseRepository)
         {
             _caseCriminalRepository = caseCriminalRepository;
+            _caseRepository = caseRepository;
         }
         private string Normalize(string charge)
         {
@@ -38,7 +42,8 @@ namespace Application.Features.Statistic.Queries.CriminalStructure
         }
         public async Task<Result<List<GetCriminalStructureResponse>>> Handle(GetCriminalStructureQuery request, CancellationToken cancellationToken)
         {
-            var criminalStructure = _caseCriminalRepository.Entities.AsEnumerable().Select(c => Normalize(c.Charge)).GroupBy(c => c).Select(gr => new
+            var caseOfYear = _caseRepository.Entities.Where(c => c.StartDate.Year == request.Year).Select(c => c.Id);
+            var criminalStructure = _caseCriminalRepository.Entities.Join(caseOfYear, cCr => cCr.CaseId, c => c, (cCr,c) => new {caseCriminal = cCr, _case = c }).AsEnumerable().Select(gr => Normalize(gr.caseCriminal.Charge)).GroupBy(c => c).Select(gr => new
             {
                 Charge = gr.Key,
                 ChargeRatio = gr.Count()

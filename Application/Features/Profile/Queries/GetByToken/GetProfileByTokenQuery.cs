@@ -46,6 +46,8 @@ namespace Application.Features.Profile.Queries.GetByToken
                                  PhoneNumber = _.PhoneNumber,
                                  Address = _.Address,
                                  Email = _.Email,
+                                 Username = user.UserName!,
+                                 Role = _userService.GetRoleIdAsync(user.UserId).Result,
                                  Image = _.Image,
                                  ImageLink = _uploadService.GetFullUrl(_.Image),
                              }).FirstOrDefaultAsync();
