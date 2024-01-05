@@ -1,42 +1,33 @@
-using Application.Dtos.Requests;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Services
 {
-    public class CheckFileSize : ICheckSizeFile
+    public class CheckFileSize : ICheckFileSize
     {
-        public string CheckImageSize(CheckImageSizeRequest request)
+        public string CheckImageSize(IFormFile file)
         {
             string result = "";
-            foreach (IFormFile file in request.Files)
+            long fileSize = file.Length;
+            long maxSizeImage = ICheckFileSize.MAX_SIZE_IMAGE;
+            if (fileSize > maxSizeImage)
             {
-                long fileSize = file.Length;
-                long maxSizeImage = ICheckSizeFile.IMAGE_MAX_SIZE; //5MB  
-                if (fileSize >= maxSizeImage)
-                {
-                    result = $"Do not upload image over max size {maxSizeImage / (1024 * 1024)} MB";
-                    return result;
-                }
-
+                result = $"Ảnh {file.FileName} vượt quá kích thước tối đa cho phép ({maxSizeImage / (1024 * 1024)} MB)";
+                return result;
             }
             return result;
         }
 
-        public string CheckVideoSize(CheckVideoSizeRequest request)
+        public string CheckVideoSize(IFormFile file)
         {
             string result = "";
-            foreach (IFormFile file in request.Files)
+            long fileSize = file.Length;
+            long maxSizeVideo = ICheckFileSize.MAX_SIZE_VIDEO;
+
+            if (fileSize > maxSizeVideo)
             {
-                long fileSize = file.Length;
-                long maxSizeVideo = ICheckSizeFile.VIDEO_MAX_SIZE; //30MB
-
-                if (fileSize >= maxSizeVideo)
-                {
-                    result = $"Do not upload video over max size {maxSizeVideo / (1024 * 1024)} MB";
-                    return result;
-                }
-
+                result = $"Video {file.FileName} vượt quá kích thước tối đa cho phép ({maxSizeVideo / (1024 * 1024)} MB)";
+                return result;
             }
             return result;
         }

@@ -13,13 +13,13 @@ public class CustomValidationFilter : IResultFilter
             var error = badRequestResult.Value as SerializableError;
             if (error != null)
             {
-                string[] errors = error["error"] as string[];
-                context.Result = new BadRequestObjectResult(Result<string>.Fail(errors[0]));
+                string[]? errors = error["error"] as string[];
+                context.Result = new BadRequestObjectResult(Result<string>.Fail(errors != null? errors.ToList() : new List<string>()));
             }
             else if (badRequestResult.Value is ValidationProblemDetails validationProblemDetails)
             {
                 var errors = validationProblemDetails.Errors.Where(x => !x.Key.Equals("command")).SelectMany(x => x.Value).ToList();
-                context.Result = new BadRequestObjectResult(Result<string>.Fail(errors[0]));
+                context.Result = new BadRequestObjectResult(Result<string>.Fail(errors.ToList()));
             }
         }
     }

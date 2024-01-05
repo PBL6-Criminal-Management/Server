@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Constants;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Dtos.Requests.Identity
 {
@@ -12,7 +13,7 @@ namespace Application.Dtos.Requests.Identity
         public string Password { get; set; }
 
         [Required]
-        [Compare(nameof(Password))]
+        [Compare(nameof(Password), ErrorMessage = StaticVariable.NOT_MATCH_PASSWORD)]
         public string ConfirmPassword { get; set; }
 
         [Required]

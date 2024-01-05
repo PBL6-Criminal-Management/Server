@@ -1,21 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
+	<PropertyGroup>
+		<MagickCopyNativeWindows>true</MagickCopyNativeWindows>
+		<!-- <MagickCopyNativeLinux>true</MagickCopyNativeLinux>
+		<MagickCopyNativeLinuxMusl>true</MagickCopyNativeLinuxMusl>
+		<MagickCopyNativeMacOS>true</MagickCopyNativeMacOS> -->
+	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Features\**" />
 	  <Compile Remove="Interfaces\Employee\**" />
-	  <Compile Remove="Mappings\**" />
-	  <EmbeddedResource Remove="Features\**" />
 	  <EmbeddedResource Remove="Interfaces\Employee\**" />
-	  <EmbeddedResource Remove="Mappings\**" />
-	  <None Remove="Features\**" />
 	  <None Remove="Interfaces\Employee\**" />
-	  <None Remove="Mappings\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -28,16 +28,23 @@
 		<PackageReference Include="FluentValidation" Version="11.4.0" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.4.0" />
 		<PackageReference Include="GemBox.Spreadsheet" Version="49.0.1244" />
+		<PackageReference Include="Hangfire.MySqlStorage" Version="2.0.3" />
 		<PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.3.2" />
 		<PackageReference Include="LazyCache" Version="2.4.0" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.5.0" />
+		<PackageReference Include="Magick.NET.Core" Version="13.5.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.2" />
 		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Text.Json" Version="7.0.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.25" />
 		<PackageReference Include="QRCoder" Version="1.4.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Features\Account\Command\Add\" />
 	</ItemGroup>
 </Project>

@@ -1,5 +1,4 @@
-﻿using Application.Enums;
-using Application.Interfaces.Services;
+﻿using Application.Interfaces.Services;
 using Hangfire;
 using Microsoft.Extensions.FileProviders;
 using WebApi.Filters;
@@ -14,7 +13,7 @@ namespace WebApi.Extensions
             app.UseSwagger();
             app.UseSwaggerUI(x =>
             {
-                x.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanArchitecture.Source.WebApi");
+                x.SwaggerEndpoint("/swagger/v1/swagger.json", "API version 1");
             });
         }
 

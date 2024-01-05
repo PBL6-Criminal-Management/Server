@@ -1,7 +1,11 @@
 using Application.Extensions;
+using Application.Hubs.Notification;
 using Infrastructure.Extensions;
+using Microsoft.AspNetCore.ResponseCompression;
 using Serilog;
 using Shared.Extensions;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using WebApi.Extensions;
 
 Log.Logger = new LoggerConfiguration()
@@ -9,6 +13,32 @@ Log.Logger = new LoggerConfiguration()
                  .CreateBootstrapLogger();
 var builder = WebApplication.CreateBuilder(args);
 Log.Information($"Start {builder.Environment.ApplicationName} up");
+
+if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+{
+   string wifiAddress = "localhost";
+
+   // Get all available network interfaces
+   NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+   foreach (NetworkInterface networkInterface in interfaces)
+   {
+       if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && networkInterface.OperationalStatus == OperationalStatus.Up)
+       {
+           IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+           foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
+           {
+               if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+               {
+                   wifiAddress = ip.Address.ToString();
+               }
+           }
+       }
+   }
+   builder.WebHost.UseUrls($"https://{wifiAddress}:1234", $"http://{wifiAddress}:5678"); //set server listen on wifi address
+   Console.WriteLine("SWAGGER PATH: " + $"https://{wifiAddress}:1234/swagger/index.html" + " OR " + $"http://{wifiAddress}:5678/swagger/index.html");
+}
+
 // Add services to the container.
 try
 {
@@ -28,6 +58,8 @@ try
 
     builder.Services.AddCorsExtensions();
 
+    builder.Services.AddRepositories();
+
     builder.Services.AddIdentityServices();
 
     builder.Services.AddJwtAuthentication(builder.Services.GetApplicationSettings(builder.Configuration));
@@ -38,12 +70,27 @@ try
     {
         options.Filters.Add<CustomValidationFilter>(int.MinValue);
     });
+    //Apply converter for all datetime/dateonly fields
+    //.AddJsonOptions(options =>
+    //{
+    //    options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+    //    options.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
+    //});
 
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddLazyCache();
 
+    //SignalR
+    builder.Services.AddSignalR();
+    builder.Services.AddResponseCompression(options =>
+        options.MimeTypes = ResponseCompressionDefaults
+        .MimeTypes
+        .Concat(new[] { "application/octet-stream" })
+    );
+
     var app = builder.Build();
+    app.UseResponseCompression();
 
     app.UseRouting();
 
@@ -57,15 +104,19 @@ try
 
     app.UseErrorHandlingMiddleware();
 
+    //app.UseHttpsRedirection();
+
     app.UseAuthentication();
 
     app.UseAuthorization();
 
     //app.UseHealthChecks("/health");
+    // app.MapHub<NotificationService>("/api/notification");
 
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapControllers();
+        endpoints.MapHub<NotificationService>("/api/notification");
     });
 
     // Seeding data

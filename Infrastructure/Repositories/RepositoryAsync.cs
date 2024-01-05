@@ -3,7 +3,6 @@ using Application.Interfaces.Repositories;
 using Domain.Contracts;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.Repositories
 {
@@ -108,6 +107,16 @@ namespace Infrastructure.Repositories
         public async Task<List<T>> SearchAsync(Expression<Func<T, bool>> includeProperties)
         {
             return await _dbContext.Set<T>().Where(includeProperties).ToListAsync();
+        }
+        public Task RemoveAsync(T entity)
+        {
+            _dbContext.Remove(entity);
+            return Task.CompletedTask;
+        }
+        public Task RemoveRangeAsync(List<T> entity)
+        {
+            _dbContext.RemoveRange(entity);
+            return Task.CompletedTask;
         }
     }
 }

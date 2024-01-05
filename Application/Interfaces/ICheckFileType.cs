@@ -1,10 +1,10 @@
-﻿using Application.Dtos.Requests;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Application.Interfaces
 {
     public interface ICheckFileType
     {
-        string CheckFilesIsImage(CheckImagesTypeRequest request);
-        string CheckFilesIsVideo(CheckVideoTypeRequest request);
+        string CheckFileIsImage(IFormFile file);
+        string CheckFileIsVideo(IFormFile file);
     }
 }

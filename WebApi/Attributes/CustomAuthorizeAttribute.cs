@@ -25,19 +25,19 @@ namespace WebApi.Attributes
         }
 
         /// <summary>
-        /// Get EmployeeNo, FullName, RoleName from token
+        /// Get Username, FullName, RoleName from token
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static async Task<(string EmployeeNo, string RoleName, string FullName, long Expires)> GetInfoFromToken(AuthorizationFilterContext context)
+        public static async Task<(string Username, string RoleName, string FullName, long Expires)> GetInfoFromToken(AuthorizationFilterContext context)
         {
-            (string EmployeeNo, string RoleName, string FullName, long Expires) result = (string.Empty, string.Empty, string.Empty, 0);
+            (string Username, string RoleName, string FullName, long Expires) result = (string.Empty, string.Empty, string.Empty, 0);
             var tokenString = context.HttpContext.Request.Headers["Authorization"].ToString();
             if (!string.IsNullOrEmpty(tokenString))
             {
                 var jwtEncodedString = tokenString.Replace("Bearer ", "");
                 var token = new JwtSecurityToken(jwtEncodedString: jwtEncodedString);
-                result.EmployeeNo = token.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                result.Username = token.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 result.RoleName = token.Claims.First(c => c.Type == ClaimTypes.Role).Value;
                 result.FullName = token.Claims.First(c => c.Type == ClaimTypes.Name).Value;
                 result.Expires = long.Parse(token.Claims.First(c => c.Type == "exp").Value);
@@ -48,18 +48,18 @@ namespace WebApi.Attributes
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            // Get EmployeeNo, FullName, RoleName from token
-            var (employeeNo, roleName, fullName, expires) = await GetInfoFromToken(context);
+            // Get Username, FullName, RoleName from token
+            var (username, roleName, fullName, expires) = await GetInfoFromToken(context);
 
             var identityContext = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
 
-            if (string.IsNullOrEmpty(employeeNo) || string.IsNullOrEmpty(roleName))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(roleName))
                 throw new CustomUnauthorizedAccessException();
 
             if (!string.IsNullOrEmpty(Function) && !string.IsNullOrEmpty(Action))
             {
-                // Check active of employeeNo and Role in sys_table
-                var checkUser = await identityContext.Users.FirstOrDefaultAsync(x => x.UserName == employeeNo && !x.IsDeleted);
+                // Check active of username and Role in sys_table
+                var checkUser = await identityContext.Users.FirstOrDefaultAsync(x => x.UserName == username && !x.IsDeleted);
                 var checkRole = await identityContext.Roles.FirstOrDefaultAsync(x => x.Name == roleName && !x.IsDeleted);
 
                 if (checkUser == null && checkRole == null)

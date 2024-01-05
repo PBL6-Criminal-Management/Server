@@ -143,5 +143,10 @@
         {
             return Task.FromResult(Success(data, message));
         }
+
+        public static Task<Result<T>> SuccessAsync(T data, List<string> messages)
+        {
+            return Task.FromResult(Success(data, messages));
+        }
     }
 }

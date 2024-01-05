@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.Exceptions
 {
@@ -6,11 +6,10 @@ namespace Application.Exceptions
     {
         public static string ToDescriptionString(this Enum val)
         {
-            var attributes = (DescriptionAttribute[])val.GetType().GetField(val.ToString())?.GetCustomAttributes(typeof(DescriptionAttribute), false)!;
+            var field = val.GetType().GetField(val.ToString());
+            var displayAttribute = field == null? null : (DisplayAttribute?)Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
 
-            return attributes.Length > 0
-                ? attributes[0].Description
-                : val.ToString();
+            return displayAttribute?.Description == null ? "" : displayAttribute.Description;
         }
     }
 }

@@ -1,15 +1,23 @@
 ﻿using Domain.Contracts;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
+    [Table("app_role")]
     public class AppRole : IdentityRole, IAuditableEntity<string>
     {
+        [Column("description", TypeName = "nvarchar(2000)")]
         public string? Description { get; set; }
+        [Column("created_by", TypeName = "nvarchar(100)")]
         public string? CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedOn { get; set; }
+        [Column("created_at", TypeName = "datetime")]
+        public DateTime CreatedAt { get; set; }
+        [Column("updated_by", TypeName = "nvarchar(100)")]
+        public string? UpdatedBy { get; set; }
+        [Column("updated_at", TypeName = "datetime")]
+        public DateTime? UpdatedAt { get; set; }
+        [Column("is_deleted", TypeName = "bit")]
         public bool IsDeleted { get; set; }
         public virtual ICollection<AppRoleClaim> RoleClaims { get; set; }
 

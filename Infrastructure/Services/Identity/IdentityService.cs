@@ -4,7 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using Application.Dtos.Requests.Identity;
 using Application.Dtos.Responses.Identity;
+using Application.Interfaces;
 using Application.Interfaces.Services.Identity;
+using Domain.Constants;
+using Domain.Constants.Enum;
 using Domain.Entities;
 using Domain.Wrappers;
 using Microsoft.AspNetCore.Identity;
@@ -18,43 +21,60 @@ namespace Infrastructure.Services.Identity
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly AppConfiguration _appConfig;
+        private readonly IUploadService _uploadService;
 
-        public IdentityService(UserManager<AppUser> userManager, IOptions<AppConfiguration> appConfig)
+        private DateTime tokenExpireTime;
+
+        public IdentityService(UserManager<AppUser> userManager, IOptions<AppConfiguration> appConfig, IUploadService uploadService)
         {
             _userManager = userManager;
             _appConfig = appConfig.Value;
+            _uploadService = uploadService;
         }
 
         public async Task<Result<TokenResponse>> LoginAsync(TokenRequest model)
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
+            var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
-                return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_CORRECT);
             }
+
             var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!passwordValid)
             {
-                return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_CORRECT);
             }
 
-            user.RefreshToken = GenerateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-            await _userManager.UpdateAsync(user);
+            if(user.IsDeleted)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_EXIST);
+
+            if (!user.IsActive)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_ACTIVE);
 
             var token = await GenerateJwtAsync(user);
 
+            user.RefreshToken = GenerateRefreshToken();
+            user.TokenExpiryTime = tokenExpireTime;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
             var roles = await _userManager.GetRolesAsync(user);
+            Role role = Role.None;
+            if (roles != null && roles.Count > 0)
+                role = (Role)Enum.Parse(typeof(Role), roles.First());
 
             var response = new TokenResponse
             {
                 Token = token,
                 RefreshToken = user.RefreshToken,
-                AvatarUrl = user.AvatarUrl!,
+                AvatarUrl = _uploadService.GetFullUrl(user.AvatarUrl),
                 Email = user.Email,
-                EmployeeNo = user.UserName,
-                Role = roles.First(),
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime
+                Username = user.UserName,
+                Role = role,
+                TokenExpiryTime = user.TokenExpiryTime,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                UserId = user.UserId
             };
             return await Result<TokenResponse>.SuccessAsync(response);
         }
@@ -62,31 +82,45 @@ namespace Infrastructure.Services.Identity
         public async Task<Result<TokenResponse>> GetRefreshTokenAsync(RefreshTokenRequest model)
         {
             if (model is null)
-            {
-                return await Result<TokenResponse>.FailAsync("Token không hợp lệ");
-            }
+                return await Result<TokenResponse>.FailAsync(StaticVariable.INVALID_TOKEN);
+
             var userPrincipal = GetPrincipalFromExpiredToken(model.Token);
             var userEmail = userPrincipal.FindFirstValue(ClaimTypes.Email);
+            if(userEmail == null)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.INVALID_TOKEN);
+
             var user = await _userManager.FindByEmailAsync(userEmail);
-            if (user == null)
-                return await Result<TokenResponse>.FailAsync("Tên người dùng hoặc mật khẩu không đúng.");
-            if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
-                return await Result<TokenResponse>.FailAsync("Token không hợp lệ");
+            if (user == null || user.IsDeleted)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_EXIST);
+
+            if (!user.IsActive)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.ACCOUNT_IS_NOT_ACTIVE);
+
+            if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                return await Result<TokenResponse>.FailAsync(StaticVariable.INVALID_REFRESH_TOKEN);
+
             var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
             user.RefreshToken = GenerateRefreshToken();
+            user.TokenExpiryTime = tokenExpireTime;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _userManager.UpdateAsync(user);
 
             var roles = await _userManager.GetRolesAsync(user);
+            Role role = Role.None;
+            if (roles != null && roles.Count > 0)
+                role = (Role)Enum.Parse(typeof(Role), roles.First());
 
             var response = new TokenResponse
             {
                 Token = token,
                 RefreshToken = user.RefreshToken,
-                AvatarUrl = user.AvatarUrl!,
+                AvatarUrl = _uploadService.GetFullUrl(user.AvatarUrl),
                 Email = user.Email,
-                EmployeeNo = user.UserName,
-                Role = roles.First(),
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime
+                Username = user.UserName,
+                Role = role,
+                TokenExpiryTime = user.TokenExpiryTime,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                UserId = user.UserId
             };
             return await Result<TokenResponse>.SuccessAsync(response);
         }
@@ -128,9 +162,10 @@ namespace Infrastructure.Services.Identity
 
         private string GenerateEncryptedToken(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
         {
+            tokenExpireTime = DateTime.UtcNow.AddHours(2);
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(2),
+                expires: tokenExpireTime,
                 signingCredentials: signingCredentials);
             var tokenHandler = new JwtSecurityTokenHandler();
             var encryptedToken = tokenHandler.WriteToken(token);
@@ -146,14 +181,15 @@ namespace Infrastructure.Services.Identity
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 RoleClaimType = ClaimTypes.Role,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                ValidateLifetime = false
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
             if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
                     StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new SecurityTokenException("Invalid token");
+                throw new SecurityTokenException(StaticVariable.INVALID_TOKEN);
             }
 
             return principal;

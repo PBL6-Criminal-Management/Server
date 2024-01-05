@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Domain.Contracts;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Application.Interfaces.Repositories
 {
@@ -33,5 +32,7 @@ namespace Application.Interfaces.Repositories
         Task DeleteRange(List<T> entity);
 
         Task<bool> IsUnique(Expression<Func<T, bool>> includeProperties);
+        Task RemoveAsync(T entity);
+        Task RemoveRangeAsync(List<T> entity);
     }
 }
